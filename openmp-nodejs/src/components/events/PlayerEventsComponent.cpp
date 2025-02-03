@@ -4,6 +4,7 @@
 
 #include "NodejsComponent.hpp"
 #include "ResourceManager.hpp"
+#include "Utils.hpp"
 
 PlayerEventsComponent::PlayerEventsComponent(ICore* core)
     : m_core(core)
@@ -75,24 +76,38 @@ void PlayerEventsComponent::onPlayerClientInit(IPlayer& player)
 
 bool PlayerEventsComponent::onPlayerText(IPlayer& player, StringView message)
 {
+    bool cancelled = false;
+
     ResourceManager::Exec([&](Resource* resource) {
+        auto cancellableEventObj = Utils::CancellableEventObject();
+
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::String> message_    = v8::String::NewFromUtf8(resource->m_isolate, message.data()).ToLocalChecked();
 
-        resource->Emit("onPlayerText", { v8objPlayer, message_ });
+        resource->Emit("onPlayerText", { cancellableEventObj, v8objPlayer, message_ });
+
+        auto v8cancelledValue = cancellableEventObj->Get(resource->m_isolate->GetCurrentContext(), Utils::v8Str("cancelled"));
+        cancelled             = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
     });
 
-    return true; // TODO
+    return cancelled; // TODO
 }
 
 bool PlayerEventsComponent::onPlayerCommandText(IPlayer& player, StringView message)
 {
+    bool cancelled = false;
+
     ResourceManager::Exec([&](Resource* resource) {
+        auto cancellableEventObj = Utils::CancellableEventObject();
+
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::String> message_    = v8::String::NewFromUtf8(resource->m_isolate, message.data()).ToLocalChecked();
 
-        resource->Emit("onPlayerCommandText", { v8objPlayer, message_ });
+        resource->Emit("onPlayerCommandText", { cancellableEventObj, v8objPlayer, message_ });
+
+        auto v8cancelledValue = cancellableEventObj->Get(resource->m_isolate->GetCurrentContext(), Utils::v8Str("cancelled"));
+        cancelled             = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
     });
 
-    return true; // TODO
+    return !cancelled; // TODO
 }

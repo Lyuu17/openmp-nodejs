@@ -40,6 +40,26 @@ Vector3 Utils::vector3V8(v8::Local<v8::Object> vec3Obj)
     return vec3;
 }
 
+v8::Local<v8::Object> Utils::CancellableEventObject()
+{
+    auto isolate = v8::Isolate::GetCurrent();
+    auto context = isolate->GetCurrentContext();
+
+    auto preventDefaultCb = [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto context = info.GetIsolate()->GetCurrentContext();
+        info.This()->DefineOwnProperty(context, v8Str("cancelled"), v8::Boolean::New(info.GetIsolate(), true), v8::PropertyAttribute::ReadOnly);
+
+        info.GetReturnValue().Set(true);
+    };
+
+    auto v8obj = v8::Object::New(isolate);
+    v8obj->DefineOwnProperty(context, v8Str("cancelled"), v8::Boolean::New(isolate, false), v8::PropertyAttribute::ReadOnly);
+
+    v8obj->Set(context, Utils::v8Str("preventDefault"), v8::Function::New(context, preventDefaultCb).ToLocalChecked());
+
+    return v8obj;
+}
+
 void Utils::PrintWavyUnderline(int start, int length)
 {
     LOGLN(LogLevel::Error, "{}{}", std::string(start, ' ').c_str(), std::string(length, '^').c_str());
