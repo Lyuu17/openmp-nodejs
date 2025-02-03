@@ -182,7 +182,31 @@ void VehicleEventsComponent::onVehicleSpawn(IVehicle& vehicle)
     });
 }
 
-bool VehicleEventsComponent::onUnoccupiedVehicleUpdate(IVehicle& vehicle, IPlayer& player, UnoccupiedVehicleUpdate const updateData) { return true; }
+bool VehicleEventsComponent::onUnoccupiedVehicleUpdate(IVehicle& vehicle, IPlayer& player, UnoccupiedVehicleUpdate const updateData)
+{
+    bool cancelled = false;
+
+    ResourceManager::Exec([&](Resource* resource) {
+        auto cancellableEventObj = Utils::CancellableEventObject();
+
+        v8::Local<v8::Object> v8objVehicle = resource->ObjectFromExtension(queryExtension<VehicleComponent>(vehicle));
+        v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+
+        auto context = resource->m_isolate->GetCurrentContext();
+
+        auto v8updateData = v8::Object::New(resource->m_isolate);
+        v8updateData->Set(context, Utils::v8Str("seat"), v8::Number::New(resource->m_isolate, updateData.seat));
+        v8updateData->Set(context, Utils::v8Str("position"), Utils::v8Vector3(updateData.position));
+        v8updateData->Set(context, Utils::v8Str("velocity"), Utils::v8Vector3(updateData.velocity));
+
+        resource->Emit("onUnoccupiedVehicleUpdate", { cancellableEventObj, v8objVehicle, v8objPlayer, v8updateData });
+
+        auto v8cancelledValue = cancellableEventObj->Get(resource->m_isolate->GetCurrentContext(), Utils::v8Str("cancelled"));
+        cancelled             = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
+    });
+
+    return !cancelled;
+}
 
 bool VehicleEventsComponent::onTrailerUpdate(IPlayer& player, IVehicle& trailer)
 {
