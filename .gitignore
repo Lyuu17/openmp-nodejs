@@ -1,0 +1,9 @@
+.cache/
+.vs/
+.vscode/*
+!.vscode/settings.json
+bin/*
+build/*
+dependencies/node
+
+CMakeSettings.json
