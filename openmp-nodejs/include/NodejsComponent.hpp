@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <Server/Components/Vehicles/vehicles.hpp>
 #include <sdk.hpp>
 
 #include "common.hpp"
@@ -12,9 +13,7 @@
     NodejsComponent::getInstance()->getCore()->logLn(logLevel, std::format(x, __VA_ARGS__).c_str());
 
 struct NodejsComponent : public IComponent,
-                         public CoreEventHandler,
-                         public PlayerConnectEventHandler,
-                         public PlayerTextEventHandler
+                         public CoreEventHandler
 {
     PROVIDE_UID(0xFBE82BE682AB46C8);
 
@@ -22,6 +21,8 @@ private:
     static NodejsComponent* m_instance;
 
     ICore* m_core = nullptr;
+
+    IVehiclesComponent* m_vehicles = nullptr;
 
 public:
     std::unique_ptr<node::MultiIsolatePlatform> m_platform;
@@ -33,18 +34,13 @@ public:
     SemanticVersion componentVersion() const override;
 
     void onLoad(ICore* c) override;
+    void onInit(IComponentList* components) override;
     void free() override;
     void reset() override;
     void onTick(std::chrono::microseconds elapsed, std::chrono::steady_clock::time_point now) override;
 
-    /* === player handlers === */
-    void onIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port) override;
-    void onPlayerConnect(IPlayer& player) override;
-    void onPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason) override;
-    void onPlayerClientInit(IPlayer& player) override;
-    bool onPlayerText(IPlayer& player, StringView message) override;
-    bool onPlayerCommandText(IPlayer& player, StringView message) override;
+    ICore*              getCore();
+    IVehiclesComponent* getVehicles();
 
-    ICore*                  getCore();
     static NodejsComponent* getInstance();
 };

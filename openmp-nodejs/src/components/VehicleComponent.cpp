@@ -57,6 +57,33 @@ v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
     return v8obj;
 }
 
-void VehicleComponent::InitFunctions(Resource* resource)
+void VehicleComponent::InitFunctions()
 {
+    auto isolate = v8::Isolate::GetCurrent();
+    auto context = isolate->GetCurrentContext();
+
+    context->Global()->Set(context, Utils::v8Str("getVehicle"), v8::Function::New(context, [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto v8int = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
+        if (v8int.IsEmpty())
+            return;
+
+        auto vehicle = NodejsComponent::getInstance()->getVehicles()->get(v8int.ToLocalChecked()->Int32Value(info.GetIsolate()->GetCurrentContext()).ToChecked());
+        if (!vehicle)
+        {
+            info.GetReturnValue().SetNull();
+            return;
+        }
+
+        auto vehicleExtension = queryExtension<VehicleComponent>(vehicle);
+        if (!vehicleExtension)
+        {
+            vehicle->addExtension(new VehicleComponent(vehicle), true);
+
+            vehicleExtension = queryExtension<VehicleComponent>(vehicle);
+
+            assert(vehicleExtension);
+        }
+
+        info.GetReturnValue().Set(vehicleExtension->CreateJavaScriptObject());
+    }).ToLocalChecked());
 }

@@ -73,5 +73,5 @@ struct PlayerComponent final : public IExtension,
 
     v8::Local<v8::Object> CreateJavaScriptObject() override;
 
-    static void InitFunctions(Resource* resource);
+    static void InitFunctions();
 };

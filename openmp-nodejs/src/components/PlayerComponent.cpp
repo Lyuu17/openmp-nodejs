@@ -537,9 +537,9 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     return v8obj;
 }
 
-void PlayerComponent::InitFunctions(Resource* resource)
+void PlayerComponent::InitFunctions()
 {
-    auto isolate = resource->m_isolate;
+    auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
 
     context->Global()->Set(context, Utils::v8Str("getPlayer"), v8::Function::New(context, [](const v8::FunctionCallbackInfo<v8::Value>& info) {

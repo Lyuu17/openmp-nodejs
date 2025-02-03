@@ -1,4 +1,6 @@
 set(SOURCES
+    "src/components/events/PlayerEventsComponent.cpp"
+    "src/components/events/VehicleEventsComponent.cpp"
     "src/components/PlayerComponent.cpp"
     "src/components/VehicleComponent.cpp"
     "src/main.cpp"

@@ -66,8 +66,8 @@ Resource::Resource(const std::filesystem::path& folderPath, const std::string& f
         auto               context = m_context.Get(m_isolate);
         v8::Context::Scope context_scope(context);
 
-        PlayerComponent::InitFunctions(this);
-        VehicleComponent::InitFunctions(this);
+        PlayerComponent::InitFunctions();
+        VehicleComponent::InitFunctions();
     }
 
     // parse package json
