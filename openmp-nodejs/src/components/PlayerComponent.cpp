@@ -311,6 +311,142 @@ void PlayerComponent::setMoney(v8::Local<v8::Name> property, v8::Local<v8::Value
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getMoney()));
 }
 
+void PlayerComponent::getScore(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getScore()));
+}
+
+void PlayerComponent::setScore(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
+    if (v8int.IsEmpty())
+        return;
+
+    playerComponent->m_player->setScore(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getScore()));
+}
+
+void PlayerComponent::getSkin(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getSkin()));
+}
+
+void PlayerComponent::setSkin(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
+    if (v8int.IsEmpty())
+        return;
+
+    playerComponent->m_player->setSkin(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getSkin()));
+}
+
+void PlayerComponent::getInterior(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getInterior()));
+}
+
+void PlayerComponent::setInterior(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
+    if (v8int.IsEmpty())
+        return;
+
+    playerComponent->m_player->setInterior(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getInterior()));
+}
+
+void PlayerComponent::getTeam(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getTeam()));
+}
+
+void PlayerComponent::setTeam(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
+    if (v8int.IsEmpty())
+        return;
+
+    playerComponent->m_player->setInterior(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getTeam()));
+}
+
 void PlayerComponent::getHealth(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
@@ -427,6 +563,74 @@ void PlayerComponent::getWeaponAmmo(v8::Local<v8::Name> property, const v8::Prop
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmedWeaponAmmo()));
 }
 
+void PlayerComponent::getDrunkLevel(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getDrunkLevel()));
+}
+
+void PlayerComponent::setDrunkLevel(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
+    if (v8int.IsEmpty())
+        return;
+
+    playerComponent->m_player->setDrunkLevel(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getDrunkLevel()));
+}
+
+void PlayerComponent::getWantedLevel(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getWantedLevel()));
+}
+
+void PlayerComponent::setWantedLevel(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
+    if (v8int.IsEmpty())
+        return;
+
+    playerComponent->m_player->setWantedLevel(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getWantedLevel()));
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject(Resource* resource)
 {
     auto isolate = resource->m_isolate;
@@ -450,10 +654,16 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject(Resource* resource
     SET_ACCESSOR_WITH_SETTER("name", getName, setName);
     SET_ACCESSOR("id", getId);
     SET_ACCESSOR_WITH_SETTER("money", getMoney, setMoney);
+    SET_ACCESSOR_WITH_SETTER("score", getScore, setScore);
+    SET_ACCESSOR_WITH_SETTER("skin", getSkin, setSkin);
+    SET_ACCESSOR_WITH_SETTER("interior", getInterior, setInterior);
+    SET_ACCESSOR_WITH_SETTER("team", getTeam, setTeam);
     SET_ACCESSOR_WITH_SETTER("health", getHealth, setHealth);
     SET_ACCESSOR_WITH_SETTER("armour", getArmour, setArmour);
     SET_ACCESSOR_WITH_SETTER("weapon", getWeapon, setWeapon);
     SET_ACCESSOR("weaponAmmo", getWeaponAmmo);
+    SET_ACCESSOR_WITH_SETTER("drunkLevel", getDrunkLevel, setDrunkLevel);
+    SET_ACCESSOR_WITH_SETTER("wantedLevel", getWantedLevel, setWantedLevel);
 
     return v8obj;
 }
