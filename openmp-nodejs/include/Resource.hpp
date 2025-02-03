@@ -49,7 +49,7 @@ public:
         if (m_objectsFromExtension.contains(ext))
             return handle_scope.Escape(m_objectsFromExtension.at(ext).Get(m_isolate));
 
-        auto v8obj = ext->CreateJavaScriptObject(this);
+        auto v8obj = ext->CreateJavaScriptObject();
 
         m_objectsFromExtension[ext].Reset(m_isolate, v8obj);
 

@@ -1,5 +1,6 @@
 set(SOURCES
     "src/components/PlayerComponent.cpp"
+    "src/components/VehicleComponent.cpp"
     "src/main.cpp"
     "src/NodejsComponent.cpp"
     "src/Resource.cpp"

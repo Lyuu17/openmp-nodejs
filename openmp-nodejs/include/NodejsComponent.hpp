@@ -13,7 +13,8 @@
 
 struct NodejsComponent : public IComponent,
                          public CoreEventHandler,
-                         public PlayerConnectEventHandler
+                         public PlayerConnectEventHandler,
+                         public PlayerTextEventHandler
 {
     PROVIDE_UID(0xFBE82BE682AB46C8);
 
@@ -41,6 +42,8 @@ public:
     void onPlayerConnect(IPlayer& player) override;
     void onPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason) override;
     void onPlayerClientInit(IPlayer& player) override;
+    bool onPlayerText(IPlayer& player, StringView message) override;
+    bool onPlayerCommandText(IPlayer& player, StringView message) override;
 
     ICore*                  getCore();
     static NodejsComponent* getInstance();

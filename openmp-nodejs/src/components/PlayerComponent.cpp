@@ -6,6 +6,7 @@
 #include "Resource.hpp"
 #include "ResourceManager.hpp"
 #include "Utils.hpp"
+#include "NodejsComponent.hpp"
 
 #define CHECK_EXTENSION_EXIST(isolate, component)                             \
     auto resource = ResourceManager::GetResourceFromIsolate(isolate);         \
@@ -255,7 +256,7 @@ void PlayerComponent::getMoney(v8::Local<v8::Name> property, const v8::PropertyC
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    info.GetReturnValue().Set(Utils::v8Str(playerComponent->m_player->getName().data()));
+    info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getMoney()));
 }
 
 void PlayerComponent::setMoney(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -498,9 +499,9 @@ void PlayerComponent::setWantedLevel(v8::Local<v8::Name> property, v8::Local<v8:
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getWantedLevel()));
 }
 
-v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject(Resource* resource)
+v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
-    auto isolate = resource->m_isolate;
+    auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
 
     auto v8obj = v8::Object::New(isolate);
@@ -534,4 +535,25 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject(Resource* resource
     SET_ACCESSOR_WITH_SETTER("wantedLevel", getWantedLevel, setWantedLevel);
 
     return v8obj;
+}
+
+void PlayerComponent::InitFunctions(Resource* resource)
+{
+    auto isolate = resource->m_isolate;
+    auto context = isolate->GetCurrentContext();
+
+    context->Global()->Set(context, Utils::v8Str("getPlayer"), v8::Function::New(context, [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto v8int = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
+        if (v8int.IsEmpty())
+            return;
+
+        auto player = NodejsComponent::getInstance()->getCore()->getPlayers().get(v8int.ToLocalChecked()->Int32Value(info.GetIsolate()->GetCurrentContext()).ToChecked());
+        if (!player)
+        {
+            info.GetReturnValue().SetNull();
+            return;
+        }
+
+        info.GetReturnValue().Set(queryExtension<PlayerComponent>(player)->CreateJavaScriptObject());
+    }).ToLocalChecked());
 }

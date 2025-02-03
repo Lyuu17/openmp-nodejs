@@ -8,7 +8,7 @@ class Resource;
 
 struct IJavaScriptClassExtension
 {
-    virtual v8::Local<v8::Object> CreateJavaScriptObject(Resource* resource)
+    virtual v8::Local<v8::Object> CreateJavaScriptObject()
     {
         return {};
     }

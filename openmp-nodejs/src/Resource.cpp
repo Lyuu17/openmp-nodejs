@@ -4,6 +4,8 @@
 
 #include "Utils.hpp"
 #include "NodejsComponent.hpp"
+#include "components/PlayerComponent.hpp"
+#include "components/VehicleComponent.hpp"
 
 Resource::Resource(const std::filesystem::path& folderPath, const std::string& folderName, const std::string& packageJsonBuf)
     : m_folderPath(folderPath)
@@ -20,9 +22,6 @@ Resource::Resource(const std::filesystem::path& folderPath, const std::string& f
     // init
     {
         AddFunction("print", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-            if (info.Length() != 1)
-                return;
-
             auto v8str = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
             if (v8str.IsEmpty())
                 return;
@@ -35,12 +34,6 @@ Resource::Resource(const std::filesystem::path& folderPath, const std::string& f
 
             auto resource = (Resource*)info.Data().As<v8::External>()->Value();
 
-            if (info.Length() != 2)
-                return;
-
-            if (!info[0]->IsString() || !info[1]->IsFunction())
-                return;
-
             auto v8str  = info[0]->ToString(isolate->GetCurrentContext());
             auto v8func = info[1].As<v8::Function>();
             if (v8str.IsEmpty() || v8func.IsEmpty())
@@ -48,6 +41,33 @@ Resource::Resource(const std::filesystem::path& folderPath, const std::string& f
 
             resource->AddListener(Utils::strV8(v8str.ToLocalChecked()), v8func);
         }, this);
+
+        AddFunction("sendClientMessageToAll", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+            auto isolate = info.GetIsolate();
+
+            auto resource = (Resource*)info.Data().As<v8::External>()->Value();
+
+            auto v8messageColor = info[0]->ToInt32(isolate->GetCurrentContext());
+            auto v8messageStr   = info[1]->ToString(isolate->GetCurrentContext());
+            if (v8messageStr.IsEmpty() || v8messageColor.IsEmpty())
+                return;
+
+            Colour color = Colour::FromRGBA(v8messageColor.ToLocalChecked()->Int32Value(isolate->GetCurrentContext()).ToChecked());
+
+            NodejsComponent::getInstance()->getCore()->getPlayers().sendClientMessageToAll(color, Utils::strV8(v8messageStr.ToLocalChecked()).c_str());
+        }, this);
+    }
+
+    // init components
+    {
+        v8::Isolate::Scope iscope(m_isolate);
+        v8::HandleScope    handle_scope(m_isolate);
+
+        auto               context = m_context.Get(m_isolate);
+        v8::Context::Scope context_scope(context);
+
+        PlayerComponent::InitFunctions(this);
+        VehicleComponent::InitFunctions(this);
     }
 
     // parse package json
@@ -96,8 +116,12 @@ void Resource::Emit(const std::string& name, std::initializer_list<v8::Local<v8:
 
         auto ctx = m_isolate->GetCurrentContext();
 
+        v8::TryCatch trycatch(m_isolate);
+
         std::vector<v8::Local<v8::Value>> args(values);
         localfunction->CallAsFunction(ctx, ctx->Global(), args.size(), args.data());
+
+        ReportException(&trycatch);
     }
 }
 

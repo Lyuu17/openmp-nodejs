@@ -12,6 +12,7 @@ NodejsComponent::~NodejsComponent()
     if (m_core)
     {
         m_core->getPlayers().getPlayerConnectDispatcher().removeEventHandler(this);
+        m_core->getPlayers().getPlayerTextDispatcher().removeEventHandler(this);
         m_core->getEventDispatcher().removeEventHandler(this);
     }
 }
@@ -31,6 +32,7 @@ void NodejsComponent::onLoad(ICore* core)
     m_core = core;
 
     m_core->getPlayers().getPlayerConnectDispatcher().addEventHandler(this);
+    m_core->getPlayers().getPlayerTextDispatcher().addEventHandler(this);
 
     auto result = node::InitializeOncePerProcess({}, { node::ProcessInitializationFlags::kDisableNodeOptionsEnv, node::ProcessInitializationFlags::kDisableCLIOptions });
 
@@ -100,6 +102,30 @@ void NodejsComponent::onPlayerClientInit(IPlayer& player)
 
         resource->Emit("onPlayerClientInit", { v8objPlayer });
     });
+}
+
+bool NodejsComponent::onPlayerText(IPlayer& player, StringView message)
+{
+    ResourceManager::Exec([&](Resource* resource) {
+        v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+        v8::Local<v8::String> message_    = v8::String::NewFromUtf8(resource->m_isolate, message.data()).ToLocalChecked();
+
+        resource->Emit("onPlayerText", { v8objPlayer, message_ });
+    });
+
+    return true; // TODO
+}
+
+bool NodejsComponent::onPlayerCommandText(IPlayer& player, StringView message)
+{
+    ResourceManager::Exec([&](Resource* resource) {
+        v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+        v8::Local<v8::String> message_    = v8::String::NewFromUtf8(resource->m_isolate, message.data()).ToLocalChecked();
+
+        resource->Emit("onPlayerCommandText", { v8objPlayer, message_ });
+    });
+
+    return true; // TODO
 }
 
 ICore* NodejsComponent::getCore()
