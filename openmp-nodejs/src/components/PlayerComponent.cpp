@@ -59,7 +59,7 @@ void PlayerComponent::ban(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 
     std::string reason {};
-    if (info.Length() == 1 && info[0]->IsString())
+    if (info[0]->IsString())
         reason = Utils::strV8(info[0]->ToString(info.GetIsolate()->GetCurrentContext()).ToLocalChecked());
 
     playerComponent->m_player->ban(reason.c_str());
@@ -77,9 +77,6 @@ void PlayerComponent::giveMoney(const v8::FunctionCallbackInfo<v8::Value>& info)
         resource->ThrowException("attempting to access a deleted component");
         return;
     }
-
-    if (info.Length() != 1)
-        return;
 
     auto v8int = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
@@ -100,9 +97,6 @@ void PlayerComponent::giveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info
         resource->ThrowException("attempting to access a deleted component");
         return;
     }
-
-    if (info.Length() != 2)
-        return;
 
     auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8intWeapon.IsEmpty())
@@ -133,9 +127,6 @@ void PlayerComponent::removeWeapon(const v8::FunctionCallbackInfo<v8::Value>& in
         return;
     }
 
-    if (info.Length() != 1)
-        return;
-
     auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8intWeapon.IsEmpty())
         return;
@@ -155,9 +146,6 @@ void PlayerComponent::setWeaponAmmo(const v8::FunctionCallbackInfo<v8::Value>& i
         resource->ThrowException("attempting to access a deleted component");
         return;
     }
-
-    if (info.Length() != 2)
-        return;
 
     auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8intWeapon.IsEmpty())
@@ -208,9 +196,6 @@ void PlayerComponent::getWeaponSlot(const v8::FunctionCallbackInfo<v8::Value>& i
         resource->ThrowException("attempting to access a deleted component");
         return;
     }
-
-    if (info.Length() != 1)
-        return;
 
     auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8intWeapon.IsEmpty())
