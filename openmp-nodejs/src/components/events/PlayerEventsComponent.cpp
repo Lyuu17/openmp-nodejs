@@ -169,7 +169,7 @@ void PlayerEventsComponent::onPlayerScoreChange(IPlayer& player, int score)
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Number> v8score     = v8::Number::New(resource->m_isolate, score);
 
-        resource->Emit("onPlayerStreamOut", { v8objPlayer, v8score });
+        resource->Emit("onPlayerScoreChange", { v8objPlayer, v8score });
     });
 }
 
