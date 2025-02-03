@@ -178,7 +178,7 @@ void PlayerEventsComponent::onPlayerNameChange(IPlayer& player, StringView oldNa
     ResourceManager::Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
-        resource->Emit("onPlayerStreamOut", { v8objPlayer, Utils::v8Str(oldName.data()) });
+        resource->Emit("onPlayerNameChange", { v8objPlayer, Utils::v8Str(oldName.data()) });
     });
 }
 
@@ -222,7 +222,7 @@ void PlayerEventsComponent::onPlayerDeath(IPlayer& player, IPlayer* killer, int 
         v8::Local<v8::Object> v8objKiller = resource->ObjectFromExtension(queryExtension<PlayerComponent>(killer));
         v8::Local<v8::Number> v8reason    = v8::Number::New(resource->m_isolate, reason);
 
-        resource->Emit("onPlayerKeyStateChange", { v8objPlayer, v8objKiller, v8reason });
+        resource->Emit("onPlayerDeath", { v8objPlayer, v8objKiller, v8reason });
     });
 }
 
