@@ -1,6 +1,4 @@
 
-#include "common.hpp"
-
 #include "Utils.hpp"
 #include "NodejsComponent.hpp"
 
@@ -13,6 +11,33 @@ std::string Utils::strV8(v8::Local<v8::String> str)
 {
     v8::String::Utf8Value v8str { v8::Isolate::GetCurrent(), str };
     return { *v8str };
+}
+
+v8::Local<v8::Object> Utils::v8Vector3(Vector3 vec3)
+{
+    auto v8obj = v8::Object::New(v8::Isolate::GetCurrent());
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("x"), v8::Number::New(v8::Isolate::GetCurrent(), vec3.x));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("y"), v8::Number::New(v8::Isolate::GetCurrent(), vec3.y));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("z"), v8::Number::New(v8::Isolate::GetCurrent(), vec3.z));
+    return v8obj;
+}
+
+Vector3 Utils::vector3V8(v8::Local<v8::Object> vec3Obj)
+{
+    Vector3 vec3 {};
+
+    auto v8maybeX = vec3Obj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("x"));
+    if (!v8maybeX.IsEmpty())
+        vec3.x = v8maybeX.ToLocalChecked()->NumberValue(v8::Isolate::GetCurrent()->GetCurrentContext()).ToChecked();
+
+    auto v8maybeY = vec3Obj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("y"));
+    if (!v8maybeY.IsEmpty())
+        vec3.y = v8maybeY.ToLocalChecked()->NumberValue(v8::Isolate::GetCurrent()->GetCurrentContext()).ToChecked();
+
+    auto v8maybeZ = vec3Obj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("z"));
+    if (!v8maybeZ.IsEmpty())
+        vec3.z = v8maybeZ.ToLocalChecked()->NumberValue(v8::Isolate::GetCurrent()->GetCurrentContext()).ToChecked();
+    return vec3;
 }
 
 void Utils::PrintWavyUnderline(int start, int length)

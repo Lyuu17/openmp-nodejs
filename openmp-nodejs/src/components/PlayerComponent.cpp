@@ -277,6 +277,40 @@ void PlayerComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCall
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getID()));
 }
 
+void PlayerComponent::getPosition(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    info.GetReturnValue().Set(Utils::v8Vector3(playerComponent->m_player->getPosition()));
+}
+
+void PlayerComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
+    if (!resource->DoesObjectFromExtensionExist(playerComponent))
+    {
+        resource->ThrowException("attempting to access a deleted component");
+        return;
+    }
+
+    auto mayv8vector3Obj = value->ToObject(info.GetIsolate()->GetCurrentContext());
+    if (mayv8vector3Obj.IsEmpty())
+        return;
+
+    playerComponent->m_player->setPosition(Utils::vector3V8(mayv8vector3Obj.ToLocalChecked()));
+
+    info.GetReturnValue().Set(Utils::v8Vector3(playerComponent->m_player->getPosition()));
+}
+
 void PlayerComponent::getMoney(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
@@ -653,6 +687,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject(Resource* resource
 
     SET_ACCESSOR_WITH_SETTER("name", getName, setName);
     SET_ACCESSOR("id", getId);
+    SET_ACCESSOR_WITH_SETTER("position", getPosition, setPosition);
     SET_ACCESSOR_WITH_SETTER("money", getMoney, setMoney);
     SET_ACCESSOR_WITH_SETTER("score", getScore, setScore);
     SET_ACCESSOR_WITH_SETTER("skin", getSkin, setSkin);

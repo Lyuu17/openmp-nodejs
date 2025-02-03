@@ -36,6 +36,9 @@ struct PlayerComponent final : public IExtension,
 
     static void getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 
+    static void getPosition(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+    static void setPosition(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+
     static void getMoney(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
     static void setMoney(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 
