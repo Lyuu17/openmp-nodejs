@@ -7,6 +7,14 @@
 #include "ResourceManager.hpp"
 #include "Utils.hpp"
 
+#define CHECK_EXTENSION_EXIST(isolate, component)                             \
+    auto resource = ResourceManager::GetResourceFromIsolate(isolate);         \
+    if (!resource->DoesObjectFromExtensionExist(component))                   \
+    {                                                                         \
+        resource->ThrowException("attempting to access a deleted component"); \
+        return;                                                               \
+    }
+
 PlayerComponent::PlayerComponent(IPlayer* player)
     : m_player(player)
 {
@@ -35,12 +43,7 @@ void PlayerComponent::kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     playerComponent->m_player->kick();
 
@@ -51,12 +54,7 @@ void PlayerComponent::ban(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     std::string reason {};
     if (info[0]->IsString())
@@ -71,12 +69,7 @@ void PlayerComponent::giveMoney(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8int = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
@@ -91,12 +84,7 @@ void PlayerComponent::giveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8intWeapon.IsEmpty())
@@ -120,12 +108,7 @@ void PlayerComponent::removeWeapon(const v8::FunctionCallbackInfo<v8::Value>& in
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8intWeapon.IsEmpty())
@@ -140,12 +123,7 @@ void PlayerComponent::setWeaponAmmo(const v8::FunctionCallbackInfo<v8::Value>& i
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8intWeapon.IsEmpty())
@@ -169,12 +147,7 @@ void PlayerComponent::getWeapons(const v8::FunctionCallbackInfo<v8::Value>& info
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto& weaponSlots = playerComponent->m_player->getWeapons();
 
@@ -190,12 +163,7 @@ void PlayerComponent::getWeaponSlot(const v8::FunctionCallbackInfo<v8::Value>& i
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8intWeapon.IsEmpty())
@@ -215,12 +183,7 @@ void PlayerComponent::resetWeapons(const v8::FunctionCallbackInfo<v8::Value>& in
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     playerComponent->m_player->resetWeapons();
 
@@ -233,12 +196,7 @@ void PlayerComponent::getName(v8::Local<v8::Name> property, const v8::PropertyCa
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(Utils::v8Str(playerComponent->m_player->getName().data()));
 }
@@ -247,12 +205,7 @@ void PlayerComponent::setName(v8::Local<v8::Name> property, v8::Local<v8::Value>
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8str = value->ToString(info.GetIsolate()->GetCurrentContext());
     if (v8str.IsEmpty())
@@ -267,12 +220,7 @@ void PlayerComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCall
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getID()));
 }
@@ -281,12 +229,7 @@ void PlayerComponent::getPosition(v8::Local<v8::Name> property, const v8::Proper
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(Utils::v8Vector3(playerComponent->m_player->getPosition()));
 }
@@ -295,12 +238,7 @@ void PlayerComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::Va
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto mayv8vector3Obj = value->ToObject(info.GetIsolate()->GetCurrentContext());
     if (mayv8vector3Obj.IsEmpty())
@@ -315,12 +253,7 @@ void PlayerComponent::getMoney(v8::Local<v8::Name> property, const v8::PropertyC
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(Utils::v8Str(playerComponent->m_player->getName().data()));
 }
@@ -329,12 +262,7 @@ void PlayerComponent::setMoney(v8::Local<v8::Name> property, v8::Local<v8::Value
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
@@ -349,12 +277,7 @@ void PlayerComponent::getScore(v8::Local<v8::Name> property, const v8::PropertyC
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getScore()));
 }
@@ -363,12 +286,7 @@ void PlayerComponent::setScore(v8::Local<v8::Name> property, v8::Local<v8::Value
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
@@ -383,12 +301,7 @@ void PlayerComponent::getSkin(v8::Local<v8::Name> property, const v8::PropertyCa
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getSkin()));
 }
@@ -397,12 +310,7 @@ void PlayerComponent::setSkin(v8::Local<v8::Name> property, v8::Local<v8::Value>
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
@@ -417,12 +325,7 @@ void PlayerComponent::getInterior(v8::Local<v8::Name> property, const v8::Proper
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getInterior()));
 }
@@ -431,12 +334,7 @@ void PlayerComponent::setInterior(v8::Local<v8::Name> property, v8::Local<v8::Va
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
@@ -451,12 +349,7 @@ void PlayerComponent::getTeam(v8::Local<v8::Name> property, const v8::PropertyCa
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getTeam()));
 }
@@ -465,12 +358,7 @@ void PlayerComponent::setTeam(v8::Local<v8::Name> property, v8::Local<v8::Value>
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
@@ -485,12 +373,7 @@ void PlayerComponent::getHealth(v8::Local<v8::Name> property, const v8::Property
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getHealth()));
 }
@@ -499,12 +382,7 @@ void PlayerComponent::setHealth(v8::Local<v8::Name> property, v8::Local<v8::Valu
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8number = value->ToNumber(info.GetIsolate()->GetCurrentContext());
     if (v8number.IsEmpty())
@@ -519,12 +397,7 @@ void PlayerComponent::getArmour(v8::Local<v8::Name> property, const v8::Property
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmour()));
 }
@@ -533,12 +406,7 @@ void PlayerComponent::setArmour(v8::Local<v8::Name> property, v8::Local<v8::Valu
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8number = value->ToNumber(info.GetIsolate()->GetCurrentContext());
     if (v8number.IsEmpty())
@@ -553,12 +421,7 @@ void PlayerComponent::getWeapon(v8::Local<v8::Name> property, const v8::Property
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmedWeapon()));
 }
@@ -567,12 +430,7 @@ void PlayerComponent::setWeapon(v8::Local<v8::Name> property, v8::Local<v8::Valu
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
@@ -587,12 +445,7 @@ void PlayerComponent::getWeaponAmmo(v8::Local<v8::Name> property, const v8::Prop
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmedWeaponAmmo()));
 }
@@ -601,12 +454,7 @@ void PlayerComponent::getDrunkLevel(v8::Local<v8::Name> property, const v8::Prop
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getDrunkLevel()));
 }
@@ -615,12 +463,7 @@ void PlayerComponent::setDrunkLevel(v8::Local<v8::Name> property, v8::Local<v8::
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
@@ -635,12 +478,7 @@ void PlayerComponent::getWantedLevel(v8::Local<v8::Name> property, const v8::Pro
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getWantedLevel()));
 }
@@ -649,12 +487,7 @@ void PlayerComponent::setWantedLevel(v8::Local<v8::Name> property, v8::Local<v8:
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    auto resource = ResourceManager::GetResourceFromIsolate(info.GetIsolate());
-    if (!resource->DoesObjectFromExtensionExist(playerComponent))
-    {
-        resource->ThrowException("attempting to access a deleted component");
-        return;
-    }
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
     if (v8int.IsEmpty())
