@@ -42,20 +42,41 @@ Resource::Resource(const std::filesystem::path& folderPath, const std::string& f
             resource->AddListener(Utils::strV8(v8str.ToLocalChecked()), v8func);
         }, this);
 
-        AddFunction("sendClientMessageToAll", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        AddFunction("message", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
             auto isolate = info.GetIsolate();
 
-            auto resource = (Resource*)info.Data().As<v8::External>()->Value();
-
-            auto v8messageColor = info[0]->ToInt32(isolate->GetCurrentContext());
-            auto v8messageStr   = info[1]->ToString(isolate->GetCurrentContext());
-            if (v8messageStr.IsEmpty() || v8messageColor.IsEmpty())
+            auto v8messageStr = info[0]->ToString(isolate->GetCurrentContext());
+            if (v8messageStr.IsEmpty())
                 return;
 
-            Colour color = Colour::FromRGBA(v8messageColor.ToLocalChecked()->Int32Value(isolate->GetCurrentContext()).ToChecked());
+            auto messageColor = Utils::GetIntegerFromV8Value(info[1]);
+
+            Colour color = Colour::FromRGBA(messageColor.value_or(0xFFFFFFFF));
 
             NodejsComponent::getInstance()->getCore()->getPlayers().sendClientMessageToAll(color, Utils::strV8(v8messageStr.ToLocalChecked()).c_str());
-        }, this);
+        });
+
+        AddFunction("messagePlayer", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+            auto isolate = info.GetIsolate();
+
+            auto v8messageStr = info[0]->ToString(isolate->GetCurrentContext());
+            if (v8messageStr.IsEmpty())
+                return;
+
+            auto v8player = info[1]->ToObject(isolate->GetCurrentContext());
+            if (v8player.IsEmpty())
+                return;
+
+            auto playerId = Utils::GetPlayerIdFromV8Object(v8player);
+            if (!playerId.has_value())
+                return;
+
+            auto messageColor = Utils::GetIntegerFromV8Value(info[2]);
+
+            Colour color = Colour::FromRGBA(messageColor.value_or(0xFFFFFFFF));
+
+            NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value())->sendClientMessage(color, Utils::strV8(v8messageStr.ToLocalChecked()).c_str());
+        });
     }
 
     // init components
@@ -66,8 +87,8 @@ Resource::Resource(const std::filesystem::path& folderPath, const std::string& f
         auto               context = m_context.Get(m_isolate);
         v8::Context::Scope context_scope(context);
 
-        PlayerComponent::InitFunctions();
-        VehicleComponent::InitFunctions();
+        PlayerComponent::InitFunctions(this);
+        VehicleComponent::InitFunctions(this);
     }
 
     // parse package json

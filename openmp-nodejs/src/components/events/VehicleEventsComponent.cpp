@@ -25,7 +25,8 @@ VehicleEventsComponent::~VehicleEventsComponent()
 
     if (m_vehicles)
     {
-        m_vehicles->getEventDispatcher().removeEventHandler(this);
+        // crash
+        // m_vehicles->getEventDispatcher().removeEventHandler(this);
     }
 }
 

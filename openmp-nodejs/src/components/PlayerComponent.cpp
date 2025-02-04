@@ -72,11 +72,11 @@ void PlayerComponent::giveMoney(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8int = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8int.IsEmpty())
+    auto v8int = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8int.has_value())
         return;
 
-    playerComponent->m_player->giveMoney(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->giveMoney(v8int.value());
 
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getMoney()));
 }
@@ -87,17 +87,17 @@ void PlayerComponent::giveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8intWeapon.IsEmpty())
+    auto v8intWeapon = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8intWeapon.has_value())
         return;
 
-    auto v8intAmmo = info[1]->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8intAmmo.IsEmpty())
+    auto v8intAmmo = Utils::GetIntegerFromV8Value(info[1]);
+    if (!v8intAmmo.has_value())
         return;
 
     WeaponSlotData weaponSlotData {
-        (uint8_t)v8intWeapon.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked(),
-        (uint32_t)v8intAmmo.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked()
+        (uint8_t)v8intWeapon.value(),
+        (uint32_t)v8intAmmo.value()
     };
 
     playerComponent->m_player->giveWeapon(weaponSlotData);
@@ -111,11 +111,11 @@ void PlayerComponent::removeWeapon(const v8::FunctionCallbackInfo<v8::Value>& in
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8intWeapon.IsEmpty())
+    auto v8intWeapon = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8intWeapon.has_value())
         return;
 
-    playerComponent->m_player->removeWeapon(v8intWeapon.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->removeWeapon(v8intWeapon.value());
 
     info.GetReturnValue().Set(true);
 }
@@ -126,17 +126,17 @@ void PlayerComponent::setWeaponAmmo(const v8::FunctionCallbackInfo<v8::Value>& i
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8intWeapon.IsEmpty())
+    auto v8intWeapon = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8intWeapon.has_value())
         return;
 
-    auto v8intAmmo = info[1]->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8intAmmo.IsEmpty())
+    auto v8intAmmo = Utils::GetIntegerFromV8Value(info[1]);
+    if (!v8intAmmo.has_value())
         return;
 
     WeaponSlotData weaponSlotData {
-        (uint8_t)v8intWeapon.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked(),
-        (uint32_t)v8intAmmo.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked()
+        (uint8_t)v8intWeapon.value(),
+        (uint32_t)v8intAmmo.value()
     };
 
     playerComponent->m_player->setWeaponAmmo(weaponSlotData);
@@ -166,11 +166,11 @@ void PlayerComponent::getWeaponSlot(const v8::FunctionCallbackInfo<v8::Value>& i
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8intWeapon = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8intWeapon.IsEmpty())
+    auto v8intWeapon = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8intWeapon.has_value())
         return;
 
-    auto weaponData = playerComponent->m_player->getWeaponSlot(v8intWeapon.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    auto weaponData = playerComponent->m_player->getWeaponSlot(v8intWeapon.value());
 
     auto v8obj = v8::Object::New(info.GetIsolate());
 
@@ -187,6 +187,17 @@ void PlayerComponent::resetWeapons(const v8::FunctionCallbackInfo<v8::Value>& in
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     playerComponent->m_player->resetWeapons();
+
+    info.GetReturnValue().Set(true);
+}
+
+void PlayerComponent::spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    playerComponent->m_player->spawn();
 
     info.GetReturnValue().Set(true);
 }
@@ -265,11 +276,11 @@ void PlayerComponent::setMoney(v8::Local<v8::Name> property, v8::Local<v8::Value
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8int.IsEmpty())
+    auto v8int = Utils::GetIntegerFromV8Value(value);
+    if (!v8int.has_value())
         return;
 
-    playerComponent->m_player->setMoney(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->setMoney(v8int.value());
 
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getMoney()));
 }
@@ -289,11 +300,11 @@ void PlayerComponent::setScore(v8::Local<v8::Name> property, v8::Local<v8::Value
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8int.IsEmpty())
+    auto v8int = Utils::GetIntegerFromV8Value(value);
+    if (!v8int.has_value())
         return;
 
-    playerComponent->m_player->setScore(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->setScore(v8int.value());
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getScore()));
 }
@@ -313,11 +324,11 @@ void PlayerComponent::setSkin(v8::Local<v8::Name> property, v8::Local<v8::Value>
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8int.IsEmpty())
+    auto v8int = Utils::GetIntegerFromV8Value(value);
+    if (!v8int.has_value())
         return;
 
-    playerComponent->m_player->setSkin(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->setSkin(v8int.value());
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getSkin()));
 }
@@ -337,11 +348,11 @@ void PlayerComponent::setInterior(v8::Local<v8::Name> property, v8::Local<v8::Va
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8int.IsEmpty())
+    auto v8int = Utils::GetIntegerFromV8Value(value);
+    if (!v8int.has_value())
         return;
 
-    playerComponent->m_player->setInterior(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->setInterior(v8int.value());
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getInterior()));
 }
@@ -361,11 +372,11 @@ void PlayerComponent::setTeam(v8::Local<v8::Name> property, v8::Local<v8::Value>
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8int.IsEmpty())
+    auto v8int = Utils::GetIntegerFromV8Value(value);
+    if (!v8int.has_value())
         return;
 
-    playerComponent->m_player->setInterior(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->setInterior(v8int.value());
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getTeam()));
 }
@@ -433,11 +444,11 @@ void PlayerComponent::setWeapon(v8::Local<v8::Name> property, v8::Local<v8::Valu
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8int.IsEmpty())
+    auto v8int = Utils::GetIntegerFromV8Value(value);
+    if (!v8int.has_value())
         return;
 
-    playerComponent->m_player->setArmedWeapon(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->setArmedWeapon(v8int.value());
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmedWeapon()));
 }
@@ -466,11 +477,11 @@ void PlayerComponent::setDrunkLevel(v8::Local<v8::Name> property, v8::Local<v8::
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8int.IsEmpty())
+    auto v8int = Utils::GetIntegerFromV8Value(value);
+    if (!v8int.has_value())
         return;
 
-    playerComponent->m_player->setDrunkLevel(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->setDrunkLevel(v8int.value());
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getDrunkLevel()));
 }
@@ -490,11 +501,11 @@ void PlayerComponent::setWantedLevel(v8::Local<v8::Name> property, v8::Local<v8:
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto v8int = value->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8int.IsEmpty())
+    auto v8int = Utils::GetIntegerFromV8Value(value);
+    if (!v8int.has_value())
         return;
 
-    playerComponent->m_player->setWantedLevel(v8int.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    playerComponent->m_player->setWantedLevel(v8int.value());
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getWantedLevel()));
 }
@@ -515,6 +526,9 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("removeWeapon", removeWeapon)
     SET_FUNCTION("setWeaponAmmo", setWeaponAmmo)
     SET_FUNCTION("getWeapons", getWeapons)
+    SET_FUNCTION("getWeaponSlot", getWeaponSlot)
+    SET_FUNCTION("resetWeapons", resetWeapons)
+    SET_FUNCTION("spawn", spawn)
 
 #define SET_ACCESSOR(f, getter) v8obj->SetAccessor(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetAccessor(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
@@ -537,7 +551,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     return v8obj;
 }
 
-void PlayerComponent::InitFunctions()
+void PlayerComponent::InitFunctions(Resource* resource)
 {
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
@@ -554,6 +568,9 @@ void PlayerComponent::InitFunctions()
             return;
         }
 
-        info.GetReturnValue().Set(queryExtension<PlayerComponent>(player)->CreateJavaScriptObject());
-    }).ToLocalChecked());
+        auto resource = (Resource*)info.Data().As<v8::External>()->Value();
+
+        info.GetReturnValue().Set(resource->ObjectFromExtension(queryExtension<PlayerComponent>(player)));
+    }, v8::External::New(isolate, resource))
+                                                                   .ToLocalChecked());
 }

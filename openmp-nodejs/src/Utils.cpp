@@ -60,6 +60,67 @@ v8::Local<v8::Object> Utils::CancellableEventObject()
     return v8obj;
 }
 
+std::optional<int32_t> Utils::GetIntegerFromV8Value(v8::MaybeLocal<v8::Value> val)
+{
+    if (val.IsEmpty())
+        return std::nullopt;
+
+    auto isolate = v8::Isolate::GetCurrent();
+    auto context = isolate->GetCurrentContext();
+
+    if (!val.ToLocalChecked()->IsInt32())
+        return std::nullopt;
+
+    auto v8int = val.ToLocalChecked()->ToInteger(context);
+    if (v8int.IsEmpty())
+        return std::nullopt;
+
+    auto mayv8int = v8int.ToLocalChecked()->Int32Value(context);
+    if (mayv8int.IsNothing())
+        return std::nullopt;
+    return mayv8int.ToChecked();
+}
+
+std::optional<double> Utils::GetDoubleFromV8Value(v8::MaybeLocal<v8::Value> val)
+{
+    if (val.IsEmpty())
+        return std::nullopt;
+
+    auto isolate = v8::Isolate::GetCurrent();
+    auto context = isolate->GetCurrentContext();
+
+    if (!val.ToLocalChecked()->IsInt32())
+        return std::nullopt;
+
+    auto v8int = val.ToLocalChecked()->ToInteger(context);
+    if (v8int.IsEmpty())
+        return std::nullopt;
+
+    auto mayv8int = v8int.ToLocalChecked()->Int32Value(context);
+    if (mayv8int.IsNothing())
+        return std::nullopt;
+    return mayv8int.ToChecked();
+}
+
+std::optional<uint32_t> Utils::GetPlayerIdFromV8Object(v8::MaybeLocal<v8::Object> val)
+{
+    auto isolate = v8::Isolate::GetCurrent();
+    auto context = isolate->GetCurrentContext();
+
+    if (val.IsEmpty())
+        return std::nullopt;
+
+    auto playerIdField = val.ToLocalChecked()->Get(context, Utils::v8Str("id"));
+    if (playerIdField.IsEmpty())
+        return std::nullopt;
+
+    auto playerId = playerIdField.ToLocalChecked()->IntegerValue(context);
+    if (playerId.IsNothing())
+        return std::nullopt;
+
+    return playerId.ToChecked();
+}
+
 void Utils::PrintWavyUnderline(int start, int length)
 {
     LOGLN(LogLevel::Error, "{}{}", std::string(start, ' ').c_str(), std::string(length, '^').c_str());

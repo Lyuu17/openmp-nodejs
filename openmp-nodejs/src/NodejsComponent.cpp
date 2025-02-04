@@ -51,6 +51,9 @@ void NodejsComponent::onInit(IComponentList* components)
 
 void NodejsComponent::free()
 {
+    removeExtension(queryExtension<PlayerEventsComponent>(this));
+    removeExtension(queryExtension<VehicleEventsComponent>(this));
+
     ResourceManager::Deinit();
 
     v8::V8::Dispose();

@@ -120,10 +120,11 @@ bool PlayerEventsComponent::onPlayerCommandText(IPlayer& player, StringView mess
         resource->Emit("onPlayerCommandText", { cancellableEventObj, v8objPlayer, message_ });
 
         auto v8cancelledValue = cancellableEventObj->Get(resource->m_isolate->GetCurrentContext(), Utils::v8Str("cancelled"));
-        cancelled             = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
+        if (!cancelled)
+            cancelled = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
     });
 
-    return !cancelled;
+    return cancelled;
 }
 
 bool PlayerEventsComponent::onPlayerRequestSpawn(IPlayer& player) { return true; }

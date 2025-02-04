@@ -30,6 +30,7 @@ struct PlayerComponent final : public IExtension,
     static void getWeapons(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void getWeaponSlot(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void resetWeapons(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void spawn(const v8::FunctionCallbackInfo<v8::Value>& info);
 
     static void getName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
     static void setName(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
@@ -73,5 +74,5 @@ struct PlayerComponent final : public IExtension,
 
     v8::Local<v8::Object> CreateJavaScriptObject() override;
 
-    static void InitFunctions();
+    static void InitFunctions(Resource*);
 };
