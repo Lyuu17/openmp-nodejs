@@ -10,6 +10,7 @@ PlayerEventsComponent::PlayerEventsComponent(ICore* core)
     : m_core(core)
 {
     m_core->getPlayers().getPlayerConnectDispatcher().addEventHandler(this);
+    m_core->getPlayers().getPlayerSpawnDispatcher().addEventHandler(this);
     m_core->getPlayers().getPlayerStreamDispatcher().addEventHandler(this);
     m_core->getPlayers().getPlayerTextDispatcher().addEventHandler(this);
     m_core->getPlayers().getPlayerShotDispatcher().addEventHandler(this);
@@ -25,6 +26,7 @@ PlayerEventsComponent::~PlayerEventsComponent()
     if (m_core)
     {
         m_core->getPlayers().getPlayerConnectDispatcher().removeEventHandler(this);
+        m_core->getPlayers().getPlayerSpawnDispatcher().removeEventHandler(this);
         m_core->getPlayers().getPlayerStreamDispatcher().removeEventHandler(this);
         m_core->getPlayers().getPlayerTextDispatcher().removeEventHandler(this);
         m_core->getPlayers().getPlayerShotDispatcher().removeEventHandler(this);
@@ -127,7 +129,24 @@ bool PlayerEventsComponent::onPlayerCommandText(IPlayer& player, StringView mess
     return cancelled;
 }
 
-bool PlayerEventsComponent::onPlayerRequestSpawn(IPlayer& player) { return true; }
+bool PlayerEventsComponent::onPlayerRequestSpawn(IPlayer& player)
+{
+    bool cancelled = false;
+
+    ResourceManager::Exec([&](Resource* resource) {
+        auto cancellableEventObj = Utils::CancellableEventObject();
+
+        v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+
+        resource->Emit("onPlayerRequestSpawn", { cancellableEventObj, v8objPlayer });
+
+        auto v8cancelledValue = cancellableEventObj->Get(resource->m_isolate->GetCurrentContext(), Utils::v8Str("cancelled"));
+        if (!cancelled)
+            cancelled = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
+    });
+
+    return !cancelled;
+}
 
 void PlayerEventsComponent::onPlayerSpawn(IPlayer& player)
 {
@@ -220,7 +239,7 @@ void PlayerEventsComponent::onPlayerDeath(IPlayer& player, IPlayer* killer, int 
 {
     ResourceManager::Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
-        v8::Local<v8::Object> v8objKiller = resource->ObjectFromExtension(queryExtension<PlayerComponent>(killer));
+        v8::Local<v8::Value>  v8objKiller = killer ? resource->ObjectFromExtension(queryExtension<PlayerComponent>(killer)).As<v8::Value>() : v8::Null(resource->m_isolate).As<v8::Value>();
         v8::Local<v8::Number> v8reason    = v8::Number::New(resource->m_isolate, reason);
 
         resource->Emit("onPlayerDeath", { v8objPlayer, v8objKiller, v8reason });

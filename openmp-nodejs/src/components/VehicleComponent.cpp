@@ -1,5 +1,4 @@
 
-#include <Server/Components/Classes/classes.hpp>
 #include <sdk.hpp>
 
 #include "components/VehicleComponent.hpp"
@@ -122,11 +121,11 @@ void VehicleComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::V
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
 
-    auto mayv8vector3Obj = value->ToObject(info.GetIsolate()->GetCurrentContext());
-    if (mayv8vector3Obj.IsEmpty())
+    auto v8vec3 = Utils::vector3V8(value);
+    if (!v8vec3.has_value())
         return;
 
-    vehicleComponent->m_vehicle->setPosition(Utils::vector3V8(mayv8vector3Obj.ToLocalChecked()));
+    vehicleComponent->m_vehicle->setPosition(v8vec3.value());
 
     info.GetReturnValue().Set(Utils::v8Vector3(vehicleComponent->m_vehicle->getPosition()));
 }
@@ -205,11 +204,11 @@ void VehicleComponent::InitFunctions(Resource* resource)
     auto context = isolate->GetCurrentContext();
 
     context->Global()->Set(context, Utils::v8Str("getVehicle"), v8::Function::New(context, [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-        auto v8int = info[0]->ToInteger(info.GetIsolate()->GetCurrentContext());
-        if (v8int.IsEmpty())
+        auto v8int = Utils::GetIntegerFromV8Value(info[0]);
+        if (!v8int.has_value())
             return;
 
-        auto vehicle = NodejsComponent::getInstance()->getVehicles()->get(v8int.ToLocalChecked()->Int32Value(info.GetIsolate()->GetCurrentContext()).ToChecked());
+        auto vehicle = NodejsComponent::getInstance()->getVehicles()->get(v8int.value());
         if (!vehicle)
         {
             info.GetReturnValue().SetNull();
@@ -226,24 +225,24 @@ void VehicleComponent::InitFunctions(Resource* resource)
 
     context->Global()->Set(context, Utils::v8Str("createVehicle"), v8::Function::New(context, [](const v8::FunctionCallbackInfo<v8::Value>& info) {
         auto v8isStatic     = info[0]->ToBoolean(info.GetIsolate());
-        auto v8modelId      = info[1]->ToInteger(info.GetIsolate()->GetCurrentContext());
-        auto v8position     = info[2]->ToObject(info.GetIsolate()->GetCurrentContext());
-        auto v8angle        = info[3]->ToNumber(info.GetIsolate()->GetCurrentContext());
-        auto v8color1       = info[4]->ToInteger(info.GetIsolate()->GetCurrentContext());
-        auto v8color2       = info[5]->ToInteger(info.GetIsolate()->GetCurrentContext());
-        auto v8respawnDelay = info[6]->ToInteger(info.GetIsolate()->GetCurrentContext());
+        auto v8modelId      = Utils::GetIntegerFromV8Value(info[1]);
+        auto v8position     = Utils::vector3V8(info[2]);
+        auto v8angle        = Utils::GetDoubleFromV8Value(info[3]);
+        auto v8color1       = Utils::GetIntegerFromV8Value(info[4]);
+        auto v8color2       = Utils::GetIntegerFromV8Value(info[5]);
+        auto v8respawnDelay = Utils::GetIntegerFromV8Value(info[6]);
         auto v8addSiren     = info[7]->ToBoolean(info.GetIsolate());
 
-        if (v8isStatic.IsEmpty() || v8modelId.IsEmpty() || v8position.IsEmpty())
+        if (v8isStatic.IsEmpty() || !v8modelId.has_value() || !v8position.has_value())
             return;
 
         bool    isStatic     = v8isStatic->ToBoolean(info.GetIsolate())->Value();
-        int     modelId      = v8modelId.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked();
-        Vector3 position     = Utils::vector3V8(v8position.ToLocalChecked());
-        float   angle        = !v8angle.IsEmpty() ? v8angle.ToLocalChecked()->Value() : 0.0f;
-        int     color1       = !v8color1.IsEmpty() ? v8color1.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked() : -1;
-        int     color2       = !v8color2.IsEmpty() ? v8color2.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked() : -1;
-        int     respawnDelay = !v8respawnDelay.IsEmpty() ? v8respawnDelay.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked() : 300;
+        int     modelId      = v8modelId.value();
+        Vector3 position     = v8position.value();
+        float   angle        = v8angle.value_or(0.0f);
+        int     color1       = v8color1.value_or(-1);
+        int     color2       = v8color2.value_or(-1);
+        int     respawnDelay = v8respawnDelay.value_or(300);
         bool    addSiren     = !v8addSiren.IsEmpty() ? v8addSiren->ToBoolean(info.GetIsolate())->Value() : false;
 
         auto vehicle = NodejsComponent::getInstance()->getVehicles()->create(isStatic, modelId, position, angle, color1, color2, Seconds { respawnDelay }, addSiren);

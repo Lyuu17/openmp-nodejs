@@ -1,5 +1,4 @@
 
-#include <Server/Components/Classes/classes.hpp>
 #include <sdk.hpp>
 
 #include "components/PlayerComponent.hpp"
@@ -197,7 +196,26 @@ void PlayerComponent::spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    playerComponent->m_player->spawn();
+    auto playerClassData = queryExtension<IPlayerClassData>(playerComponent->m_player);
+    if (!playerClassData)
+    {
+        playerComponent->m_player->spawn();
+    }
+    else
+    {
+        playerClassData->spawnPlayer();
+    }
+
+    info.GetReturnValue().Set(true);
+}
+
+void PlayerComponent::forceClassSelection(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    playerComponent->m_player->forceClassSelection();
 
     info.GetReturnValue().Set(true);
 }
@@ -252,11 +270,11 @@ void PlayerComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::Va
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto mayv8vector3Obj = value->ToObject(info.GetIsolate()->GetCurrentContext());
-    if (mayv8vector3Obj.IsEmpty())
+    auto v8vec3 = Utils::vector3V8(value);
+    if (!v8vec3.has_value())
         return;
 
-    playerComponent->m_player->setPosition(Utils::vector3V8(mayv8vector3Obj.ToLocalChecked()));
+    playerComponent->m_player->setPosition(v8vec3.value());
 
     info.GetReturnValue().Set(Utils::v8Vector3(playerComponent->m_player->getPosition()));
 }
@@ -510,6 +528,109 @@ void PlayerComponent::setWantedLevel(v8::Local<v8::Name> property, v8::Local<v8:
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getWantedLevel()));
 }
 
+void PlayerComponent::getControllable(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getControllable()));
+}
+
+void PlayerComponent::setControllable(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    auto v8bool = value->ToBoolean(info.GetIsolate());
+    if (v8bool.IsEmpty())
+        return;
+
+    playerComponent->m_player->setControllable(v8bool->Value());
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getControllable()));
+}
+
+void PlayerComponent::getSpawnInfo(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    auto playerClassData = queryExtension<IPlayerClassData>(playerComponent->m_player);
+    if (!playerClassData)
+    {
+        info.GetReturnValue().SetNull();
+        return;
+    }
+
+    auto context = info.GetIsolate()->GetCurrentContext();
+
+    auto& playerClass = playerClassData->getClass();
+
+    auto v8playerClass = v8::Object::New(info.GetIsolate());
+    v8playerClass->Set(context, Utils::v8Str("team"), v8::Integer::New(info.GetIsolate(), playerClass.team));
+    v8playerClass->Set(context, Utils::v8Str("skin"), v8::Integer::New(info.GetIsolate(), playerClass.skin));
+    v8playerClass->Set(context, Utils::v8Str("spawn"), Utils::v8Vector3(playerClass.spawn));
+    v8playerClass->Set(context, Utils::v8Str("angle"), v8::Number::New(info.GetIsolate(), playerClass.angle));
+
+    auto v8weaponSlotList = v8::Array::New(info.GetIsolate(), playerClass.weapons.size());
+    for (int i = 0; i < playerClass.weapons.size(); i++)
+    {
+        for (auto& weaponSlotData : playerClass.weapons)
+        {
+            auto v8weaponSlot = v8::Object::New(info.GetIsolate());
+            v8weaponSlot->Set(context, Utils::v8Str("id"), v8::Integer::New(info.GetIsolate(), weaponSlotData.id));
+            v8weaponSlot->Set(context, Utils::v8Str("ammo"), v8::Integer::New(info.GetIsolate(), weaponSlotData.ammo));
+
+            v8weaponSlotList->Set(context, i, v8weaponSlot);
+        }
+    }
+
+    v8playerClass->Set(context, Utils::v8Str("weapons"), v8weaponSlotList);
+
+    info.GetReturnValue().Set(v8playerClass);
+}
+
+void PlayerComponent::setSpawnInfo(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    auto playerClassData = queryExtension<IPlayerClassData>(playerComponent->m_player);
+    if (!playerClassData)
+    {
+        return;
+    }
+
+    if (!value->IsObject())
+        return;
+
+    auto context = info.GetIsolate()->GetCurrentContext();
+
+    auto v8obj = value.As<v8::Object>();
+
+    auto v8team        = Utils::GetIntegerFromV8Value(v8obj->Get(context, Utils::v8Str("team")));
+    auto v8skin        = Utils::GetIntegerFromV8Value(v8obj->Get(context, Utils::v8Str("skin")));
+    auto v8spawn       = Utils::vector3V8(v8obj->Get(context, Utils::v8Str("spawn")));
+    auto v8angle       = Utils::GetDoubleFromV8Value(v8obj->Get(context, Utils::v8Str("angle")));
+    auto v8weaponSlots = Utils::GetWeaponSlotsDataFromV8Object(v8obj->Get(context, Utils::v8Str("weapons")));
+
+    PlayerClass playerClass {
+        v8skin.value_or(0),
+        v8team.value_or(0),
+        v8spawn.value_or(Vector3 {}),
+        (float)v8angle.value_or(0),
+        v8weaponSlots.value_or(WeaponSlots {})
+    };
+
+    playerClassData->setSpawnInfo(playerClass);
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getControllable()));
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -519,16 +640,17 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 
 #define SET_FUNCTION(f, func) v8obj->Set(context, Utils::v8Str(f), v8::Function::New(context, func, v8::External::New(isolate, this)).ToLocalChecked());
 
-    SET_FUNCTION("kick", kick)
-    SET_FUNCTION("ban", ban)
-    SET_FUNCTION("giveMoney", giveMoney)
-    SET_FUNCTION("giveWeapon", giveWeapon)
-    SET_FUNCTION("removeWeapon", removeWeapon)
-    SET_FUNCTION("setWeaponAmmo", setWeaponAmmo)
-    SET_FUNCTION("getWeapons", getWeapons)
-    SET_FUNCTION("getWeaponSlot", getWeaponSlot)
-    SET_FUNCTION("resetWeapons", resetWeapons)
-    SET_FUNCTION("spawn", spawn)
+    SET_FUNCTION("kick", kick);
+    SET_FUNCTION("ban", ban);
+    SET_FUNCTION("giveMoney", giveMoney);
+    SET_FUNCTION("giveWeapon", giveWeapon);
+    SET_FUNCTION("removeWeapon", removeWeapon);
+    SET_FUNCTION("setWeaponAmmo", setWeaponAmmo);
+    SET_FUNCTION("getWeapons", getWeapons);
+    SET_FUNCTION("getWeaponSlot", getWeaponSlot);
+    SET_FUNCTION("resetWeapons", resetWeapons);
+    SET_FUNCTION("spawn", spawn);
+    SET_FUNCTION("forceClassSelection", forceClassSelection);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetAccessor(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetAccessor(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
@@ -547,6 +669,8 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR("weaponAmmo", getWeaponAmmo);
     SET_ACCESSOR_WITH_SETTER("drunkLevel", getDrunkLevel, setDrunkLevel);
     SET_ACCESSOR_WITH_SETTER("wantedLevel", getWantedLevel, setWantedLevel);
+    SET_ACCESSOR_WITH_SETTER("controllable", getControllable, setControllable);
+    SET_ACCESSOR_WITH_SETTER("spawnInfo", getSpawnInfo, setSpawnInfo);
 
     return v8obj;
 }

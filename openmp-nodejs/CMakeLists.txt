@@ -1,8 +1,12 @@
 set(SOURCES
+    "src/components/events/ClassEventsComponent.cpp"
     "src/components/events/PlayerEventsComponent.cpp"
     "src/components/events/VehicleEventsComponent.cpp"
+    "src/components/ClassesComponent.cpp"
     "src/components/PlayerComponent.cpp"
     "src/components/VehicleComponent.cpp"
+    "src/extensions/DbExtension.cpp"
+    "src/CommonFunctions.cpp"
     "src/main.cpp"
     "src/NodejsComponent.cpp"
     "src/Resource.cpp"

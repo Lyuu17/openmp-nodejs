@@ -4,8 +4,11 @@
 
 #include "Utils.hpp"
 #include "NodejsComponent.hpp"
+#include "CommonFunctions.hpp"
+#include "components/ClassesComponent.hpp"
 #include "components/PlayerComponent.hpp"
 #include "components/VehicleComponent.hpp"
+#include "extensions/DbExtension.hpp"
 
 Resource::Resource(const std::filesystem::path& folderPath, const std::string& folderName, const std::string& packageJsonBuf)
     : m_folderPath(folderPath)
@@ -21,62 +24,7 @@ Resource::Resource(const std::filesystem::path& folderPath, const std::string& f
 
     // init
     {
-        AddFunction("print", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-            auto v8str = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
-            if (v8str.IsEmpty())
-                return;
-
-            PRINTLN("{}", Utils::strV8(v8str.ToLocalChecked()));
-        });
-
-        AddFunction("on", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-            auto isolate = info.GetIsolate();
-
-            auto resource = (Resource*)info.Data().As<v8::External>()->Value();
-
-            auto v8str  = info[0]->ToString(isolate->GetCurrentContext());
-            auto v8func = info[1].As<v8::Function>();
-            if (v8str.IsEmpty() || v8func.IsEmpty())
-                return;
-
-            resource->AddListener(Utils::strV8(v8str.ToLocalChecked()), v8func);
-        }, this);
-
-        AddFunction("message", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-            auto isolate = info.GetIsolate();
-
-            auto v8messageStr = info[0]->ToString(isolate->GetCurrentContext());
-            if (v8messageStr.IsEmpty())
-                return;
-
-            auto messageColor = Utils::GetIntegerFromV8Value(info[1]);
-
-            Colour color = Colour::FromRGBA(messageColor.value_or(0xFFFFFFFF));
-
-            NodejsComponent::getInstance()->getCore()->getPlayers().sendClientMessageToAll(color, Utils::strV8(v8messageStr.ToLocalChecked()).c_str());
-        });
-
-        AddFunction("messagePlayer", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-            auto isolate = info.GetIsolate();
-
-            auto v8messageStr = info[0]->ToString(isolate->GetCurrentContext());
-            if (v8messageStr.IsEmpty())
-                return;
-
-            auto v8player = info[1]->ToObject(isolate->GetCurrentContext());
-            if (v8player.IsEmpty())
-                return;
-
-            auto playerId = Utils::GetPlayerIdFromV8Object(v8player);
-            if (!playerId.has_value())
-                return;
-
-            auto messageColor = Utils::GetIntegerFromV8Value(info[2]);
-
-            Colour color = Colour::FromRGBA(messageColor.value_or(0xFFFFFFFF));
-
-            NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value())->sendClientMessage(color, Utils::strV8(v8messageStr.ToLocalChecked()).c_str());
-        });
+        CommonFunctions::Init(this);
     }
 
     // init components
@@ -87,8 +35,13 @@ Resource::Resource(const std::filesystem::path& folderPath, const std::string& f
         auto               context = m_context.Get(m_isolate);
         v8::Context::Scope context_scope(context);
 
+        ClassesComponent::InitFunctions(this);
         PlayerComponent::InitFunctions(this);
         VehicleComponent::InitFunctions(this);
+
+        auto dbExtension = queryExtension<DbExtension>(NodejsComponent::getInstance()->getCore());
+        if (dbExtension)
+            dbExtension->InitFunctions(this);
     }
 
     // parse package json

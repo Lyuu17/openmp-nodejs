@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <Server/Components/Classes/classes.hpp>
+#include <Server/Components/Databases/databases.hpp>
 #include <Server/Components/Vehicles/vehicles.hpp>
 #include <sdk.hpp>
 
@@ -22,7 +24,9 @@ private:
 
     ICore* m_core = nullptr;
 
-    IVehiclesComponent* m_vehicles = nullptr;
+    IClassesComponent*   m_classes   = nullptr;
+    IDatabasesComponent* m_databases = nullptr;
+    IVehiclesComponent*  m_vehicles  = nullptr;
 
 public:
     std::unique_ptr<node::MultiIsolatePlatform> m_platform;
@@ -39,8 +43,10 @@ public:
     void reset() override;
     void onTick(std::chrono::microseconds elapsed, std::chrono::steady_clock::time_point now) override;
 
-    ICore*              getCore();
-    IVehiclesComponent* getVehicles();
+    ICore*               getCore();
+    IClassesComponent*   getClasses();
+    IDatabasesComponent* getDatabases();
+    IVehiclesComponent*  getVehicles();
 
     static NodejsComponent* getInstance();
 };

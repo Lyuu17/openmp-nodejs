@@ -22,21 +22,28 @@ v8::Local<v8::Object> Utils::v8Vector3(Vector3 vec3)
     return v8obj;
 }
 
-Vector3 Utils::vector3V8(v8::Local<v8::Object> vec3Obj)
+std::optional<Vector3> Utils::vector3V8(v8::MaybeLocal<v8::Value> val)
 {
-    Vector3 vec3 {};
+    if (val.IsEmpty())
+        return std::nullopt;
+
+    if (!val.ToLocalChecked()->IsObject())
+        return std::nullopt;
+
+    auto vec3Obj = val.ToLocalChecked().As<v8::Object>();
 
     auto v8maybeX = vec3Obj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("x"));
-    if (!v8maybeX.IsEmpty())
-        vec3.x = v8maybeX.ToLocalChecked()->NumberValue(v8::Isolate::GetCurrent()->GetCurrentContext()).ToChecked();
-
     auto v8maybeY = vec3Obj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("y"));
-    if (!v8maybeY.IsEmpty())
-        vec3.y = v8maybeY.ToLocalChecked()->NumberValue(v8::Isolate::GetCurrent()->GetCurrentContext()).ToChecked();
-
     auto v8maybeZ = vec3Obj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("z"));
-    if (!v8maybeZ.IsEmpty())
-        vec3.z = v8maybeZ.ToLocalChecked()->NumberValue(v8::Isolate::GetCurrent()->GetCurrentContext()).ToChecked();
+
+    if (v8maybeX.IsEmpty() || v8maybeY.IsEmpty() || v8maybeZ.IsEmpty())
+        return std::nullopt;
+
+    Vector3 vec3 {
+        GetDoubleFromV8Value(v8maybeX).value_or(0),
+        GetDoubleFromV8Value(v8maybeY).value_or(0),
+        GetDoubleFromV8Value(v8maybeZ).value_or(0)
+    };
     return vec3;
 }
 
@@ -89,17 +96,14 @@ std::optional<double> Utils::GetDoubleFromV8Value(v8::MaybeLocal<v8::Value> val)
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
 
-    if (!val.ToLocalChecked()->IsInt32())
+    if (!val.ToLocalChecked()->IsNumber())
         return std::nullopt;
 
-    auto v8int = val.ToLocalChecked()->ToInteger(context);
-    if (v8int.IsEmpty())
+    auto v8num = val.ToLocalChecked()->ToNumber(context);
+    if (v8num.IsEmpty())
         return std::nullopt;
 
-    auto mayv8int = v8int.ToLocalChecked()->Int32Value(context);
-    if (mayv8int.IsNothing())
-        return std::nullopt;
-    return mayv8int.ToChecked();
+    return v8num.ToLocalChecked()->Value();
 }
 
 std::optional<uint32_t> Utils::GetPlayerIdFromV8Object(v8::MaybeLocal<v8::Object> val)
@@ -119,6 +123,48 @@ std::optional<uint32_t> Utils::GetPlayerIdFromV8Object(v8::MaybeLocal<v8::Object
         return std::nullopt;
 
     return playerId.ToChecked();
+}
+
+std::optional<WeaponSlots> Utils::GetWeaponSlotsDataFromV8Object(v8::MaybeLocal<v8::Value> val)
+{
+    auto isolate = v8::Isolate::GetCurrent();
+    auto context = isolate->GetCurrentContext();
+
+    if (val.IsEmpty())
+        return std::nullopt;
+
+    if (!val.ToLocalChecked()->IsArray())
+        return std::nullopt;
+
+    WeaponSlots weaponSlots;
+
+    auto v8weaponsArray = val.ToLocalChecked().As<v8::Array>();
+    for (int i = 0; i < v8weaponsArray->Length(); i++)
+    {
+        auto arraySlot = v8weaponsArray->Get(context, i);
+        if (arraySlot.IsEmpty())
+            continue;
+
+        if (!arraySlot.ToLocalChecked()->IsObject())
+            continue;
+
+        auto wepId = Utils::GetIntegerFromV8Value(arraySlot.ToLocalChecked().As<v8::Object>()->Get(context, Utils::v8Str("id")));
+        if (!wepId.has_value())
+            continue;
+
+        auto ammo = Utils::GetIntegerFromV8Value(arraySlot.ToLocalChecked().As<v8::Object>()->Get(context, Utils::v8Str("ammo")));
+        if (!ammo.has_value())
+            continue;
+
+        WeaponSlotData weaponSlotData {
+            (uint8_t)wepId.value(),
+            (uint32_t)ammo.value()
+        };
+
+        weaponSlots[weaponSlotData.slot()] = weaponSlotData;
+    }
+
+    return weaponSlots;
 }
 
 void Utils::PrintWavyUnderline(int start, int length)

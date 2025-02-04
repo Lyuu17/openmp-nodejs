@@ -33,6 +33,9 @@ void ResourceManager::LoadResource(const std::filesystem::path& path)
     auto [insertPair, result] = m_resources.emplace(path, std::move(resource));
 
     insertPair->second->InstantiateModule();
+    insertPair->second->Exec([](Resource* resource) {
+        resource->Emit("OnResourceLoad", {});
+    });
 
     PRINTLN("Found resource: {}", folderName);
 }
