@@ -22,6 +22,9 @@ struct NodejsComponent : public IComponent,
 private:
     static NodejsComponent* m_instance;
 
+    v8::Isolate*            isolate = nullptr;
+    v8::Global<v8::Context> context;
+
     ICore* m_core = nullptr;
 
     IClassesComponent*   m_classes   = nullptr;
@@ -29,8 +32,9 @@ private:
     IVehiclesComponent*  m_vehicles  = nullptr;
 
 public:
+    node::Environment* parentEnv = nullptr;
+
     std::unique_ptr<node::MultiIsolatePlatform> m_platform;
-    node::ArrayBufferAllocator*                 m_bufferAllocator = nullptr;
 
     ~NodejsComponent();
 

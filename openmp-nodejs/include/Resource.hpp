@@ -14,9 +14,14 @@ class Resource {
 public:
     const std::filesystem::path m_folderPath;
     const std::string           m_folderName;
+    const std::string           m_packageBuf;
 
-    v8::Isolate* m_isolate;
+    bool envStarted = false;
 
+    v8::Isolate*            m_isolate;
+    node::IsolateData*      nodeData = nullptr;
+    node::Environment*      env      = nullptr;
+    uv_loop_t*              uvLoop   = nullptr;
     v8::Global<v8::Context> m_context;
 
     std::unordered_map<std::filesystem::path, v8::Global<v8::Module>>      m_modules;
@@ -30,14 +35,19 @@ public:
     Resource(Resource&)            = delete;
     Resource& operator=(Resource&) = delete;
 
-    void                       AddListener(const std::string& name, v8::Local<v8::Function> listener);
-    void                       Emit(const std::string& name, std::initializer_list<v8::Local<v8::Value>> values);
-    void                       AddFunction(const std::string& name, v8::FunctionCallback cb, void* userdata = nullptr);
-    void                       ReportException(v8::TryCatch* try_catch);
-    void                       InstantiateModule();
-    v8::MaybeLocal<v8::Module> ResolveFile(const std::string& importPath, v8::Local<v8::Module> referrer);
-    void                       ThrowException(const std::string& text);
-    void                       Exec(std::function<void(Resource* resource)> func);
+    inline v8::Local<v8::Context> GetContext() const
+    {
+        return m_context.Get(m_isolate);
+    }
+
+    void Start();
+    void OnTick();
+    void AddListener(const std::string& name, v8::Local<v8::Function> listener);
+    void Emit(const std::string& name, std::initializer_list<v8::Local<v8::Value>> values);
+    void AddFunction(const std::string& name, v8::FunctionCallback cb, void* userdata = nullptr);
+    void ReportException(v8::TryCatch* try_catch);
+    void ThrowException(const std::string& text);
+    void Exec(std::function<void(Resource* resource)> func);
 
     inline v8::Local<v8::Object> ObjectFromExtension(IJavaScriptClassExtension* ext)
     {
@@ -58,8 +68,4 @@ public:
 
     void RemoveExtension(IJavaScriptClassExtension* ext);
     bool DoesObjectFromExtensionExist(IJavaScriptClassExtension* ext);
-
-private:
-    bool                       CompileModuleFromFile(const std::filesystem::path& path);
-    v8::MaybeLocal<v8::Module> CompileModule(const std::filesystem::path& path);
 };

@@ -5,7 +5,6 @@ set(SOURCES
     "src/components/ClassesComponent.cpp"
     "src/components/PlayerComponent.cpp"
     "src/components/VehicleComponent.cpp"
-    "src/extensions/DbExtension.cpp"
     "src/CommonFunctions.cpp"
     "src/main.cpp"
     "src/NodejsComponent.cpp"
@@ -18,6 +17,11 @@ add_library(openmp-nodejs SHARED ${SOURCES})
 target_include_directories(openmp-nodejs PRIVATE include)
 target_link_libraries(openmp-nodejs PRIVATE OMP-SDK node nlohmann_json::nlohmann_json)
 set_target_properties(openmp-nodejs PROPERTIES PREFIX "")
+
+if ((MSVC) AND (MSVC_VERSION GREATER_EQUAL 1914))
+    # https://gitlab.kitware.com/cmake/cmake/-/issues/18837
+	target_compile_options(openmp-nodejs PUBLIC "/Zc:__cplusplus")
+endif()
 
 install(TARGETS openmp-nodejs RUNTIME COMPONENT openmp-nodejs)
 install(IMPORTED_RUNTIME_ARTIFACTS node RUNTIME COMPONENT openmp-nodejs)

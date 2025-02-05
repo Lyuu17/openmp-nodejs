@@ -7,6 +7,12 @@ void ResourceManager::Deinit()
     m_resources.clear();
 }
 
+void ResourceManager::Tick()
+{
+    for (auto& [path, resource] : m_resources)
+        resource->OnTick();
+}
+
 void ResourceManager::LoadResourcesFromPath(const std::filesystem::path& path)
 {
     std::filesystem::create_directories(path);
@@ -32,7 +38,7 @@ void ResourceManager::LoadResource(const std::filesystem::path& path)
 
     auto [insertPair, result] = m_resources.emplace(path, std::move(resource));
 
-    insertPair->second->InstantiateModule();
+    insertPair->second->Start();
     insertPair->second->Exec([](Resource* resource) {
         resource->Emit("OnResourceLoad", {});
     });
@@ -54,23 +60,4 @@ Resource* ResourceManager::GetResourceFromIsolate(v8::Isolate* isolate)
             return resource.get();
     }
     return nullptr;
-}
-
-v8::MaybeLocal<v8::Module> ResourceManager::ResolveModule(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer)
-{
-    auto isolate = context->GetIsolate();
-
-    auto resource = GetResourceFromIsolate(isolate);
-    assert(resource);
-
-    std::string importPath { *v8::String::Utf8Value(isolate, specifier) };
-
-    auto maybeModule = resource->ResolveFile(importPath, referrer);
-    if (maybeModule.IsEmpty())
-    {
-        resource->ThrowException(std::format("Failed to resolve module {}", importPath));
-        return {};
-    }
-
-    return maybeModule;
 }

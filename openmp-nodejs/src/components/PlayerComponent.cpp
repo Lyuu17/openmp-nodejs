@@ -652,8 +652,8 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("spawn", spawn);
     SET_FUNCTION("forceClassSelection", forceClassSelection);
 
-#define SET_ACCESSOR(f, getter) v8obj->SetAccessor(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
-#define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetAccessor(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
+#define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
+#define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
 
     SET_ACCESSOR_WITH_SETTER("name", getName, setName);
     SET_ACCESSOR("id", getId);
