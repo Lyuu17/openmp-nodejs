@@ -35,7 +35,10 @@ void NodejsComponent::onLoad(ICore* core)
     m_core = core;
     m_core->getEventDispatcher().addEventHandler(this);
 
-    std::vector<std::string> args { "omp-server", "--no-warnings", "--expose-internals", "--inspect=127.0.0.1:5858" };
+    std::vector<std::string> args { "omp-server",
+        "--no-warnings",
+        "--expose-internals",
+        /*"--inspect=127.0.0.1:5858"*/ };
 
     auto result = node::InitializeOncePerProcess(args);
 
