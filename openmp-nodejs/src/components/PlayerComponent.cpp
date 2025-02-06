@@ -152,10 +152,16 @@ void PlayerComponent::getWeapons(const v8::FunctionCallbackInfo<v8::Value>& info
 
     auto& weaponSlots = playerComponent->m_player->getWeapons();
 
-    auto v8obj = v8::Object::New(info.GetIsolate());
+    auto v8obj = v8::Array::New(info.GetIsolate(), weaponSlots.size());
 
     for (const auto& [wep, ammo] : weaponSlots)
-        v8obj->Set(info.GetIsolate()->GetCurrentContext(), wep, v8::Number::New(info.GetIsolate(), ammo));
+    {
+        auto v8wep = v8::Object::New(info.GetIsolate());
+        v8wep->Set(info.GetIsolate()->GetCurrentContext(), Utils::v8Str("id"), v8::Number::New(info.GetIsolate(), wep));
+        v8wep->Set(info.GetIsolate()->GetCurrentContext(), Utils::v8Str("ammo"), v8::Number::New(info.GetIsolate(), ammo));
+
+        v8obj->Set(info.GetIsolate()->GetCurrentContext(), wep, v8wep);
+    }
 
     info.GetReturnValue().Set(v8obj);
 }
