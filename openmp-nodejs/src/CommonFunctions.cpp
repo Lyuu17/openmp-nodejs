@@ -15,6 +15,22 @@ void CommonFunctions::Init(Resource* resource)
         PRINTLN("{}", Utils::strV8(v8str.ToLocalChecked()));
     });
 
+    resource->AddFunction("printError", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto v8str = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
+        if (v8str.IsEmpty())
+            return;
+
+        LOGLN(Error, "{}", Utils::strV8(v8str.ToLocalChecked()));
+    });
+
+    resource->AddFunction("printWarning", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto v8str = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
+        if (v8str.IsEmpty())
+            return;
+
+        LOGLN(Warning, "{}", Utils::strV8(v8str.ToLocalChecked()));
+    });
+
     resource->AddFunction("on", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
         auto isolate = info.GetIsolate();
 
