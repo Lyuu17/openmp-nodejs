@@ -54,7 +54,7 @@ Resource::~Resource()
 
     m_isolate->Dispose();
 
-    envStarted = false;
+    m_envStarted = false;
 }
 
 void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* parentEnv)
@@ -103,7 +103,7 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
     AddFunction("__resourceLoaded", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
         auto resource = (Resource*)info.Data().As<v8::External>()->Value();
 
-        resource->envStarted = true;
+        resource->m_envStarted = true;
 
         PRINTLN("Resource loaded: {}", resource->m_folderName);
     }, this);
@@ -111,7 +111,7 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
     env = node::CreateEnvironment(nodeData, context, args, exec_args, flags, threadId, std::move(inspector));
     node::LoadEnvironment(env, bootstrapjs);
 
-    while (!envStarted)
+    while (!m_envStarted)
     {
         OnTick(platform);
     }

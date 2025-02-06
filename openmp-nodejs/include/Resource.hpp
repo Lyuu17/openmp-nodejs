@@ -16,7 +16,7 @@ public:
     const std::string           m_folderName;
     const std::string           m_packageBuf;
 
-    bool envStarted = false;
+    bool m_envStarted = false;
 
     v8::Isolate*            m_isolate;
     node::IsolateData*      nodeData = nullptr;
