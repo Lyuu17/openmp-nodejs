@@ -80,9 +80,15 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
     std::filesystem::path mainPath;
 
     auto packageJson = json::parse(m_packageBuf);
-    if (packageJson.contains("main") && packageJson["main"].is_string())
     {
-        mainPath = packageJson["main"].get<std::string>();
+        if (packageJson.contains("main") && packageJson["main"].is_string())
+        {
+            mainPath = packageJson["main"].get<std::string>();
+        }
+
+        m_name = packageJson.contains("name") && packageJson["name"].is_string()
+                     ? packageJson["name"].get<std::string>()
+                     : m_folderName;
     }
 
     node::ThreadId threadId  = node::AllocateEnvironmentThreadId();
@@ -97,6 +103,7 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
     auto resourceObj = v8::Object::New(m_isolate);
     resourceObj->Set(context, Utils::v8Str("path"), Utils::v8Str(m_folderPath.string()));
     resourceObj->Set(context, Utils::v8Str("main"), Utils::v8Str(mainPath.string()));
+    resourceObj->Set(context, Utils::v8Str("name"), Utils::v8Str(m_name));
 
     context->Global()->Set(context, Utils::v8Str("resource"), resourceObj);
 
@@ -105,7 +112,15 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
 
         resource->m_envStarted = true;
 
-        PRINTLN("Resource loaded: {}", resource->m_folderName);
+        if (!info[0]->IsNullOrUndefined())
+            resource->m_exports.Reset(info.GetIsolate(), info[0].As<v8::Value>());
+
+        auto& resourceName = resource->m_name;
+        NodejsComponent::getInstance()->getResourceManager()->Exec([resourceName](Resource* resource) {
+            resource->Emit("onResourceStart", { Utils::v8Str(resourceName) });
+        });
+
+        PRINTLN("Resource loaded: {}", resourceName);
     }, this);
 
     env = node::CreateEnvironment(nodeData, context, args, exec_args, flags, threadId, std::move(inspector));
@@ -115,6 +130,14 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
     {
         OnTick(platform);
     }
+}
+
+void Resource::Stop()
+{
+    auto& resourceName = m_name;
+    NodejsComponent::getInstance()->getResourceManager()->Exec([resourceName](Resource* resource) {
+        resource->Emit("onResourceStop", { Utils::v8Str(resourceName) });
+    });
 }
 
 void Resource::OnTick(node::MultiIsolatePlatform* platform)

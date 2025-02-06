@@ -18,11 +18,14 @@ public:
 
     bool m_envStarted = false;
 
+    std::string m_name;
+
     v8::Isolate*            m_isolate;
     node::IsolateData*      nodeData = nullptr;
     node::Environment*      env      = nullptr;
     uv_loop_t*              uvLoop   = nullptr;
     v8::Global<v8::Context> m_context;
+    v8::Global<v8::Value>   m_exports;
 
     std::unordered_map<std::filesystem::path, v8::Global<v8::Module>>      m_modules;
     std::unordered_map<std::string, std::vector<v8::Global<v8::Function>>> m_listeners;
@@ -41,6 +44,7 @@ public:
     }
 
     void Start(node::MultiIsolatePlatform* platform, node::Environment* parentEnv);
+    void Stop();
     void OnTick(node::MultiIsolatePlatform* platform);
     void AddListener(const std::string& name, v8::Local<v8::Function> listener);
     void Emit(const std::string& name, std::initializer_list<v8::Local<v8::Value>> values);

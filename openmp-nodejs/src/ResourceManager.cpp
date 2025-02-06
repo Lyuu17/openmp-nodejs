@@ -40,6 +40,9 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
+    for (auto& [path, resource] : m_resources)
+        resource->Stop();
+
     m_resources.clear();
 
     v8::V8::Dispose();
