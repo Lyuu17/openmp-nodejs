@@ -6,9 +6,10 @@
 #include "ResourceManager.hpp"
 #include "Utils.hpp"
 
-ClassEventsComponent::ClassEventsComponent(ICore* core, IClassesComponent* classes)
+ClassEventsComponent::ClassEventsComponent(ICore* core, IClassesComponent* classes, ResourceManager* resourceManager)
     : m_core(core)
     , m_classes(classes)
+    , m_resourceManager(resourceManager)
 {
     if (m_classes)
     {
@@ -38,7 +39,7 @@ bool ClassEventsComponent::onPlayerRequestClass(IPlayer& player, unsigned int cl
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object>  v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));

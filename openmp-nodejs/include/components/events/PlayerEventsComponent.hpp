@@ -3,6 +3,8 @@
 
 #include "common.hpp"
 
+#include "ResourceManager.hpp"
+
 #include <sdk.hpp>
 
 struct PlayerEventsComponent final : public IExtension,
@@ -19,10 +21,11 @@ struct PlayerEventsComponent final : public IExtension,
 {
     PROVIDE_EXT_UID(0x7069E1695D3C87EB);
 
-    ICore* m_core = nullptr;
+    ICore*           m_core            = nullptr;
+    ResourceManager* m_resourceManager = nullptr;
 
 public:
-    PlayerEventsComponent(ICore*);
+    PlayerEventsComponent(ICore*, ResourceManager*);
     ~PlayerEventsComponent();
 
     void freeExtension() override;

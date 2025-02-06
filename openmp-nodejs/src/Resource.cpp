@@ -11,7 +11,7 @@
 
 #include "bootstrapjs.hpp"
 
-Resource::Resource(const std::filesystem::path& folderPath, const std::string& folderName, const std::string& packageJsonBuf)
+Resource::Resource(node::MultiIsolatePlatform* platform, const std::filesystem::path& folderPath, const std::string& folderName, const std::string& packageJsonBuf)
     : m_folderPath(folderPath)
     , m_folderName(folderName)
     , m_packageBuf(packageJsonBuf)
@@ -20,8 +20,8 @@ Resource::Resource(const std::filesystem::path& folderPath, const std::string& f
     uv_loop_init(uvLoop);
 
     auto allocator = node::CreateArrayBufferAllocator();
-    m_isolate      = node::NewIsolate(allocator, uvLoop, NodejsComponent::getInstance()->m_platform.get());
-    nodeData       = node::CreateIsolateData(m_isolate, uvLoop, NodejsComponent::getInstance()->m_platform.get(), allocator);
+    m_isolate      = node::NewIsolate(allocator, uvLoop, platform);
+    nodeData       = node::CreateIsolateData(m_isolate, uvLoop, platform, allocator);
 
     v8::Locker         locker(m_isolate);
     v8::Isolate::Scope iscope(m_isolate);
@@ -52,10 +52,12 @@ Resource::~Resource()
     uv_loop_close(uvLoop);
     delete uvLoop;
 
+    m_isolate->Dispose();
+
     envStarted = false;
 }
 
-void Resource::Start()
+void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* parentEnv)
 {
     v8::Locker         locker(m_isolate);
     v8::Isolate::Scope iscope(m_isolate);
@@ -85,7 +87,7 @@ void Resource::Start()
 
     node::ThreadId threadId  = node::AllocateEnvironmentThreadId();
     auto           flags     = static_cast<node::EnvironmentFlags::Flags>(node::EnvironmentFlags::kNoFlags);
-    auto           inspector = node::GetInspectorParentHandle(NodejsComponent::getInstance()->parentEnv, threadId, m_folderName.c_str());
+    auto           inspector = node::GetInspectorParentHandle(parentEnv, threadId, m_folderName.c_str());
 
     std::vector<std::string> args { m_folderName };
     std::vector<std::string> exec_args {};
@@ -111,18 +113,18 @@ void Resource::Start()
 
     while (!envStarted)
     {
-        OnTick();
+        OnTick(platform);
     }
 }
 
-void Resource::OnTick()
+void Resource::OnTick(node::MultiIsolatePlatform* platform)
 {
     v8::Locker         locker(m_isolate);
     v8::Isolate::Scope iscope(m_isolate);
     v8::HandleScope    handle_scope(m_isolate);
     v8::Context::Scope context_scope(GetContext());
 
-    NodejsComponent::getInstance()->m_platform->DrainTasks(m_isolate);
+    platform->DrainTasks(m_isolate);
 
     uv_run(uvLoop, UV_RUN_NOWAIT);
 }

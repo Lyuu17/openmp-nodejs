@@ -3,11 +3,11 @@
 #include "components/PlayerComponent.hpp"
 
 #include "NodejsComponent.hpp"
-#include "ResourceManager.hpp"
 #include "Utils.hpp"
 
-PlayerEventsComponent::PlayerEventsComponent(ICore* core)
+PlayerEventsComponent::PlayerEventsComponent(ICore* core, ResourceManager* resourceManager)
     : m_core(core)
+    , m_resourceManager(resourceManager)
 {
     m_core->getPlayers().getPlayerConnectDispatcher().addEventHandler(this);
     m_core->getPlayers().getPlayerSpawnDispatcher().addEventHandler(this);
@@ -51,9 +51,9 @@ void PlayerEventsComponent::reset()
 
 void PlayerEventsComponent::onIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port)
 {
-    player.addExtension(new PlayerComponent(m_core->getPlayers().get(player.getID())), true);
+    player.addExtension(new PlayerComponent(m_core->getPlayers().get(player.getID()), NodejsComponent::getInstance()->getResourceManager()), true);
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object>  v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::String>  ip          = v8::String::NewFromUtf8(resource->m_isolate, ipAddress.data()).ToLocalChecked();
         v8::Local<v8::Integer> port_       = v8::Integer::New(resource->m_isolate, (int32_t)port);
@@ -64,7 +64,7 @@ void PlayerEventsComponent::onIncomingConnection(IPlayer& player, StringView ipA
 
 void PlayerEventsComponent::onPlayerConnect(IPlayer& player)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
         resource->Emit("onPlayerConnect", { v8objPlayer });
@@ -73,7 +73,7 @@ void PlayerEventsComponent::onPlayerConnect(IPlayer& player)
 
 void PlayerEventsComponent::onPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object>  v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Integer> reason_     = v8::Integer::New(resource->m_isolate, (int32_t)reason);
 
@@ -83,7 +83,7 @@ void PlayerEventsComponent::onPlayerDisconnect(IPlayer& player, PeerDisconnectRe
 
 void PlayerEventsComponent::onPlayerClientInit(IPlayer& player)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
         resource->Emit("onPlayerClientInit", { v8objPlayer });
@@ -94,7 +94,7 @@ bool PlayerEventsComponent::onPlayerText(IPlayer& player, StringView message)
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
@@ -113,7 +113,7 @@ bool PlayerEventsComponent::onPlayerCommandText(IPlayer& player, StringView mess
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
@@ -133,7 +133,7 @@ bool PlayerEventsComponent::onPlayerRequestSpawn(IPlayer& player)
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
@@ -150,7 +150,7 @@ bool PlayerEventsComponent::onPlayerRequestSpawn(IPlayer& player)
 
 void PlayerEventsComponent::onPlayerSpawn(IPlayer& player)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
         resource->Emit("onPlayerSpawn", { v8objPlayer });
@@ -159,7 +159,7 @@ void PlayerEventsComponent::onPlayerSpawn(IPlayer& player)
 
 void PlayerEventsComponent::onPlayerStreamIn(IPlayer& player, IPlayer& forPlayer)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer    = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Object> v8objForPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(forPlayer));
 
@@ -169,7 +169,7 @@ void PlayerEventsComponent::onPlayerStreamIn(IPlayer& player, IPlayer& forPlayer
 
 void PlayerEventsComponent::onPlayerStreamOut(IPlayer& player, IPlayer& forPlayer)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer    = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Object> v8objForPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(forPlayer));
 
@@ -185,7 +185,7 @@ bool PlayerEventsComponent::onPlayerShotPlayerObject(IPlayer& player, IPlayerObj
 
 void PlayerEventsComponent::onPlayerScoreChange(IPlayer& player, int score)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Number> v8score     = v8::Number::New(resource->m_isolate, score);
 
@@ -195,7 +195,7 @@ void PlayerEventsComponent::onPlayerScoreChange(IPlayer& player, int score)
 
 void PlayerEventsComponent::onPlayerNameChange(IPlayer& player, StringView oldName)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
         resource->Emit("onPlayerNameChange", { v8objPlayer, Utils::v8Str(oldName.data()) });
@@ -204,7 +204,7 @@ void PlayerEventsComponent::onPlayerNameChange(IPlayer& player, StringView oldNa
 
 void PlayerEventsComponent::onPlayerInteriorChange(IPlayer& player, unsigned newInterior, unsigned oldInterior)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer   = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Number> v8newInterior = v8::Number::New(resource->m_isolate, newInterior);
         v8::Local<v8::Number> v8oldInterior = v8::Number::New(resource->m_isolate, oldInterior);
@@ -215,7 +215,7 @@ void PlayerEventsComponent::onPlayerInteriorChange(IPlayer& player, unsigned new
 
 void PlayerEventsComponent::onPlayerStateChange(IPlayer& player, PlayerState newState, PlayerState oldState)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Number> v8newState  = v8::Number::New(resource->m_isolate, newState);
         v8::Local<v8::Number> v8oldState  = v8::Number::New(resource->m_isolate, oldState);
@@ -226,7 +226,7 @@ void PlayerEventsComponent::onPlayerStateChange(IPlayer& player, PlayerState new
 
 void PlayerEventsComponent::onPlayerKeyStateChange(IPlayer& player, uint32_t newKeys, uint32_t oldKeys)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Number> v8newKeys   = v8::Number::New(resource->m_isolate, newKeys);
         v8::Local<v8::Number> v8oldKeys   = v8::Number::New(resource->m_isolate, oldKeys);
@@ -237,7 +237,7 @@ void PlayerEventsComponent::onPlayerKeyStateChange(IPlayer& player, uint32_t new
 
 void PlayerEventsComponent::onPlayerDeath(IPlayer& player, IPlayer* killer, int reason)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Value>  v8objKiller = killer ? resource->ObjectFromExtension(queryExtension<PlayerComponent>(killer)).As<v8::Value>() : v8::Null(resource->m_isolate).As<v8::Value>();
         v8::Local<v8::Number> v8reason    = v8::Number::New(resource->m_isolate, reason);

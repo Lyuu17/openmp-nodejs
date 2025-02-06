@@ -8,23 +8,24 @@
 #include "Utils.hpp"
 #include "NodejsComponent.hpp"
 
-#define CHECK_EXTENSION_EXIST(isolate, component)                             \
-    auto resource = ResourceManager::GetResourceFromIsolate(isolate);         \
-    if (!resource->DoesObjectFromExtensionExist(component))                   \
-    {                                                                         \
-        resource->ThrowException("attempting to access a deleted component"); \
-        return;                                                               \
+#define CHECK_EXTENSION_EXIST(isolate, component)                                                          \
+    auto resource = NodejsComponent::getInstance()->getResourceManager()->GetResourceFromIsolate(isolate); \
+    if (!resource->DoesObjectFromExtensionExist(component))                                                \
+    {                                                                                                      \
+        resource->ThrowException("attempting to access a deleted component");                              \
+        return;                                                                                            \
     }
 
-#define ENSURE_VEHICLE_HAS_COMPONENT(vehicle, component)     \
-    if (!queryExtension<component>(vehicle))                 \
-    {                                                        \
-        vehicle->addExtension(new component(vehicle), true); \
-        assert(queryExtension<component>(vehicle));          \
+#define ENSURE_VEHICLE_HAS_COMPONENT(vehicle, component)                                                           \
+    if (!queryExtension<component>(vehicle))                                                                       \
+    {                                                                                                              \
+        vehicle->addExtension(new component(vehicle, NodejsComponent::getInstance()->getResourceManager()), true); \
+        assert(queryExtension<component>(vehicle));                                                                \
     }
 
-VehicleComponent::VehicleComponent(IVehicle* vehicle)
+VehicleComponent::VehicleComponent(IVehicle* vehicle, ResourceManager* resourceManager)
     : m_vehicle(vehicle)
+    , m_resourceManager(resourceManager)
 {
 }
 
@@ -34,7 +35,7 @@ VehicleComponent::~VehicleComponent()
 
 void VehicleComponent::freeExtension()
 {
-    ResourceManager::Exec([this](Resource* resource) {
+    m_resourceManager->Exec([this](Resource* resource) {
         resource->RemoveExtension(this);
     });
 

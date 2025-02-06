@@ -5,15 +5,27 @@
 
 #include "Resource.hpp"
 
-class ResourceManager {
+class ResourceManager : public IExtension {
 public:
-    inline static std::unordered_map<std::filesystem::path, std::shared_ptr<Resource>> m_resources;
+    PROVIDE_EXT_UID(0xB80687827766FA13);
 
-    static void Deinit();
+    v8::Isolate*            m_isolate = nullptr;
+    v8::Global<v8::Context> m_context;
+    node::Environment*      m_parentEnv = nullptr;
 
-    static void      Tick();
-    static void      LoadResourcesFromPath(const std::filesystem::path& path);
-    static void      LoadResource(const std::filesystem::path& path);
-    static void      Exec(std::function<void(Resource* resource)> func);
-    static Resource* GetResourceFromIsolate(v8::Isolate* isolate);
+    std::unique_ptr<node::MultiIsolatePlatform> m_platform;
+
+    std::unordered_map<std::filesystem::path, ResourcePtr> m_resources;
+
+    ResourceManager();
+    ~ResourceManager();
+
+    void freeExtension() override;
+    void reset() override;
+
+    void      Tick();
+    void      LoadResourcesFromPath(const std::filesystem::path& path);
+    void      LoadResource(const std::filesystem::path& path);
+    void      Exec(std::function<void(Resource* resource)> func);
+    Resource* GetResourceFromIsolate(v8::Isolate* isolate);
 };

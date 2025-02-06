@@ -8,7 +8,7 @@
 
 class Resource;
 
-using ResourcePtr = std::shared_ptr<Resource>;
+using ResourcePtr = std::unique_ptr<Resource>;
 
 class Resource {
 public:
@@ -29,7 +29,7 @@ public:
 
     std::unordered_map<IJavaScriptClassExtension*, v8::Global<v8::Object>> m_objectsFromExtension;
 
-    Resource(const std::filesystem::path& folderPath, const std::string& folderName, const std::string& packageJsonBuf);
+    Resource(node::MultiIsolatePlatform* platform, const std::filesystem::path& folderPath, const std::string& folderName, const std::string& packageJsonBuf);
     ~Resource();
 
     Resource(Resource&)            = delete;
@@ -40,8 +40,8 @@ public:
         return m_context.Get(m_isolate);
     }
 
-    void Start();
-    void OnTick();
+    void Start(node::MultiIsolatePlatform* platform, node::Environment* parentEnv);
+    void OnTick(node::MultiIsolatePlatform* platform);
     void AddListener(const std::string& name, v8::Local<v8::Function> listener);
     void Emit(const std::string& name, std::initializer_list<v8::Local<v8::Value>> values);
     void AddFunction(const std::string& name, v8::FunctionCallback cb, void* userdata = nullptr);

@@ -7,16 +7,17 @@
 #include "Utils.hpp"
 #include "NodejsComponent.hpp"
 
-#define CHECK_EXTENSION_EXIST(isolate, component)                             \
-    auto resource = ResourceManager::GetResourceFromIsolate(isolate);         \
-    if (!resource->DoesObjectFromExtensionExist(component))                   \
-    {                                                                         \
-        resource->ThrowException("attempting to access a deleted component"); \
-        return;                                                               \
+#define CHECK_EXTENSION_EXIST(isolate, component)                                                          \
+    auto resource = NodejsComponent::getInstance()->getResourceManager()->GetResourceFromIsolate(isolate); \
+    if (!resource->DoesObjectFromExtensionExist(component))                                                \
+    {                                                                                                      \
+        resource->ThrowException("attempting to access a deleted component");                              \
+        return;                                                                                            \
     }
 
-PlayerComponent::PlayerComponent(IPlayer* player)
+PlayerComponent::PlayerComponent(IPlayer* player, ResourceManager* resourceManager)
     : m_player(player)
+    , m_resourceManager(resourceManager)
 {
 }
 
@@ -26,7 +27,7 @@ PlayerComponent::~PlayerComponent()
 
 void PlayerComponent::freeExtension()
 {
-    ResourceManager::Exec([this](Resource* resource) {
+    m_resourceManager->Exec([this](Resource* resource) {
         resource->RemoveExtension(this);
     });
 

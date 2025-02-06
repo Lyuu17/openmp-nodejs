@@ -3,6 +3,8 @@
 
 #include "common.hpp"
 
+#include "ResourceManager.hpp"
+
 #include <Server/Components/Vehicles/vehicles.hpp>
 #include <sdk.hpp>
 
@@ -11,11 +13,12 @@ struct VehicleEventsComponent final : public IExtension,
 {
     PROVIDE_EXT_UID(0x48875A29CFD4F6EF);
 
-    ICore*              m_core     = nullptr;
-    IVehiclesComponent* m_vehicles = nullptr;
+    ICore*              m_core            = nullptr;
+    IVehiclesComponent* m_vehicles        = nullptr;
+    ResourceManager*    m_resourceManager = nullptr;
 
 public:
-    VehicleEventsComponent(ICore*, IVehiclesComponent*);
+    VehicleEventsComponent(ICore*, IVehiclesComponent*, ResourceManager*);
     ~VehicleEventsComponent();
 
     void freeExtension() override;

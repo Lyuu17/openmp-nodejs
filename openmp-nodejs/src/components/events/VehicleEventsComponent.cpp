@@ -7,9 +7,10 @@
 #include "ResourceManager.hpp"
 #include "Utils.hpp"
 
-VehicleEventsComponent::VehicleEventsComponent(ICore* core, IVehiclesComponent* vehicles)
+VehicleEventsComponent::VehicleEventsComponent(ICore* core, IVehiclesComponent* vehicles, ResourceManager* resourceManager)
     : m_core(core)
     , m_vehicles(vehicles)
+    , m_resourceManager(resourceManager)
 {
     if (m_vehicles)
     {
@@ -43,7 +44,7 @@ void VehicleEventsComponent::reset()
 
 void VehicleEventsComponent::onVehicleStreamIn(IVehicle& vehicle, IPlayer& player)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objVehicle = resource->ObjectFromExtension(queryExtension<VehicleComponent>(vehicle));
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
@@ -53,7 +54,7 @@ void VehicleEventsComponent::onVehicleStreamIn(IVehicle& vehicle, IPlayer& playe
 
 void VehicleEventsComponent::onVehicleStreamOut(IVehicle& vehicle, IPlayer& player)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objVehicle = resource->ObjectFromExtension(queryExtension<VehicleComponent>(vehicle));
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
@@ -63,7 +64,7 @@ void VehicleEventsComponent::onVehicleStreamOut(IVehicle& vehicle, IPlayer& play
 
 void VehicleEventsComponent::onVehicleDeath(IVehicle& vehicle, IPlayer& player)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objVehicle = resource->ObjectFromExtension(queryExtension<VehicleComponent>(vehicle));
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
@@ -73,7 +74,7 @@ void VehicleEventsComponent::onVehicleDeath(IVehicle& vehicle, IPlayer& player)
 
 void VehicleEventsComponent::onPlayerEnterVehicle(IPlayer& player, IVehicle& vehicle, bool passenger)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object>  v8objVehicle = resource->ObjectFromExtension(queryExtension<VehicleComponent>(vehicle));
         v8::Local<v8::Object>  v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Boolean> v8passenger  = v8::Boolean::New(resource->m_isolate, passenger);
@@ -84,7 +85,7 @@ void VehicleEventsComponent::onPlayerEnterVehicle(IPlayer& player, IVehicle& veh
 
 void VehicleEventsComponent::onPlayerExitVehicle(IPlayer& player, IVehicle& vehicle)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objVehicle = resource->ObjectFromExtension(queryExtension<VehicleComponent>(vehicle));
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
@@ -94,7 +95,7 @@ void VehicleEventsComponent::onPlayerExitVehicle(IPlayer& player, IVehicle& vehi
 
 void VehicleEventsComponent::onVehicleDamageStatusUpdate(IVehicle& vehicle, IPlayer& player)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objVehicle = resource->ObjectFromExtension(queryExtension<VehicleComponent>(vehicle));
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
 
@@ -106,7 +107,7 @@ bool VehicleEventsComponent::onVehiclePaintJob(IPlayer& player, IVehicle& vehicl
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
@@ -126,7 +127,7 @@ bool VehicleEventsComponent::onVehicleMod(IPlayer& player, IVehicle& vehicle, in
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
@@ -146,7 +147,7 @@ bool VehicleEventsComponent::onVehicleRespray(IPlayer& player, IVehicle& vehicle
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
@@ -165,7 +166,7 @@ bool VehicleEventsComponent::onVehicleRespray(IPlayer& player, IVehicle& vehicle
 
 void VehicleEventsComponent::onEnterExitModShop(IPlayer& player, bool enterexit, int interiorID)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object>  v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
         v8::Local<v8::Boolean> v8enterexit  = v8::Boolean::New(resource->m_isolate, enterexit);
         v8::Local<v8::Number>  v8interiorId = v8::Number::New(resource->m_isolate, interiorID);
@@ -176,7 +177,7 @@ void VehicleEventsComponent::onEnterExitModShop(IPlayer& player, bool enterexit,
 
 void VehicleEventsComponent::onVehicleSpawn(IVehicle& vehicle)
 {
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object> v8objVehicle = resource->ObjectFromExtension(queryExtension<VehicleComponent>(vehicle));
 
         resource->Emit("onVehicleSpawn", { v8objVehicle });
@@ -187,7 +188,7 @@ bool VehicleEventsComponent::onUnoccupiedVehicleUpdate(IVehicle& vehicle, IPlaye
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object> v8objVehicle = resource->ObjectFromExtension(queryExtension<VehicleComponent>(vehicle));
@@ -213,7 +214,7 @@ bool VehicleEventsComponent::onTrailerUpdate(IPlayer& player, IVehicle& trailer)
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
@@ -232,7 +233,7 @@ bool VehicleEventsComponent::onVehicleSirenStateChange(IPlayer& player, IVehicle
 {
     bool cancelled = false;
 
-    ResourceManager::Exec([&](Resource* resource) {
+    m_resourceManager->Exec([&](Resource* resource) {
         auto cancellableEventObj = Utils::CancellableEventObject();
 
         v8::Local<v8::Object> v8objPlayer  = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));

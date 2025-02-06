@@ -3,7 +3,7 @@
 
 #include "common.hpp"
 
-#include "Resource.hpp"
+#include "ResourceManager.hpp"
 #include "IJavaScriptClassExtension.hpp"
 
 #include <sdk.hpp>
@@ -13,9 +13,10 @@ struct PlayerComponent final : public IExtension,
 {
     PROVIDE_EXT_UID(0x88FB0AC44120E3E8);
 
-    IPlayer* m_player;
+    IPlayer*         m_player;
+    ResourceManager* m_resourceManager;
 
-    PlayerComponent(IPlayer*);
+    PlayerComponent(IPlayer*, ResourceManager*);
     ~PlayerComponent();
 
     void freeExtension() override;

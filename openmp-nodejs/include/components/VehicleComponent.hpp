@@ -3,7 +3,7 @@
 
 #include "common.hpp"
 
-#include "Resource.hpp"
+#include "ResourceManager.hpp"
 #include "IJavaScriptClassExtension.hpp"
 
 #include <sdk.hpp>
@@ -13,9 +13,10 @@ struct VehicleComponent final : public IExtension,
 {
     PROVIDE_EXT_UID(0xC4E68E76688A82EF);
 
-    IVehicle* m_vehicle;
+    IVehicle*        m_vehicle;
+    ResourceManager* m_resourceManager;
 
-    VehicleComponent(IVehicle*);
+    VehicleComponent(IVehicle*, ResourceManager*);
     ~VehicleComponent();
 
     void freeExtension() override;

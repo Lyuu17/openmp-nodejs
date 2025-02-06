@@ -1,12 +1,14 @@
 
 #pragma once
 
+#include "common.hpp"
+
+#include "ResourceManager.hpp"
+
 #include <Server/Components/Classes/classes.hpp>
 #include <Server/Components/Databases/databases.hpp>
 #include <Server/Components/Vehicles/vehicles.hpp>
 #include <sdk.hpp>
-
-#include "common.hpp"
 
 #define PRINTLN(x, ...) \
     NodejsComponent::getInstance()->getCore()->printLn(std::format(x, __VA_ARGS__).c_str());
@@ -22,20 +24,13 @@ struct NodejsComponent : public IComponent,
 private:
     static NodejsComponent* m_instance;
 
-    v8::Isolate*            isolate = nullptr;
-    v8::Global<v8::Context> context;
-
     ICore* m_core = nullptr;
 
-    IClassesComponent*   m_classes   = nullptr;
-    IDatabasesComponent* m_databases = nullptr;
-    IVehiclesComponent*  m_vehicles  = nullptr;
+    IClassesComponent*  m_classes         = nullptr;
+    IVehiclesComponent* m_vehicles        = nullptr;
+    ResourceManager*    m_resourceManager = nullptr;
 
 public:
-    node::Environment* parentEnv = nullptr;
-
-    std::unique_ptr<node::MultiIsolatePlatform> m_platform;
-
     ~NodejsComponent();
 
     StringView      componentName() const override;
@@ -47,10 +42,10 @@ public:
     void reset() override;
     void onTick(std::chrono::microseconds elapsed, std::chrono::steady_clock::time_point now) override;
 
-    ICore*               getCore();
-    IClassesComponent*   getClasses();
-    IDatabasesComponent* getDatabases();
-    IVehiclesComponent*  getVehicles();
+    ICore*              getCore();
+    IClassesComponent*  getClasses();
+    IVehiclesComponent* getVehicles();
+    ResourceManager*    getResourceManager();
 
     static NodejsComponent* getInstance();
 };
