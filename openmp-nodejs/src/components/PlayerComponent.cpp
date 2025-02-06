@@ -47,8 +47,6 @@ void PlayerComponent::kick(const v8::FunctionCallbackInfo<v8::Value>& info)
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     playerComponent->m_player->kick();
-
-    info.GetReturnValue().Set(true);
 }
 
 void PlayerComponent::ban(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -62,8 +60,6 @@ void PlayerComponent::ban(const v8::FunctionCallbackInfo<v8::Value>& info)
         reason = Utils::strV8(info[0]->ToString(info.GetIsolate()->GetCurrentContext()).ToLocalChecked());
 
     playerComponent->m_player->ban(reason.c_str());
-
-    info.GetReturnValue().Set(true);
 }
 
 void PlayerComponent::giveMoney(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -101,8 +97,6 @@ void PlayerComponent::giveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info
     };
 
     playerComponent->m_player->giveWeapon(weaponSlotData);
-
-    info.GetReturnValue().Set(true);
 }
 
 void PlayerComponent::removeWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -116,8 +110,6 @@ void PlayerComponent::removeWeapon(const v8::FunctionCallbackInfo<v8::Value>& in
         return;
 
     playerComponent->m_player->removeWeapon(v8intWeapon.value());
-
-    info.GetReturnValue().Set(true);
 }
 
 void PlayerComponent::setWeaponAmmo(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -140,8 +132,6 @@ void PlayerComponent::setWeaponAmmo(const v8::FunctionCallbackInfo<v8::Value>& i
     };
 
     playerComponent->m_player->setWeaponAmmo(weaponSlotData);
-
-    info.GetReturnValue().Set(true);
 }
 
 void PlayerComponent::getWeapons(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -193,8 +183,6 @@ void PlayerComponent::resetWeapons(const v8::FunctionCallbackInfo<v8::Value>& in
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     playerComponent->m_player->resetWeapons();
-
-    info.GetReturnValue().Set(true);
 }
 
 void PlayerComponent::spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -212,8 +200,6 @@ void PlayerComponent::spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         playerClassData->spawnPlayer();
     }
-
-    info.GetReturnValue().Set(true);
 }
 
 void PlayerComponent::forceClassSelection(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -223,8 +209,6 @@ void PlayerComponent::forceClassSelection(const v8::FunctionCallbackInfo<v8::Val
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
     playerComponent->m_player->forceClassSelection();
-
-    info.GetReturnValue().Set(true);
 }
 
 // ====================== accessors ======================
@@ -636,6 +620,47 @@ void PlayerComponent::setSpawnInfo(v8::Local<v8::Name> property, v8::Local<v8::V
     playerClassData->setSpawnInfo(playerClass);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getControllable()));
+}
+
+void PlayerComponent::getVehicle(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    auto playerClassData = queryExtension<IPlayerClassData>(playerComponent->m_player);
+    if (!playerClassData)
+    {
+        info.GetReturnValue().SetNull();
+        return;
+    }
+
+    auto context = info.GetIsolate()->GetCurrentContext();
+
+    auto& playerClass = playerClassData->getClass();
+
+    auto v8playerClass = v8::Object::New(info.GetIsolate());
+    v8playerClass->Set(context, Utils::v8Str("team"), v8::Integer::New(info.GetIsolate(), playerClass.team));
+    v8playerClass->Set(context, Utils::v8Str("skin"), v8::Integer::New(info.GetIsolate(), playerClass.skin));
+    v8playerClass->Set(context, Utils::v8Str("spawn"), Utils::v8Vector3(playerClass.spawn));
+    v8playerClass->Set(context, Utils::v8Str("angle"), v8::Number::New(info.GetIsolate(), playerClass.angle));
+
+    auto v8weaponSlotList = v8::Array::New(info.GetIsolate(), playerClass.weapons.size());
+    for (int i = 0; i < playerClass.weapons.size(); i++)
+    {
+        for (auto& weaponSlotData : playerClass.weapons)
+        {
+            auto v8weaponSlot = v8::Object::New(info.GetIsolate());
+            v8weaponSlot->Set(context, Utils::v8Str("id"), v8::Integer::New(info.GetIsolate(), weaponSlotData.id));
+            v8weaponSlot->Set(context, Utils::v8Str("ammo"), v8::Integer::New(info.GetIsolate(), weaponSlotData.ammo));
+
+            v8weaponSlotList->Set(context, i, v8weaponSlot);
+        }
+    }
+
+    v8playerClass->Set(context, Utils::v8Str("weapons"), v8weaponSlotList);
+
+    info.GetReturnValue().Set(v8playerClass);
 }
 
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()

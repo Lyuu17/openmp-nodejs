@@ -55,8 +55,6 @@ void VehicleComponent::repair(const v8::FunctionCallbackInfo<v8::Value>& info)
     CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
 
     vehicleComponent->m_vehicle->repair();
-
-    info.GetReturnValue().Set(true);
 }
 
 void VehicleComponent::putPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -77,8 +75,6 @@ void VehicleComponent::putPlayer(const v8::FunctionCallbackInfo<v8::Value>& info
     auto player = NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value());
 
     vehicleComponent->m_vehicle->putPlayer(*player, v8seat.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
-
-    info.GetReturnValue().Set(true);
 }
 
 // ====================== accessors ======================
