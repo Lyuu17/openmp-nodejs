@@ -1,6 +1,4 @@
-/*
- * open.mp nodejs impl
-*/
+/// <reference path="./types.d.ts"/>
 
 /**
  * Print a message using open.mp
@@ -25,7 +23,7 @@ declare function printWarning(message: string): void;
  * @param eventName 
  * @param handler 
  */
-declare function on(eventName: string, handler: Function): void;
+declare function on(eventName: string, handler: IEventHandler): void;
 
 /**
  * Send a client message globally

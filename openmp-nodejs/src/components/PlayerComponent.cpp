@@ -2,6 +2,7 @@
 #include <sdk.hpp>
 
 #include "components/PlayerComponent.hpp"
+#include "components/VehicleComponent.hpp"
 #include "Resource.hpp"
 #include "ResourceManager.hpp"
 #include "Utils.hpp"
@@ -628,8 +629,14 @@ void PlayerComponent::getVehicle(v8::Local<v8::Name> property, const v8::Propert
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
 
-    auto playerClassData = queryExtension<IPlayerClassData>(playerComponent->m_player);
-    if (!playerClassData)
+    auto playerVehicleData = queryExtension<IPlayerVehicleData>(playerComponent->m_player);
+    if (!playerVehicleData)
+    {
+        info.GetReturnValue().SetNull();
+        return;
+    }
+
+    if (!playerVehicleData->getVehicle())
     {
         info.GetReturnValue().SetNull();
         return;
@@ -637,30 +644,17 @@ void PlayerComponent::getVehicle(v8::Local<v8::Name> property, const v8::Propert
 
     auto context = info.GetIsolate()->GetCurrentContext();
 
-    auto& playerClass = playerClassData->getClass();
-
-    auto v8playerClass = v8::Object::New(info.GetIsolate());
-    v8playerClass->Set(context, Utils::v8Str("team"), v8::Integer::New(info.GetIsolate(), playerClass.team));
-    v8playerClass->Set(context, Utils::v8Str("skin"), v8::Integer::New(info.GetIsolate(), playerClass.skin));
-    v8playerClass->Set(context, Utils::v8Str("spawn"), Utils::v8Vector3(playerClass.spawn));
-    v8playerClass->Set(context, Utils::v8Str("angle"), v8::Number::New(info.GetIsolate(), playerClass.angle));
-
-    auto v8weaponSlotList = v8::Array::New(info.GetIsolate(), playerClass.weapons.size());
-    for (int i = 0; i < playerClass.weapons.size(); i++)
+    auto vehicleComponent = queryExtension<VehicleComponent>(playerVehicleData->getVehicle());
+    if (!vehicleComponent)
     {
-        for (auto& weaponSlotData : playerClass.weapons)
-        {
-            auto v8weaponSlot = v8::Object::New(info.GetIsolate());
-            v8weaponSlot->Set(context, Utils::v8Str("id"), v8::Integer::New(info.GetIsolate(), weaponSlotData.id));
-            v8weaponSlot->Set(context, Utils::v8Str("ammo"), v8::Integer::New(info.GetIsolate(), weaponSlotData.ammo));
+        playerVehicleData->getVehicle()->addExtension(new VehicleComponent(playerVehicleData->getVehicle(), NodejsComponent::getInstance()->getResourceManager()), true);
 
-            v8weaponSlotList->Set(context, i, v8weaponSlot);
-        }
+        vehicleComponent = queryExtension<VehicleComponent>(playerVehicleData->getVehicle());
+
+        assert(vehicleComponent);
     }
 
-    v8playerClass->Set(context, Utils::v8Str("weapons"), v8weaponSlotList);
-
-    info.GetReturnValue().Set(v8playerClass);
+    info.GetReturnValue().Set(resource->ObjectFromExtension(vehicleComponent));
 }
 
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
@@ -703,6 +697,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("wantedLevel", getWantedLevel, setWantedLevel);
     SET_ACCESSOR_WITH_SETTER("controllable", getControllable, setControllable);
     SET_ACCESSOR_WITH_SETTER("spawnInfo", getSpawnInfo, setSpawnInfo);
+    SET_ACCESSOR("vehicle", getVehicle);
 
     return v8obj;
 }

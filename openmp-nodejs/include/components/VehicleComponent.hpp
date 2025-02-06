@@ -25,6 +25,8 @@ struct VehicleComponent final : public IExtension,
     static void repair(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void putPlayer(const v8::FunctionCallbackInfo<v8::Value>& info);
 
+    static void getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+
     static void getHealth(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
     static void setHealth(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 

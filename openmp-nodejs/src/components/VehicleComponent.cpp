@@ -68,7 +68,7 @@ void VehicleComponent::putPlayer(const v8::FunctionCallbackInfo<v8::Value>& info
     if (v8player.IsEmpty() || v8seat.IsEmpty())
         return;
 
-    auto playerId = Utils::GetPlayerIdFromV8Object(v8player);
+    auto playerId = Utils::GetIdFromV8Object(v8player);
     if (!playerId.has_value())
         return;
 
@@ -78,6 +78,15 @@ void VehicleComponent::putPlayer(const v8::FunctionCallbackInfo<v8::Value>& info
 }
 
 // ====================== accessors ======================
+
+void VehicleComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+
+    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getID()));
+}
 
 void VehicleComponent::getHealth(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
@@ -186,6 +195,7 @@ v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
 
+    SET_ACCESSOR("id", getId);
     SET_ACCESSOR_WITH_SETTER("health", getHealth, setHealth);
     SET_ACCESSOR_WITH_SETTER("position", getPosition, setPosition);
     SET_ACCESSOR("driver", getDriver);

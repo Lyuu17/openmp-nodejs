@@ -2,6 +2,16 @@
  * open.mp nodejs impl
 */
 
+declare interface IResource {
+  name: string;
+  main: string;
+  path: string;
+}
+
+declare var resource: IResource;
+
+declare type IEventHandler = (resourceName: string) => void;
+
 declare interface Vector3 {
   x: number;
   y: number;
@@ -24,7 +34,7 @@ declare interface IWeaponSlots {
 declare interface IPlayer {
 
   name: string;
-  id: number;
+  readonly id: number;
   position: Vector3;
   money: number;
   score: number;
@@ -39,6 +49,7 @@ declare interface IPlayer {
   wantedLevel: number;
   controllable: boolean;
   spawnInfo: ISpawnInfo;
+  readonly vehicle: IVehicle;
 
 
   kick(): void;
@@ -56,11 +67,12 @@ declare interface IPlayer {
 
 declare interface IVehicle {
 
+  readonly id: number;
   health: number;
   position: Vector3;
-  driver: IPlayer;
+  readonly driver: IPlayer;
   plate: string;
-  model: number;
+  readonly model: number;
 
   repair(): void;
   putPlayer(player: IPlayer, seat: number): void;

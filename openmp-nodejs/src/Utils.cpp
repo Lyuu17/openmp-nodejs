@@ -106,7 +106,7 @@ std::optional<double> Utils::GetDoubleFromV8Value(v8::MaybeLocal<v8::Value> val)
     return v8num.ToLocalChecked()->Value();
 }
 
-std::optional<uint32_t> Utils::GetPlayerIdFromV8Object(v8::MaybeLocal<v8::Object> val)
+std::optional<uint32_t> Utils::GetIdFromV8Object(v8::MaybeLocal<v8::Object> val)
 {
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
@@ -114,15 +114,15 @@ std::optional<uint32_t> Utils::GetPlayerIdFromV8Object(v8::MaybeLocal<v8::Object
     if (val.IsEmpty())
         return std::nullopt;
 
-    auto playerIdField = val.ToLocalChecked()->Get(context, Utils::v8Str("id"));
-    if (playerIdField.IsEmpty())
+    auto idField = val.ToLocalChecked()->Get(context, Utils::v8Str("id"));
+    if (idField.IsEmpty())
         return std::nullopt;
 
-    auto playerId = playerIdField.ToLocalChecked()->IntegerValue(context);
-    if (playerId.IsNothing())
+    auto id = idField.ToLocalChecked()->IntegerValue(context);
+    if (id.IsNothing())
         return std::nullopt;
 
-    return playerId.ToChecked();
+    return id.ToChecked();
 }
 
 std::optional<WeaponSlots> Utils::GetWeaponSlotsDataFromV8Object(v8::MaybeLocal<v8::Value> val)

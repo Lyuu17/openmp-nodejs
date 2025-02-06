@@ -69,7 +69,7 @@ void CommonFunctions::Init(Resource* resource)
         if (v8player.IsEmpty())
             return;
 
-        auto playerId = Utils::GetPlayerIdFromV8Object(v8player);
+        auto playerId = Utils::GetIdFromV8Object(v8player);
         if (!playerId.has_value())
             return;
 
