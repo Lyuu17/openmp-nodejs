@@ -38,7 +38,7 @@ declare function message(message: string, colour?: number): void;
  * @param player
  * @param colour RGBA value. Default 0xFFFFFFFF
  */
-declare function messagePlayer(message: string, player: IPlayer, colour: number): void;
+declare function messagePlayer(message: string, player: IPlayer, colour?: number): void;
 
 // ========================================= player =========================================
 
@@ -68,3 +68,15 @@ declare function getVehicle(id: number): IVehicle;
  * @param addSiren Default: false
  */
 declare function createVehicle(isStatic: boolean, model: number, position: Vector3, angle?: number, color1?: number, color2?: number, respawnDelay?: number, addSiren?: boolean): IVehicle;
+
+// ========================================= classes =========================================
+
+/**
+ * Add a player class
+ * @param team
+ * @param model
+ * @param position
+ * @param angle
+ * @param weapons
+ */
+declare function addPlayerClass(team: number, model: number, position: Vector3, angle: number, weapons?: IWeaponSlots[]): void;

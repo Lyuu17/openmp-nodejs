@@ -10,7 +10,11 @@ declare interface IResource {
 
 declare var resource: IResource;
 
-declare type IEventHandler = (resourceName: string) => void;
+declare interface IEvent {
+  preventDefault(): void;
+}
+
+declare type IEventHandler = (...args: any) => void;
 
 declare interface Vector3 {
   x: number;
