@@ -47,7 +47,7 @@ public:
     void Stop();
     void OnTick(node::MultiIsolatePlatform* platform);
     void AddListener(const std::string& name, v8::Local<v8::Function> listener);
-    void Emit(const std::string& name, std::initializer_list<v8::Local<v8::Value>> values);
+    void Emit(const std::string& name, const std::initializer_list<v8::Local<v8::Value>>& values);
     void AddFunction(const std::string& name, v8::FunctionCallback cb, void* userdata = nullptr);
     void ReportException(v8::TryCatch* try_catch);
     void ThrowException(const std::string& text);

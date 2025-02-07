@@ -44,6 +44,26 @@ void CommonFunctions::Init(Resource* resource)
         resource->AddListener(Utils::strV8(v8str.ToLocalChecked()), v8func);
     }, resource);
 
+    resource->AddFunction("emit", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto isolate = info.GetIsolate();
+
+        auto resource = (Resource*)info.Data().As<v8::External>()->Value();
+
+        auto v8str = info[0]->ToString(isolate->GetCurrentContext());
+        if (v8str.IsEmpty())
+            return;
+
+        std::vector<v8::Local<v8::Value>> args;
+        for (int i = 1; i < info.Length(); i++)
+            args.push_back(info[i]);
+
+        std::initializer_list<v8::Local<v8::Value>> argsList;
+        if (args.size() > 0)
+            argsList = std::initializer_list<v8::Local<v8::Value>>(&(args.front()), &(args.back()));
+
+        resource->Emit(Utils::strV8(v8str.ToLocalChecked()), argsList);
+    }, resource);
+
     resource->AddFunction("message", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
         auto isolate = info.GetIsolate();
 

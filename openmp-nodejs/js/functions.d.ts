@@ -26,6 +26,13 @@ declare function printWarning(message: string): void;
 declare function on(eventName: string, handler: IEventHandler): void;
 
 /**
+ * Emit an event
+ * @param eventName
+ * @param args
+ */
+declare function emit(eventName: string, ...args: any): void;
+
+/**
  * Send a client message globally
  * @param message 
  * @param colour RGBA value. Default 0xFFFFFFFF
