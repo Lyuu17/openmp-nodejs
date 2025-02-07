@@ -657,6 +657,19 @@ void PlayerComponent::getVehicle(v8::Local<v8::Name> property, const v8::Propert
     info.GetReturnValue().Set(resource->ObjectFromExtension(vehicleComponent));
 }
 
+void PlayerComponent::getIp(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    PeerAddress::AddressString addressStr;
+
+    PeerAddress::ToString(playerComponent->m_player->getNetworkData().networkID.address, addressStr);
+
+    info.GetReturnValue().Set(Utils::v8Str(addressStr.data()));
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -698,6 +711,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("controllable", getControllable, setControllable);
     SET_ACCESSOR_WITH_SETTER("spawnInfo", getSpawnInfo, setSpawnInfo);
     SET_ACCESSOR("vehicle", getVehicle);
+    SET_ACCESSOR("ip", getIp);
 
     return v8obj;
 }

@@ -54,6 +54,7 @@ declare interface IPlayer {
   controllable: boolean;
   spawnInfo: ISpawnInfo;
   readonly vehicle: IVehicle;
+  readonly ip: string;
 
 
   kick(): void;
