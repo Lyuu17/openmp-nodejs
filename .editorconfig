@@ -8,10 +8,14 @@ root = true
 [*]
 end_of_line = lf
 insert_final_newline = true
+indent_style = space
 
 # Set default charset
 [*.{c,cpp,h,hpp}]
 charset = utf-8
+
+[*.ts]
+indent_size = 2
 
 # Trim trailing whitespace
 [*.{c,cpp,h,hpp}]
