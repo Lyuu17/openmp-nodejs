@@ -36,6 +36,10 @@ Resource::~Resource()
     v8::Locker         locker(m_isolate);
     v8::Isolate::Scope isolateScope(m_isolate);
     v8::HandleScope    handleScope(m_isolate);
+    v8::Context::Scope context_scope(GetContext());
+
+    node::EmitAsyncDestroy(m_isolate, m_asyncContext);
+    m_asyncResource.Reset();
 
     m_modules.clear();
     m_listeners.clear();
@@ -93,9 +97,9 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
 
     node::ThreadId threadId  = node::AllocateEnvironmentThreadId();
     auto           flags     = static_cast<node::EnvironmentFlags::Flags>(node::EnvironmentFlags::kNoFlags);
-    auto           inspector = node::GetInspectorParentHandle(parentEnv, threadId, m_folderName.c_str());
+    auto           inspector = node::GetInspectorParentHandle(parentEnv, threadId, m_name.c_str());
 
-    std::vector<std::string> args { m_folderName };
+    std::vector<std::string> args { m_name };
     std::vector<std::string> exec_args {};
 
     auto context = m_isolate->GetCurrentContext();
@@ -126,6 +130,9 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
     env = node::CreateEnvironment(nodeData, context, args, exec_args, flags, threadId, std::move(inspector));
     node::LoadEnvironment(env, bootstrapjs);
 
+    m_asyncResource.Reset(m_isolate, v8::Object::New(m_isolate));
+    m_asyncContext = node::EmitAsyncInit(m_isolate, m_asyncResource.Get(m_isolate), m_name.c_str());
+
     while (!m_envStarted)
     {
         OnTick(platform);
@@ -146,6 +153,9 @@ void Resource::OnTick(node::MultiIsolatePlatform* platform)
     v8::Isolate::Scope iscope(m_isolate);
     v8::HandleScope    handle_scope(m_isolate);
     v8::Context::Scope context_scope(GetContext());
+
+    // run the async otherwise promises won't be fullfilled ever
+    node::CallbackScope callbackScope(m_isolate, m_asyncResource.Get(m_isolate), m_asyncContext);
 
     platform->DrainTasks(m_isolate);
 
