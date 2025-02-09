@@ -30,7 +30,7 @@ declare class Vector3 {
 declare interface ISpawnInfo {
   team: number;
   skin: number;
-  spawn: number;
+  spawn: Vector3;
   angle: number;
   weapons: IWeaponSlots[];
 }
