@@ -142,7 +142,7 @@ void VehicleComponent::getRotation(v8::Local<v8::Name> property, const v8::Prope
 
     CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
 
-    info.GetReturnValue().Set(Utils::v8Quat(vehicleComponent->m_vehicle->getPosition()));
+    info.GetReturnValue().Set(Utils::v8Quat(vehicleComponent->m_vehicle->getRotation()));
 }
 
 void VehicleComponent::setRotation(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
