@@ -103,3 +103,12 @@ declare interface IVehicle {
   repair(): void;
   putPlayer(player: IPlayer, seat: number): void;
 }
+
+declare interface IPickup {
+
+  type: number;
+  model: number;
+  position: Vector3;
+
+  destroy(): void;
+}

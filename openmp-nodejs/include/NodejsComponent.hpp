@@ -6,8 +6,8 @@
 #include "ResourceManager.hpp"
 
 #include <Server/Components/Classes/classes.hpp>
-#include <Server/Components/Databases/databases.hpp>
 #include <Server/Components/Vehicles/vehicles.hpp>
+#include <Server/Components/Pickups/pickups.hpp>
 #include <sdk.hpp>
 
 #define PRINTLN(x, ...) \
@@ -28,6 +28,7 @@ private:
 
     IClassesComponent*  m_classes         = nullptr;
     IVehiclesComponent* m_vehicles        = nullptr;
+    IPickupsComponent*  m_pickups         = nullptr;
     ResourceManager*    m_resourceManager = nullptr;
 
 public:
@@ -45,6 +46,7 @@ public:
     ICore*              getCore();
     IClassesComponent*  getClasses();
     IVehiclesComponent* getVehicles();
+    IPickupsComponent*  getPickups();
     ResourceManager*    getResourceManager();
 
     static NodejsComponent* getInstance();

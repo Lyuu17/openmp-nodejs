@@ -87,3 +87,16 @@ declare function createVehicle(isStatic: boolean, model: number, position: Vecto
  * @param weapons
  */
 declare function addPlayerClass(model: number, team: number, position: Vector3, angle: number, weapons?: IWeaponSlots[]): void;
+
+
+// ========================================= pickups =========================================
+
+/**
+ * Create a pickup
+ * @param model
+ * @param pickupType
+ * @param position
+ * @param virtualworld
+ * @param isStatic
+ */
+declare function createPickup(model: number, pickupType: number, position: Vector3, virtualworld: number, isStatic: boolean): IPickup;
