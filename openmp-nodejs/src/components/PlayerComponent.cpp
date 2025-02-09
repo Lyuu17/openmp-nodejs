@@ -199,6 +199,11 @@ void PlayerComponent::spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         playerClassData->spawnPlayer();
     }
+
+    NodejsComponent::getInstance()->getResourceManager()->Exec([&playerComponent](Resource* resource) {
+        v8::Local<v8::Object> v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(playerComponent->m_player));
+        resource->Emit("onPlayerSpawn", { v8objPlayer }); // onPlayerSpawn isn't called when player is forced to spawn
+    });
 }
 
 void PlayerComponent::forceClassSelection(const v8::FunctionCallbackInfo<v8::Value>& info)
