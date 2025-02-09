@@ -89,6 +89,18 @@ v8::Local<v8::Object> Utils::v8Quat(GTAQuat quat)
     return v8obj;
 }
 
+v8::Local<v8::Object> Utils::v8PlayerBulletData(const PlayerBulletData& playerBulletData)
+{
+    auto v8obj = v8::Object::New(v8::Isolate::GetCurrent());
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("origin"), v8Vector3(playerBulletData.origin));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("bodyPart"), v8Vector3(playerBulletData.hitPos));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("hitEntity"), v8Vector3(playerBulletData.offset));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("weapon"), v8::Integer::New(v8::Isolate::GetCurrent(), playerBulletData.weapon));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("hitType"), v8::Integer::New(v8::Isolate::GetCurrent(), playerBulletData.hitType));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("hitId"), v8::Integer::New(v8::Isolate::GetCurrent(), playerBulletData.hitID));
+    return v8obj;
+}
+
 v8::Local<v8::Object> Utils::CancellableEventObject()
 {
     auto isolate = v8::Isolate::GetCurrent();

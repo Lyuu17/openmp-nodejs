@@ -1,6 +1,7 @@
 
 #include "components/events/PlayerEventsComponent.hpp"
 #include "components/PlayerComponent.hpp"
+#include "components/VehicleComponent.hpp"
 
 #include "NodejsComponent.hpp"
 #include "Utils.hpp"
@@ -177,9 +178,68 @@ void PlayerEventsComponent::onPlayerStreamOut(IPlayer& player, IPlayer& forPlaye
     });
 }
 
-bool PlayerEventsComponent::onPlayerShotMissed(IPlayer& player, const PlayerBulletData& bulletData) { return true; }
-bool PlayerEventsComponent::onPlayerShotPlayer(IPlayer& player, IPlayer& target, const PlayerBulletData& bulletData) { return true; }
-bool PlayerEventsComponent::onPlayerShotVehicle(IPlayer& player, IVehicle& target, const PlayerBulletData& bulletData) { return true; }
+bool PlayerEventsComponent::onPlayerShotMissed(IPlayer& player, const PlayerBulletData& bulletData)
+{
+    bool cancelled = false;
+
+    m_resourceManager->Exec([&](Resource* resource) {
+        auto cancellableEventObj = Utils::CancellableEventObject();
+
+        auto v8objPlayer     = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+        auto v8objBulletData = Utils::v8PlayerBulletData(bulletData);
+
+        resource->Emit("onPlayerShotMissed", { cancellableEventObj, v8objPlayer, v8objBulletData });
+
+        auto v8cancelledValue = cancellableEventObj->Get(resource->m_isolate->GetCurrentContext(), Utils::v8Str("cancelled"));
+        if (!cancelled)
+            cancelled = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
+    });
+
+    return !cancelled;
+}
+
+bool PlayerEventsComponent::onPlayerShotPlayer(IPlayer& player, IPlayer& target, const PlayerBulletData& bulletData)
+{
+    bool cancelled = false;
+
+    m_resourceManager->Exec([&](Resource* resource) {
+        auto cancellableEventObj = Utils::CancellableEventObject();
+
+        auto v8objPlayer     = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+        auto v8objTarget     = resource->ObjectFromExtension(queryExtension<PlayerComponent>(target));
+        auto v8objBulletData = Utils::v8PlayerBulletData(bulletData);
+
+        resource->Emit("onPlayerShotPlayer", { cancellableEventObj, v8objPlayer, v8objTarget, v8objBulletData });
+
+        auto v8cancelledValue = cancellableEventObj->Get(resource->m_isolate->GetCurrentContext(), Utils::v8Str("cancelled"));
+        if (!cancelled)
+            cancelled = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
+    });
+
+    return !cancelled;
+}
+
+bool PlayerEventsComponent::onPlayerShotVehicle(IPlayer& player, IVehicle& target, const PlayerBulletData& bulletData)
+{
+    bool cancelled = false;
+
+    m_resourceManager->Exec([&](Resource* resource) {
+        auto cancellableEventObj = Utils::CancellableEventObject();
+
+        auto v8objPlayer     = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+        auto v8objTarget     = resource->ObjectFromExtension(queryExtension<VehicleComponent>(target));
+        auto v8objBulletData = Utils::v8PlayerBulletData(bulletData);
+
+        resource->Emit("onPlayerShotVehicle", { cancellableEventObj, v8objPlayer, v8objTarget, v8objBulletData });
+
+        auto v8cancelledValue = cancellableEventObj->Get(resource->m_isolate->GetCurrentContext(), Utils::v8Str("cancelled"));
+        if (!cancelled)
+            cancelled = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
+    });
+
+    return !cancelled;
+}
+
 bool PlayerEventsComponent::onPlayerShotObject(IPlayer& player, IObject& target, const PlayerBulletData& bulletData) { return true; }
 bool PlayerEventsComponent::onPlayerShotPlayerObject(IPlayer& player, IPlayerObject& target, const PlayerBulletData& bulletData) { return true; }
 
