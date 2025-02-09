@@ -98,6 +98,7 @@ declare interface IVehicle {
   readonly driver: IPlayer;
   plate: string;
   readonly model: number;
+  colour: number[];
 
   repair(): void;
   putPlayer(player: IPlayer, seat: number): void;

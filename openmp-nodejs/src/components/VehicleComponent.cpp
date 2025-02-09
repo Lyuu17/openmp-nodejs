@@ -196,6 +196,41 @@ void VehicleComponent::getModel(v8::Local<v8::Name> property, const v8::Property
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getModel()));
 }
 
+void VehicleComponent::getColour(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
+
+    auto v8color = v8::Array::New(info.GetIsolate(), 2);
+    v8color->Set(info.GetIsolate()->GetCurrentContext(), 0, v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getColour().first));
+    v8color->Set(info.GetIsolate()->GetCurrentContext(), 1, v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getColour().second));
+
+    info.GetReturnValue().Set(v8color);
+}
+
+void VehicleComponent::setColour(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
+
+    auto v8obj = value->ToObject(info.GetIsolate()->GetCurrentContext());
+    if (v8obj.IsEmpty())
+        return;
+
+    auto v8color1 = Utils::GetIntegerFromV8Value(v8obj.ToLocalChecked()->Get(info.GetIsolate()->GetCurrentContext(), 0));
+    auto v8color2 = Utils::GetIntegerFromV8Value(v8obj.ToLocalChecked()->Get(info.GetIsolate()->GetCurrentContext(), 1));
+
+    vehicleComponent->m_vehicle->setColour(v8color1.value_or(0), v8color2.value_or(0));
+
+    auto v8color = v8::Array::New(info.GetIsolate(), 2);
+    v8color->Set(info.GetIsolate()->GetCurrentContext(), 0, v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getColour().first));
+    v8color->Set(info.GetIsolate()->GetCurrentContext(), 1, v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getColour().second));
+
+    info.GetReturnValue().Set(v8color);
+}
+
 v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -218,6 +253,7 @@ v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
     SET_ACCESSOR("driver", getDriver);
     SET_ACCESSOR_WITH_SETTER("plate", getPlate, setPlate);
     SET_ACCESSOR("model", getModel);
+    SET_ACCESSOR_WITH_SETTER("colour", getColour, setColour);
 
     return v8obj;
 }
