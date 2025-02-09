@@ -80,10 +80,10 @@ declare function createVehicle(isStatic: boolean, model: number, position: Vecto
 
 /**
  * Add a player class
- * @param team
  * @param model
+ * @param team
  * @param position
  * @param angle
  * @param weapons
  */
-declare function addPlayerClass(team: number, model: number, position: Vector3, angle: number, weapons?: IWeaponSlots[]): void;
+declare function addPlayerClass(model: number, team: number, position: Vector3, angle: number, weapons?: IWeaponSlots[]): void;
