@@ -590,21 +590,20 @@ void PlayerComponent::getSpawnInfo(v8::Local<v8::Name> property, const v8::Prope
     v8playerClass->Set(context, Utils::v8Str("angle"), v8::Number::New(info.GetIsolate(), playerClass.angle));
 
     auto v8weaponSlotList = v8::Array::New(info.GetIsolate());
-    for (int i = 0, wepIdInArray = 0; i < playerClass.weapons.size(); i++)
+
+    uint32_t wepIdInArray = 0;
+    for (auto& weaponSlotData : playerClass.weapons)
     {
-        for (auto& weaponSlotData : playerClass.weapons)
-        {
-            if (weaponSlotData.ammo == 0)
-                continue;
+        if (weaponSlotData.ammo == 0)
+            continue;
 
-            auto v8weaponSlot = v8::Object::New(info.GetIsolate());
-            v8weaponSlot->Set(context, Utils::v8Str("id"), v8::Integer::New(info.GetIsolate(), weaponSlotData.id));
-            v8weaponSlot->Set(context, Utils::v8Str("ammo"), v8::Integer::New(info.GetIsolate(), weaponSlotData.ammo));
+        auto v8weaponSlot = v8::Object::New(info.GetIsolate());
+        v8weaponSlot->Set(context, Utils::v8Str("id"), v8::Integer::New(info.GetIsolate(), weaponSlotData.id));
+        v8weaponSlot->Set(context, Utils::v8Str("ammo"), v8::Integer::New(info.GetIsolate(), weaponSlotData.ammo));
 
-            v8weaponSlotList->Set(context, wepIdInArray, v8weaponSlot);
+        v8weaponSlotList->Set(context, wepIdInArray, v8weaponSlot);
 
-            wepIdInArray++;
-        }
+        wepIdInArray++;
     }
 
     v8playerClass->Set(context, Utils::v8Str("weapons"), v8weaponSlotList);
