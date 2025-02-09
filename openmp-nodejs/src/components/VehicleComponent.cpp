@@ -100,8 +100,6 @@ void VehicleComponent::setHealth(v8::Local<v8::Name> property, v8::Local<v8::Val
         return;
 
     vehicleComponent->m_vehicle->setHealth(v8number.ToLocalChecked()->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getHealth()));
 }
 
 void VehicleComponent::getPosition(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -124,8 +122,6 @@ void VehicleComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::V
         return;
 
     vehicleComponent->m_vehicle->setPosition(v8vec3.value());
-
-    info.GetReturnValue().Set(Utils::v8Vector3(vehicleComponent->m_vehicle->getPosition()));
 }
 
 void VehicleComponent::getRotation(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -148,8 +144,6 @@ void VehicleComponent::setRotation(v8::Local<v8::Name> property, v8::Local<v8::V
         return;
 
     vehicleComponent->m_vehicle->setRotation(v8quat.value());
-
-    info.GetReturnValue().Set(Utils::v8Quat(vehicleComponent->m_vehicle->getRotation()));
 }
 
 void VehicleComponent::getDriver(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -183,8 +177,6 @@ void VehicleComponent::setPlate(v8::Local<v8::Name> property, v8::Local<v8::Valu
         return;
 
     vehicleComponent->m_vehicle->setPlate(Utils::strV8(v8str.ToLocalChecked()));
-
-    info.GetReturnValue().Set(Utils::v8Str(vehicleComponent->m_vehicle->getPlate().to_string().c_str()));
 }
 
 void VehicleComponent::getModel(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -223,12 +215,6 @@ void VehicleComponent::setColour(v8::Local<v8::Name> property, v8::Local<v8::Val
     auto v8color2 = Utils::GetIntegerFromV8Value(v8obj.ToLocalChecked()->Get(info.GetIsolate()->GetCurrentContext(), 1));
 
     vehicleComponent->m_vehicle->setColour(v8color1.value_or(0), v8color2.value_or(0));
-
-    auto v8color = v8::Array::New(info.GetIsolate(), 2);
-    v8color->Set(info.GetIsolate()->GetCurrentContext(), 0, v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getColour().first));
-    v8color->Set(info.GetIsolate()->GetCurrentContext(), 1, v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getColour().second));
-
-    info.GetReturnValue().Set(v8color);
 }
 
 v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()

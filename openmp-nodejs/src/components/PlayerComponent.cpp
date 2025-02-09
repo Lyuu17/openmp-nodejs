@@ -232,8 +232,6 @@ void PlayerComponent::setName(v8::Local<v8::Name> property, v8::Local<v8::Value>
         return;
 
     playerComponent->m_player->setName(Utils::strV8(v8str.ToLocalChecked()));
-
-    info.GetReturnValue().Set(Utils::v8Str(playerComponent->m_player->getName().to_string().c_str()));
 }
 
 void PlayerComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -265,8 +263,6 @@ void PlayerComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::Va
         return;
 
     playerComponent->m_player->setPosition(v8vec3.value());
-
-    info.GetReturnValue().Set(Utils::v8Vector3(playerComponent->m_player->getPosition()));
 }
 
 void PlayerComponent::getRotation(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -289,8 +285,6 @@ void PlayerComponent::setRotation(v8::Local<v8::Name> property, v8::Local<v8::Va
         return;
 
     playerComponent->m_player->setRotation(v8quat.value());
-
-    info.GetReturnValue().Set(Utils::v8Quat(playerComponent->m_player->getRotation()));
 }
 
 void PlayerComponent::getMoney(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -313,8 +307,6 @@ void PlayerComponent::setMoney(v8::Local<v8::Name> property, v8::Local<v8::Value
         return;
 
     playerComponent->m_player->setMoney(v8int.value());
-
-    info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getMoney()));
 }
 
 void PlayerComponent::getScore(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -337,8 +329,6 @@ void PlayerComponent::setScore(v8::Local<v8::Name> property, v8::Local<v8::Value
         return;
 
     playerComponent->m_player->setScore(v8int.value());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getScore()));
 }
 
 void PlayerComponent::getSkin(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -361,8 +351,6 @@ void PlayerComponent::setSkin(v8::Local<v8::Name> property, v8::Local<v8::Value>
         return;
 
     playerComponent->m_player->setSkin(v8int.value());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getSkin()));
 }
 
 void PlayerComponent::getInterior(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -385,8 +373,6 @@ void PlayerComponent::setInterior(v8::Local<v8::Name> property, v8::Local<v8::Va
         return;
 
     playerComponent->m_player->setInterior(v8int.value());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getInterior()));
 }
 
 void PlayerComponent::getTeam(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -409,8 +395,6 @@ void PlayerComponent::setTeam(v8::Local<v8::Name> property, v8::Local<v8::Value>
         return;
 
     playerComponent->m_player->setInterior(v8int.value());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getTeam()));
 }
 
 void PlayerComponent::getHealth(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -433,8 +417,6 @@ void PlayerComponent::setHealth(v8::Local<v8::Name> property, v8::Local<v8::Valu
         return;
 
     playerComponent->m_player->setHealth(v8number.ToLocalChecked()->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getHealth()));
 }
 
 void PlayerComponent::getArmour(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -457,8 +439,6 @@ void PlayerComponent::setArmour(v8::Local<v8::Name> property, v8::Local<v8::Valu
         return;
 
     playerComponent->m_player->setArmour(v8number.ToLocalChecked()->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmour()));
 }
 
 void PlayerComponent::getWeapon(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -481,8 +461,6 @@ void PlayerComponent::setWeapon(v8::Local<v8::Name> property, v8::Local<v8::Valu
         return;
 
     playerComponent->m_player->setArmedWeapon(v8int.value());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmedWeapon()));
 }
 
 void PlayerComponent::getWeaponAmmo(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -514,8 +492,6 @@ void PlayerComponent::setDrunkLevel(v8::Local<v8::Name> property, v8::Local<v8::
         return;
 
     playerComponent->m_player->setDrunkLevel(v8int.value());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getDrunkLevel()));
 }
 
 void PlayerComponent::getWantedLevel(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -538,8 +514,6 @@ void PlayerComponent::setWantedLevel(v8::Local<v8::Name> property, v8::Local<v8:
         return;
 
     playerComponent->m_player->setWantedLevel(v8int.value());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getWantedLevel()));
 }
 
 void PlayerComponent::getControllable(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -562,8 +536,6 @@ void PlayerComponent::setControllable(v8::Local<v8::Name> property, v8::Local<v8
         return;
 
     playerComponent->m_player->setControllable(v8bool->Value());
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getControllable()));
 }
 
 void PlayerComponent::getSpawnInfo(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
