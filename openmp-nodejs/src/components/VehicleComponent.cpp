@@ -8,14 +8,6 @@
 #include "Utils.hpp"
 #include "NodejsComponent.hpp"
 
-#define CHECK_EXTENSION_EXIST(isolate, component)                                                          \
-    auto resource = NodejsComponent::getInstance()->getResourceManager()->GetResourceFromIsolate(isolate); \
-    if (!resource->DoesObjectFromExtensionExist(component))                                                \
-    {                                                                                                      \
-        resource->ThrowException("attempting to access a deleted component");                              \
-        return;                                                                                            \
-    }
-
 #define ENSURE_VEHICLE_HAS_COMPONENT(vehicle, component)                                                           \
     if (!queryExtension<component>(vehicle))                                                                       \
     {                                                                                                              \
@@ -52,7 +44,7 @@ void VehicleComponent::repair(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     vehicleComponent->m_vehicle->repair();
 }
@@ -61,7 +53,7 @@ void VehicleComponent::putPlayer(const v8::FunctionCallbackInfo<v8::Value>& info
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     auto v8player = info[0]->ToObject(info.GetIsolate()->GetCurrentContext());
     auto v8seat   = info[1]->ToInteger(info.GetIsolate()->GetCurrentContext());
@@ -83,7 +75,7 @@ void VehicleComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCal
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getID()));
 }
@@ -92,7 +84,7 @@ void VehicleComponent::getHealth(v8::Local<v8::Name> property, const v8::Propert
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getHealth()));
 }
@@ -101,7 +93,7 @@ void VehicleComponent::setHealth(v8::Local<v8::Name> property, v8::Local<v8::Val
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     auto v8number = value->ToNumber(info.GetIsolate()->GetCurrentContext());
     if (v8number.IsEmpty())
@@ -116,7 +108,7 @@ void VehicleComponent::getPosition(v8::Local<v8::Name> property, const v8::Prope
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     info.GetReturnValue().Set(Utils::v8Vector3(vehicleComponent->m_vehicle->getPosition()));
 }
@@ -125,7 +117,7 @@ void VehicleComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::V
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     auto v8vec3 = Utils::vector3V8(value);
     if (!v8vec3.has_value())
@@ -140,7 +132,7 @@ void VehicleComponent::getRotation(v8::Local<v8::Name> property, const v8::Prope
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     info.GetReturnValue().Set(Utils::v8Quat(vehicleComponent->m_vehicle->getRotation()));
 }
@@ -149,7 +141,7 @@ void VehicleComponent::setRotation(v8::Local<v8::Name> property, v8::Local<v8::V
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     auto v8quat = Utils::quatV8(value);
     if (!v8quat.has_value())
@@ -164,7 +156,7 @@ void VehicleComponent::getDriver(v8::Local<v8::Name> property, const v8::Propert
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     auto driver = queryExtension<PlayerComponent>(vehicleComponent->m_vehicle->getDriver());
 
@@ -175,7 +167,7 @@ void VehicleComponent::getPlate(v8::Local<v8::Name> property, const v8::Property
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     info.GetReturnValue().Set(Utils::v8Str(vehicleComponent->m_vehicle->getPlate().data()));
 }
@@ -184,7 +176,7 @@ void VehicleComponent::setPlate(v8::Local<v8::Name> property, v8::Local<v8::Valu
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     auto v8str = value->ToString(info.GetIsolate()->GetCurrentContext());
     if (v8str.IsEmpty())
@@ -199,7 +191,7 @@ void VehicleComponent::getModel(v8::Local<v8::Name> property, const v8::Property
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+    Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), vehicleComponent->m_vehicle->getModel()));
 }

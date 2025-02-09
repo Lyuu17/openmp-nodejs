@@ -8,14 +8,6 @@
 #include "Utils.hpp"
 #include "NodejsComponent.hpp"
 
-#define CHECK_EXTENSION_EXIST(isolate, component)                                                          \
-    auto resource = NodejsComponent::getInstance()->getResourceManager()->GetResourceFromIsolate(isolate); \
-    if (!resource->DoesObjectFromExtensionExist(component))                                                \
-    {                                                                                                      \
-        resource->ThrowException("attempting to access a deleted component");                              \
-        return;                                                                                            \
-    }
-
 PlayerComponent::PlayerComponent(IPlayer* player, ResourceManager* resourceManager)
     : m_player(player)
     , m_resourceManager(resourceManager)
@@ -45,7 +37,7 @@ void PlayerComponent::kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     playerComponent->m_player->kick();
 }
@@ -54,7 +46,7 @@ void PlayerComponent::ban(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     std::string reason {};
     if (info[0]->IsString())
@@ -67,7 +59,7 @@ void PlayerComponent::giveMoney(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8int = Utils::GetIntegerFromV8Value(info[0]);
     if (!v8int.has_value())
@@ -82,7 +74,7 @@ void PlayerComponent::giveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8intWeapon = Utils::GetIntegerFromV8Value(info[0]);
     if (!v8intWeapon.has_value())
@@ -104,7 +96,7 @@ void PlayerComponent::removeWeapon(const v8::FunctionCallbackInfo<v8::Value>& in
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8intWeapon = Utils::GetIntegerFromV8Value(info[0]);
     if (!v8intWeapon.has_value())
@@ -117,7 +109,7 @@ void PlayerComponent::setWeaponAmmo(const v8::FunctionCallbackInfo<v8::Value>& i
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8intWeapon = Utils::GetIntegerFromV8Value(info[0]);
     if (!v8intWeapon.has_value())
@@ -139,7 +131,7 @@ void PlayerComponent::getWeapons(const v8::FunctionCallbackInfo<v8::Value>& info
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto& weaponSlots = playerComponent->m_player->getWeapons();
 
@@ -161,7 +153,7 @@ void PlayerComponent::getWeaponSlot(const v8::FunctionCallbackInfo<v8::Value>& i
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8intWeapon = Utils::GetIntegerFromV8Value(info[0]);
     if (!v8intWeapon.has_value())
@@ -181,7 +173,7 @@ void PlayerComponent::resetWeapons(const v8::FunctionCallbackInfo<v8::Value>& in
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     playerComponent->m_player->resetWeapons();
 }
@@ -190,7 +182,7 @@ void PlayerComponent::spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto playerClassData = queryExtension<IPlayerClassData>(playerComponent->m_player);
     if (!playerClassData)
@@ -207,7 +199,7 @@ void PlayerComponent::forceClassSelection(const v8::FunctionCallbackInfo<v8::Val
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     playerComponent->m_player->forceClassSelection();
 }
@@ -218,7 +210,7 @@ void PlayerComponent::getName(v8::Local<v8::Name> property, const v8::PropertyCa
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(Utils::v8Str(playerComponent->m_player->getName().data()));
 }
@@ -227,7 +219,7 @@ void PlayerComponent::setName(v8::Local<v8::Name> property, v8::Local<v8::Value>
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8str = value->ToString(info.GetIsolate()->GetCurrentContext());
     if (v8str.IsEmpty())
@@ -242,7 +234,7 @@ void PlayerComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCall
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getID()));
 }
@@ -251,7 +243,7 @@ void PlayerComponent::getPosition(v8::Local<v8::Name> property, const v8::Proper
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(Utils::v8Vector3(playerComponent->m_player->getPosition()));
 }
@@ -260,7 +252,7 @@ void PlayerComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::Va
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8vec3 = Utils::vector3V8(value);
     if (!v8vec3.has_value())
@@ -275,7 +267,7 @@ void PlayerComponent::getRotation(v8::Local<v8::Name> property, const v8::Proper
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(Utils::v8Quat(playerComponent->m_player->getRotation()));
 }
@@ -284,7 +276,7 @@ void PlayerComponent::setRotation(v8::Local<v8::Name> property, v8::Local<v8::Va
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8quat = Utils::quatV8(value);
     if (!v8quat.has_value())
@@ -299,7 +291,7 @@ void PlayerComponent::getMoney(v8::Local<v8::Name> property, const v8::PropertyC
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getMoney()));
 }
@@ -308,7 +300,7 @@ void PlayerComponent::setMoney(v8::Local<v8::Name> property, v8::Local<v8::Value
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -323,7 +315,7 @@ void PlayerComponent::getScore(v8::Local<v8::Name> property, const v8::PropertyC
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getScore()));
 }
@@ -332,7 +324,7 @@ void PlayerComponent::setScore(v8::Local<v8::Name> property, v8::Local<v8::Value
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -347,7 +339,7 @@ void PlayerComponent::getSkin(v8::Local<v8::Name> property, const v8::PropertyCa
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getSkin()));
 }
@@ -356,7 +348,7 @@ void PlayerComponent::setSkin(v8::Local<v8::Name> property, v8::Local<v8::Value>
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -371,7 +363,7 @@ void PlayerComponent::getInterior(v8::Local<v8::Name> property, const v8::Proper
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getInterior()));
 }
@@ -380,7 +372,7 @@ void PlayerComponent::setInterior(v8::Local<v8::Name> property, v8::Local<v8::Va
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -395,7 +387,7 @@ void PlayerComponent::getTeam(v8::Local<v8::Name> property, const v8::PropertyCa
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getTeam()));
 }
@@ -404,7 +396,7 @@ void PlayerComponent::setTeam(v8::Local<v8::Name> property, v8::Local<v8::Value>
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -419,7 +411,7 @@ void PlayerComponent::getHealth(v8::Local<v8::Name> property, const v8::Property
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getHealth()));
 }
@@ -428,7 +420,7 @@ void PlayerComponent::setHealth(v8::Local<v8::Name> property, v8::Local<v8::Valu
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8number = value->ToNumber(info.GetIsolate()->GetCurrentContext());
     if (v8number.IsEmpty())
@@ -443,7 +435,7 @@ void PlayerComponent::getArmour(v8::Local<v8::Name> property, const v8::Property
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmour()));
 }
@@ -452,7 +444,7 @@ void PlayerComponent::setArmour(v8::Local<v8::Name> property, v8::Local<v8::Valu
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8number = value->ToNumber(info.GetIsolate()->GetCurrentContext());
     if (v8number.IsEmpty())
@@ -467,7 +459,7 @@ void PlayerComponent::getWeapon(v8::Local<v8::Name> property, const v8::Property
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmedWeapon()));
 }
@@ -476,7 +468,7 @@ void PlayerComponent::setWeapon(v8::Local<v8::Name> property, v8::Local<v8::Valu
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -491,7 +483,7 @@ void PlayerComponent::getWeaponAmmo(v8::Local<v8::Name> property, const v8::Prop
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getArmedWeaponAmmo()));
 }
@@ -500,7 +492,7 @@ void PlayerComponent::getDrunkLevel(v8::Local<v8::Name> property, const v8::Prop
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getDrunkLevel()));
 }
@@ -509,7 +501,7 @@ void PlayerComponent::setDrunkLevel(v8::Local<v8::Name> property, v8::Local<v8::
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -524,7 +516,7 @@ void PlayerComponent::getWantedLevel(v8::Local<v8::Name> property, const v8::Pro
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getWantedLevel()));
 }
@@ -533,7 +525,7 @@ void PlayerComponent::setWantedLevel(v8::Local<v8::Name> property, v8::Local<v8:
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -548,7 +540,7 @@ void PlayerComponent::getControllable(v8::Local<v8::Name> property, const v8::Pr
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getControllable()));
 }
@@ -557,7 +549,7 @@ void PlayerComponent::setControllable(v8::Local<v8::Name> property, v8::Local<v8
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto v8bool = value->ToBoolean(info.GetIsolate());
     if (v8bool.IsEmpty())
@@ -572,7 +564,7 @@ void PlayerComponent::getSpawnInfo(v8::Local<v8::Name> property, const v8::Prope
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto playerClassData = queryExtension<IPlayerClassData>(playerComponent->m_player);
     if (!playerClassData)
@@ -613,7 +605,7 @@ void PlayerComponent::setSpawnInfo(v8::Local<v8::Name> property, v8::Local<v8::V
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto playerClassData = queryExtension<IPlayerClassData>(playerComponent->m_player);
     if (!playerClassData)
@@ -651,7 +643,7 @@ void PlayerComponent::getVehicle(v8::Local<v8::Name> property, const v8::Propert
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     auto playerVehicleData = queryExtension<IPlayerVehicleData>(playerComponent->m_player);
     if (!playerVehicleData)
@@ -678,6 +670,7 @@ void PlayerComponent::getVehicle(v8::Local<v8::Name> property, const v8::Propert
         assert(vehicleComponent);
     }
 
+    auto resource = NodejsComponent::getInstance()->getResourceManager()->GetResourceFromIsolate(info.GetIsolate());
     info.GetReturnValue().Set(resource->ObjectFromExtension(vehicleComponent));
 }
 
@@ -685,7 +678,7 @@ void PlayerComponent::getIp(v8::Local<v8::Name> property, const v8::PropertyCall
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
 
-    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
 
     PeerAddress::AddressString addressStr;
 

@@ -3,6 +3,8 @@
 
 #include "common.hpp"
 
+#include "NodejsComponent.hpp"
+
 #include <sdk.hpp>
 
 namespace Utils
@@ -28,4 +30,13 @@ namespace Utils
     void PrintWavyUnderline(int start, int length);
     int  CountLeadingSpaces(const char* str, int length);
     void PrintSourceLineWithUnderline(v8::Isolate* isolate, v8::Local<v8::Message> message, v8::Local<v8::Context> context);
+
+    template <typename T>
+    constexpr auto CheckExtensionExist = [](v8::Isolate* isolate, T* component) {
+        auto resource = NodejsComponent::getInstance()->getResourceManager()->GetResourceFromIsolate(isolate);
+        if (!resource->DoesObjectFromExtensionExist(component))
+        {
+            resource->ThrowException("attempting to access a deleted component");
+        }
+    };
 } // namespace Utils
