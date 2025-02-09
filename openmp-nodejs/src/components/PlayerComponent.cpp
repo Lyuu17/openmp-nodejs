@@ -135,15 +135,21 @@ void PlayerComponent::getWeapons(const v8::FunctionCallbackInfo<v8::Value>& info
 
     auto& weaponSlots = playerComponent->m_player->getWeapons();
 
-    auto v8obj = v8::Array::New(info.GetIsolate(), weaponSlots.size());
+    auto v8obj = v8::Array::New(info.GetIsolate());
 
+    uint32_t wepIdInArray = 0;
     for (const auto& [wep, ammo] : weaponSlots)
     {
+        if (ammo == 0)
+            continue;
+
         auto v8wep = v8::Object::New(info.GetIsolate());
         v8wep->Set(info.GetIsolate()->GetCurrentContext(), Utils::v8Str("id"), v8::Number::New(info.GetIsolate(), wep));
         v8wep->Set(info.GetIsolate()->GetCurrentContext(), Utils::v8Str("ammo"), v8::Number::New(info.GetIsolate(), ammo));
 
-        v8obj->Set(info.GetIsolate()->GetCurrentContext(), wep, v8wep);
+        v8obj->Set(info.GetIsolate()->GetCurrentContext(), wepIdInArray, v8wep);
+
+        wepIdInArray++;
     }
 
     info.GetReturnValue().Set(v8obj);
@@ -583,16 +589,21 @@ void PlayerComponent::getSpawnInfo(v8::Local<v8::Name> property, const v8::Prope
     v8playerClass->Set(context, Utils::v8Str("spawn"), Utils::v8Vector3(playerClass.spawn));
     v8playerClass->Set(context, Utils::v8Str("angle"), v8::Number::New(info.GetIsolate(), playerClass.angle));
 
-    auto v8weaponSlotList = v8::Array::New(info.GetIsolate(), playerClass.weapons.size());
-    for (int i = 0; i < playerClass.weapons.size(); i++)
+    auto v8weaponSlotList = v8::Array::New(info.GetIsolate());
+    for (int i = 0, wepIdInArray = 0; i < playerClass.weapons.size(); i++)
     {
         for (auto& weaponSlotData : playerClass.weapons)
         {
+            if (weaponSlotData.ammo == 0)
+                continue;
+
             auto v8weaponSlot = v8::Object::New(info.GetIsolate());
             v8weaponSlot->Set(context, Utils::v8Str("id"), v8::Integer::New(info.GetIsolate(), weaponSlotData.id));
             v8weaponSlot->Set(context, Utils::v8Str("ammo"), v8::Integer::New(info.GetIsolate(), weaponSlotData.ammo));
 
-            v8weaponSlotList->Set(context, i, v8weaponSlot);
+            v8weaponSlotList->Set(context, wepIdInArray, v8weaponSlot);
+
+            wepIdInArray++;
         }
     }
 
