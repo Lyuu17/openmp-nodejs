@@ -92,6 +92,12 @@ declare function addPlayerClass(model: number, team: number, position: Vector3, 
 // ========================================= pickups =========================================
 
 /**
+ * Get a pickup by id
+ * @param id 
+ */
+declare function getPickup(id: number): IPickup;
+
+/**
  * Create a pickup
  * @param model
  * @param pickupType

@@ -151,6 +151,26 @@ void PickupComponent::InitFunctions(Resource* resource)
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
 
+    context->Global()->Set(context, Utils::v8Str("getPickup"), v8::Function::New(context, [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto v8int = Utils::GetIntegerFromV8Value(info[0]);
+        if (!v8int.has_value())
+            return;
+
+        auto pickup = NodejsComponent::getInstance()->getPickups()->get(v8int.value());
+        if (!pickup)
+        {
+            info.GetReturnValue().SetNull();
+            return;
+        }
+
+        ENSURE_PICKUP_HAS_COMPONENT(pickup, PickupComponent);
+
+        auto resource = (Resource*)info.Data().As<v8::External>()->Value();
+
+        info.GetReturnValue().Set(resource->ObjectFromExtension(queryExtension<PickupComponent>(pickup)));
+    }, v8::External::New(isolate, resource))
+                                                                   .ToLocalChecked());
+
     context->Global()->Set(context, Utils::v8Str("createPickup"), v8::Function::New(context, [](const v8::FunctionCallbackInfo<v8::Value>& info) {
         auto v8model        = Utils::GetIntegerFromV8Value(info[0]);
         auto v8pickupType   = Utils::GetIntegerFromV8Value(info[1]);
