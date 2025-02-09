@@ -335,4 +335,23 @@ void PlayerEventsComponent::onPlayerGiveDamage(IPlayer& player, IPlayer& to, flo
 void PlayerEventsComponent::onPlayerClickMap(IPlayer& player, Vector3 pos) {}
 void PlayerEventsComponent::onPlayerClickPlayer(IPlayer& player, IPlayer& clicked, PlayerClickSource source) {}
 void PlayerEventsComponent::onClientCheckResponse(IPlayer& player, int actionType, int address, int results) {}
-bool PlayerEventsComponent::onPlayerUpdate(IPlayer& player, TimePoint now) { return true; }
+
+bool PlayerEventsComponent::onPlayerUpdate(IPlayer& player, TimePoint now)
+{
+    bool cancelled = false;
+
+    m_resourceManager->Exec([&](Resource* resource) {
+        auto cancellableEventObj = Utils::CancellableEventObject();
+
+        auto v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+        auto v8time      = v8::Integer::New(resource->m_isolate, std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count());
+
+        resource->Emit("onPlayerUpdate", { cancellableEventObj, v8objPlayer, v8time });
+
+        auto v8cancelledValue = cancellableEventObj->Get(resource->m_isolate->GetCurrentContext(), Utils::v8Str("cancelled"));
+        if (!cancelled)
+            cancelled = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
+    });
+
+    return !cancelled;
+}
