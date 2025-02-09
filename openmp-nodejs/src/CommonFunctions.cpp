@@ -99,4 +99,33 @@ void CommonFunctions::Init(Resource* resource)
 
         NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value())->sendClientMessage(color, Utils::strV8(v8messageStr.ToLocalChecked()).c_str());
     });
+
+    resource->AddFunction("Vector2", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto isolate = info.GetIsolate();
+
+        if (!info.IsConstructCall())
+            return;
+
+        auto v8x = Utils::GetDoubleFromV8Value(info[0]);
+        auto v8y = Utils::GetDoubleFromV8Value(info[1]);
+
+        Vector2 vec2 { v8x.value_or(0.0), v8y.value_or(0.0) };
+
+        info.GetReturnValue().Set(Utils::v8Vector2(vec2));
+    });
+
+    resource->AddFunction("Vector3", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto isolate = info.GetIsolate();
+
+        if (!info.IsConstructCall())
+            return;
+
+        auto v8x = Utils::GetDoubleFromV8Value(info[0]);
+        auto v8y = Utils::GetDoubleFromV8Value(info[1]);
+        auto v8z = Utils::GetDoubleFromV8Value(info[2]);
+
+        Vector3 vec3 { v8x.value_or(0.0), v8y.value_or(0.0), v8z.value_or(0.0) };
+
+        info.GetReturnValue().Set(Utils::v8Vector3(vec3));
+    });
 }

@@ -10,6 +10,7 @@ namespace Utils
     v8::Local<v8::String> v8Str(const std::string& x);
     std::string           strV8(v8::Local<v8::String>);
 
+    v8::Local<v8::Object>  v8Vector2(Vector2 vec2);
     v8::Local<v8::Object>  v8Vector3(Vector3 vec3);
     std::optional<Vector3> vector3V8(v8::MaybeLocal<v8::Value> val);
 

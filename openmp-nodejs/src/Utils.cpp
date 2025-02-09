@@ -13,6 +13,14 @@ std::string Utils::strV8(v8::Local<v8::String> str)
     return { *v8str };
 }
 
+v8::Local<v8::Object> Utils::v8Vector2(Vector2 vec2)
+{
+    auto v8obj = v8::Object::New(v8::Isolate::GetCurrent());
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("x"), v8::Number::New(v8::Isolate::GetCurrent(), vec2.x));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("y"), v8::Number::New(v8::Isolate::GetCurrent(), vec2.y));
+    return v8obj;
+}
+
 v8::Local<v8::Object> Utils::v8Vector3(Vector3 vec3)
 {
     auto v8obj = v8::Object::New(v8::Isolate::GetCurrent());

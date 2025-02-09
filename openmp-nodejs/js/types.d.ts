@@ -16,7 +16,12 @@ declare interface IEvent {
 
 declare type IEventHandler = (...args: any) => void;
 
-declare interface Vector3 {
+declare class Vector2 {
+  x: number;
+  y: number;
+}
+
+declare class Vector3 {
   x: number;
   y: number;
   z: number;
