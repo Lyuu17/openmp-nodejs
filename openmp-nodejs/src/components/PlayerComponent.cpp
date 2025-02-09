@@ -645,8 +645,6 @@ void PlayerComponent::setSpawnInfo(v8::Local<v8::Name> property, v8::Local<v8::V
     };
 
     playerClassData->setSpawnInfo(playerClass);
-
-    info.GetReturnValue().Set(v8::Number::New(info.GetIsolate(), playerComponent->m_player->getControllable()));
 }
 
 void PlayerComponent::getVehicle(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
