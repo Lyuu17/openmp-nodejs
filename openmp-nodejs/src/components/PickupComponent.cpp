@@ -176,7 +176,7 @@ void PickupComponent::InitFunctions(Resource* resource)
         auto v8pickupType   = Utils::GetIntegerFromV8Value(info[1]);
         auto v8pos          = Utils::vector3V8(info[2]);
         auto v8virtualworld = Utils::GetIntegerFromV8Value(info[3]);
-        auto v8isStatic     = Utils::GetIntegerFromV8Value(info[4]);
+        auto v8isStatic     = Utils::GetBooleanFromV8Value(info[4]);
 
         if (!v8model.has_value() || !v8pickupType.has_value() || !v8pos.has_value() || !v8virtualworld.has_value() || !v8isStatic.has_value())
             return;
