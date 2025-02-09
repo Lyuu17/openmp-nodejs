@@ -107,7 +107,7 @@ bool PlayerEventsComponent::onPlayerText(IPlayer& player, StringView message)
         cancelled             = !v8cancelledValue.IsEmpty() && v8cancelledValue.ToLocalChecked()->BooleanValue(resource->m_isolate);
     });
 
-    return cancelled;
+    return !cancelled;
 }
 
 bool PlayerEventsComponent::onPlayerCommandText(IPlayer& player, StringView message)
