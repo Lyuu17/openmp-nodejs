@@ -143,7 +143,7 @@ void Resource::Stop()
 {
     auto& resourceName = m_name;
     NodejsComponent::getInstance()->getResourceManager()->Exec([resourceName](Resource* resource) {
-        resource->Emit("onResourceStop", { Utils::v8Str(resourceName) });
+        resource->Emit("onResourceStop", { Utils::v8Str(resourceName) }, true);
     });
 }
 
@@ -167,7 +167,7 @@ void Resource::AddListener(const std::string& name, v8::Local<v8::Function> list
     m_listeners[name].emplace_back(v8::Global<v8::Function>(m_isolate, listener));
 }
 
-void Resource::Emit(const std::string& name, const std::initializer_list<v8::Local<v8::Value>>& values)
+void Resource::Emit(const std::string& name, const std::initializer_list<v8::Local<v8::Value>>& values, bool waitAsync)
 {
     if (!m_listeners.contains(name))
         return;
@@ -184,7 +184,19 @@ void Resource::Emit(const std::string& name, const std::initializer_list<v8::Loc
         v8::TryCatch trycatch(m_isolate);
 
         std::vector<v8::Local<v8::Value>> args(values);
-        localfunction->CallAsFunction(ctx, ctx->Global(), args.size(), args.data());
+
+        auto v8result = localfunction->Call(ctx, ctx->Global(), args.size(), args.data());
+        if (!v8result.IsEmpty() && v8result.ToLocalChecked()->IsPromise() && waitAsync)
+        {
+            auto v8promise = v8result.ToLocalChecked().As<v8::Promise>();
+
+            while (v8promise->State() == v8::Promise::kPending)
+            {
+                NodejsComponent::getInstance()->getResourceManager()->Tick();
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+        }
 
         ReportException(&trycatch);
     }
