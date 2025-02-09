@@ -51,6 +51,15 @@ void PickupComponent::destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 // ====================== accessors ======================
 
+void PickupComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
+
+    Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent);
+
+    info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), pickupComponent->m_pickup->getID()));
+}
+
 void PickupComponent::getType(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
@@ -129,6 +138,7 @@ v8::Local<v8::Object> PickupComponent::CreateJavaScriptObject()
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
 
+    SET_ACCESSOR("id", getId);
     SET_ACCESSOR_WITH_SETTER("type", getType, setType);
     SET_ACCESSOR_WITH_SETTER("model", getModel, setModel);
     SET_ACCESSOR_WITH_SETTER("position", getPosition, setPosition);

@@ -106,6 +106,7 @@ declare interface IVehicle {
 
 declare interface IPickup {
 
+  readonly id: number;
   type: number;
   model: number;
   position: Vector3;
