@@ -33,6 +33,9 @@ struct VehicleComponent final : public IExtension,
     static void getPosition(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
     static void setPosition(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 
+    static void getRotation(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+    static void setRotation(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+
     static void getDriver(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 
     static void getPlate(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);

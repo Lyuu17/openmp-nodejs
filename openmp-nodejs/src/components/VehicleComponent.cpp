@@ -136,6 +136,30 @@ void VehicleComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::V
     info.GetReturnValue().Set(Utils::v8Vector3(vehicleComponent->m_vehicle->getPosition()));
 }
 
+void VehicleComponent::getRotation(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+
+    info.GetReturnValue().Set(Utils::v8Quat(vehicleComponent->m_vehicle->getPosition()));
+}
+
+void VehicleComponent::setRotation(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), vehicleComponent);
+
+    auto v8quat = Utils::quatV8(value);
+    if (!v8quat.has_value())
+        return;
+
+    vehicleComponent->m_vehicle->setRotation(v8quat.value());
+
+    info.GetReturnValue().Set(Utils::v8Quat(vehicleComponent->m_vehicle->getRotation()));
+}
+
 void VehicleComponent::getDriver(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
@@ -198,6 +222,7 @@ v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
     SET_ACCESSOR("id", getId);
     SET_ACCESSOR_WITH_SETTER("health", getHealth, setHealth);
     SET_ACCESSOR_WITH_SETTER("position", getPosition, setPosition);
+    SET_ACCESSOR_WITH_SETTER("rotation", getRotation, setRotation);
     SET_ACCESSOR("driver", getDriver);
     SET_ACCESSOR_WITH_SETTER("plate", getPlate, setPlate);
     SET_ACCESSOR("model", getModel);

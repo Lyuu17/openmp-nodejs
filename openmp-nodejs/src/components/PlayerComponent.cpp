@@ -271,6 +271,30 @@ void PlayerComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::Va
     info.GetReturnValue().Set(Utils::v8Vector3(playerComponent->m_player->getPosition()));
 }
 
+void PlayerComponent::getRotation(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    info.GetReturnValue().Set(Utils::v8Quat(playerComponent->m_player->getRotation()));
+}
+
+void PlayerComponent::setRotation(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    CHECK_EXTENSION_EXIST(info.GetIsolate(), playerComponent);
+
+    auto v8quat = Utils::quatV8(value);
+    if (!v8quat.has_value())
+        return;
+
+    playerComponent->m_player->setRotation(v8quat.value());
+
+    info.GetReturnValue().Set(Utils::v8Quat(playerComponent->m_player->getRotation()));
+}
+
 void PlayerComponent::getMoney(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
@@ -697,6 +721,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("name", getName, setName);
     SET_ACCESSOR("id", getId);
     SET_ACCESSOR_WITH_SETTER("position", getPosition, setPosition);
+    SET_ACCESSOR_WITH_SETTER("rotation", getRotation, setRotation);
     SET_ACCESSOR_WITH_SETTER("money", getMoney, setMoney);
     SET_ACCESSOR_WITH_SETTER("score", getScore, setScore);
     SET_ACCESSOR_WITH_SETTER("skin", getSkin, setSkin);

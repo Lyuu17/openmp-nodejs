@@ -55,6 +55,40 @@ std::optional<Vector3> Utils::vector3V8(v8::MaybeLocal<v8::Value> val)
     return vec3;
 }
 
+std::optional<GTAQuat> Utils::quatV8(v8::MaybeLocal<v8::Value> val)
+{
+    if (val.IsEmpty())
+        return std::nullopt;
+
+    if (!val.ToLocalChecked()->IsObject())
+        return std::nullopt;
+
+    auto quatObj  = val.ToLocalChecked().As<v8::Object>();
+    auto v8maybeX = quatObj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("x"));
+    auto v8maybeY = quatObj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("y"));
+    auto v8maybeZ = quatObj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("z"));
+    auto v8maybeW = quatObj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("w"));
+    if (v8maybeX.IsEmpty() || v8maybeY.IsEmpty() || v8maybeZ.IsEmpty())
+        return std::nullopt;
+    GTAQuat quat {
+        (float)GetDoubleFromV8Value(v8maybeX).value_or(0),
+        (float)GetDoubleFromV8Value(v8maybeY).value_or(0),
+        (float)GetDoubleFromV8Value(v8maybeZ).value_or(0),
+        (float)GetDoubleFromV8Value(v8maybeW).value_or(0)
+    };
+    return quat;
+}
+
+v8::Local<v8::Object> Utils::v8Quat(GTAQuat quat)
+{
+    auto v8obj = v8::Object::New(v8::Isolate::GetCurrent());
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("x"), v8::Number::New(v8::Isolate::GetCurrent(), quat.q.x));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("y"), v8::Number::New(v8::Isolate::GetCurrent(), quat.q.y));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("z"), v8::Number::New(v8::Isolate::GetCurrent(), quat.q.z));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("w"), v8::Number::New(v8::Isolate::GetCurrent(), quat.q.w));
+    return v8obj;
+}
+
 v8::Local<v8::Object> Utils::CancellableEventObject()
 {
     auto isolate = v8::Isolate::GetCurrent();

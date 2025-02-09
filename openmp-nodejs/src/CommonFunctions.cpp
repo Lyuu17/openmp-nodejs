@@ -100,6 +100,22 @@ void CommonFunctions::Init(Resource* resource)
         NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value())->sendClientMessage(color, Utils::strV8(v8messageStr.ToLocalChecked()).c_str());
     });
 
+    resource->AddFunction("Quat", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto isolate = info.GetIsolate();
+
+        if (!info.IsConstructCall())
+            return;
+
+        auto v8w = Utils::GetDoubleFromV8Value(info[0]);
+        auto v8x = Utils::GetDoubleFromV8Value(info[1]);
+        auto v8y = Utils::GetDoubleFromV8Value(info[2]);
+        auto v8z = Utils::GetDoubleFromV8Value(info[3]);
+
+        GTAQuat quat { (float)v8w.value_or(0.0), (float)v8x.value_or(0.0), (float)v8y.value_or(0.0), (float)v8z.value_or(0.0) };
+
+        info.GetReturnValue().Set(Utils::v8Quat(quat));
+    });
+
     resource->AddFunction("Vector2", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
         auto isolate = info.GetIsolate();
 

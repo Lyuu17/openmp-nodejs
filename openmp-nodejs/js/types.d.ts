@@ -16,6 +16,15 @@ declare interface IEvent {
 
 declare type IEventHandler = (...args: any) => void;
 
+declare class Quat {
+  constructor(w: number, x: number, y: number, z: number);
+
+  w: number;
+  x: number;
+  y: number;
+  z: number;
+}
+
 declare class Vector2 {
   constructor(x: number, y: number);
 
@@ -49,6 +58,7 @@ declare interface IPlayer {
   name: string;
   readonly id: number;
   position: Vector3;
+  rotation: Quat;
   money: number;
   score: number;
   skin: number;
@@ -84,6 +94,7 @@ declare interface IVehicle {
   readonly id: number;
   health: number;
   position: Vector3;
+  rotation: Quat;
   readonly driver: IPlayer;
   plate: string;
   readonly model: number;

@@ -14,6 +14,9 @@ namespace Utils
     v8::Local<v8::Object>  v8Vector3(Vector3 vec3);
     std::optional<Vector3> vector3V8(v8::MaybeLocal<v8::Value> val);
 
+    std::optional<GTAQuat> quatV8(v8::MaybeLocal<v8::Value> val);
+    v8::Local<v8::Object>  v8Quat(GTAQuat quat);
+
     v8::Local<v8::Object> CancellableEventObject();
 
     std::optional<int32_t>  GetIntegerFromV8Value(v8::MaybeLocal<v8::Value> val);
