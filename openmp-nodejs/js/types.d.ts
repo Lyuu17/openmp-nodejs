@@ -17,11 +17,15 @@ declare interface IEvent {
 declare type IEventHandler = (...args: any) => void;
 
 declare class Vector2 {
+  constructor(x: number, y: number);
+
   x: number;
   y: number;
 }
 
 declare class Vector3 {
+  constructor(x: number, y: number, z: number);
+
   x: number;
   y: number;
   z: number;
