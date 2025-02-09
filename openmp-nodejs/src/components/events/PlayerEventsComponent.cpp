@@ -306,8 +306,32 @@ void PlayerEventsComponent::onPlayerDeath(IPlayer& player, IPlayer* killer, int 
     });
 }
 
-void PlayerEventsComponent::onPlayerTakeDamage(IPlayer& player, IPlayer* from, float amount, unsigned weapon, BodyPart part) {}
-void PlayerEventsComponent::onPlayerGiveDamage(IPlayer& player, IPlayer& to, float amount, unsigned weapon, BodyPart part) {}
+void PlayerEventsComponent::onPlayerTakeDamage(IPlayer& player, IPlayer* from, float amount, unsigned weapon, BodyPart part)
+{
+    m_resourceManager->Exec([&](Resource* resource) {
+        auto v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+        auto v8objFrom   = from ? resource->ObjectFromExtension(queryExtension<PlayerComponent>(from)).As<v8::Value>() : v8::Null(resource->m_isolate).As<v8::Value>();
+        auto v8amount    = v8::Number::New(resource->m_isolate, amount);
+        auto v8weapon    = v8::Integer::New(resource->m_isolate, weapon);
+        auto v8part      = v8::Integer::New(resource->m_isolate, part);
+
+        resource->Emit("onPlayerTakeDamage", { v8objPlayer, v8objFrom, v8amount, v8weapon, v8part });
+    });
+}
+
+void PlayerEventsComponent::onPlayerGiveDamage(IPlayer& player, IPlayer& to, float amount, unsigned weapon, BodyPart part)
+{
+    m_resourceManager->Exec([&](Resource* resource) {
+        auto v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+        auto v8objTo     = resource->ObjectFromExtension(queryExtension<PlayerComponent>(to));
+        auto v8amount    = v8::Number::New(resource->m_isolate, amount);
+        auto v8weapon    = v8::Integer::New(resource->m_isolate, weapon);
+        auto v8part      = v8::Integer::New(resource->m_isolate, part);
+
+        resource->Emit("onPlayerGiveDamage", { v8objPlayer, v8objTo, v8amount, v8weapon, v8part });
+    });
+}
+
 void PlayerEventsComponent::onPlayerClickMap(IPlayer& player, Vector3 pos) {}
 void PlayerEventsComponent::onPlayerClickPlayer(IPlayer& player, IPlayer& clicked, PlayerClickSource source) {}
 void PlayerEventsComponent::onClientCheckResponse(IPlayer& player, int actionType, int address, int results) {}
