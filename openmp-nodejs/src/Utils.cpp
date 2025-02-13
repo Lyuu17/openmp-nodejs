@@ -71,10 +71,10 @@ std::optional<GTAQuat> Utils::quatV8(v8::MaybeLocal<v8::Value> val)
     if (v8maybeX.IsEmpty() || v8maybeY.IsEmpty() || v8maybeZ.IsEmpty())
         return std::nullopt;
     GTAQuat quat {
+        (float)GetDoubleFromV8Value(v8maybeW).value_or(0),
         (float)GetDoubleFromV8Value(v8maybeX).value_or(0),
         (float)GetDoubleFromV8Value(v8maybeY).value_or(0),
-        (float)GetDoubleFromV8Value(v8maybeZ).value_or(0),
-        (float)GetDoubleFromV8Value(v8maybeW).value_or(0)
+        (float)GetDoubleFromV8Value(v8maybeZ).value_or(0)
     };
     return quat;
 }
