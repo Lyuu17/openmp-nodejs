@@ -86,6 +86,22 @@ v8::Local<v8::Object> Utils::v8Quat(GTAQuat quat)
     v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("y"), v8::Number::New(v8::Isolate::GetCurrent(), quat.q.y));
     v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("z"), v8::Number::New(v8::Isolate::GetCurrent(), quat.q.z));
     v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("w"), v8::Number::New(v8::Isolate::GetCurrent(), quat.q.w));
+
+    auto toEuler = v8::Function::New(v8::Isolate::GetCurrent()->GetCurrentContext(), [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto quat = Utils::quatV8(info.This());
+        if (!quat.has_value())
+        {
+            return;
+        }
+
+        auto euler   = quat.value().ToEuler();
+        auto v8euler = Utils::v8Vector3(euler);
+        info.GetReturnValue().Set(v8euler);
+    });
+
+    if (!toEuler.IsEmpty())
+        v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("toEuler"), toEuler.ToLocalChecked());
+
     return v8obj;
 }
 
