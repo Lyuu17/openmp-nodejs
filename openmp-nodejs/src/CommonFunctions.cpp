@@ -111,7 +111,13 @@ void CommonFunctions::Init(Resource* resource)
         auto v8y = Utils::GetDoubleFromV8Value(info[2]);
         auto v8z = Utils::GetDoubleFromV8Value(info[3]);
 
-        GTAQuat quat { (float)v8w.value_or(0.0), (float)v8x.value_or(0.0), (float)v8y.value_or(0.0), (float)v8z.value_or(0.0) };
+        auto v8vec3 = Utils::vector3V8(info[0]);
+
+        GTAQuat quat {};
+        if (v8w.has_value() && v8x.has_value() && v8y.has_value() && v8z.has_value())
+            quat = GTAQuat { (float)v8w.value(), (float)v8x.value(), (float)v8y.value(), (float)v8z.value() };
+        else if (v8vec3.has_value())
+            quat = GTAQuat { v8vec3.value() };
 
         info.GetReturnValue().Set(Utils::v8Quat(quat));
     });

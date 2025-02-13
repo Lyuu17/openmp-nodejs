@@ -18,6 +18,7 @@ declare type IEventHandler = (...args: any) => void;
 
 declare class Quat {
   constructor(w: number, x: number, y: number, z: number);
+  constructor(euler: Vector3);
 
   toEuler(): Vector3;
 
