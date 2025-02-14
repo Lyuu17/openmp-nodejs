@@ -716,6 +716,39 @@ void PlayerComponent::setSpecialAction(v8::Local<v8::Name> property, v8::Local<v
     playerComponent->m_player->setAction((PlayerSpecialAction)v8action.value());
 }
 
+void PlayerComponent::getMenu(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerMenuData = queryExtension<IPlayerMenuData>(playerComponent->m_player);
+    if (!playerMenuData)
+    {
+        info.GetReturnValue().SetNull();
+        return;
+    }
+
+    info.GetReturnValue().Set(playerMenuData->getMenuID());
+}
+
+void PlayerComponent::setMenu(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerMenuData = queryExtension<IPlayerMenuData>(playerComponent->m_player);
+    if (!playerMenuData)
+        return;
+
+    auto v8menu = Utils::GetIntegerFromV8Value(value);
+    if (!v8menu.has_value())
+        return;
+
+    playerMenuData->setMenuID(v8menu.value());
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -761,6 +794,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR("ip", getIp);
     SET_ACCESSOR_WITH_SETTER("ghostMode", getGhostMode, setGhostMode);
     SET_ACCESSOR_WITH_SETTER("specialAction", getSpecialAction, setSpecialAction);
+    SET_ACCESSOR_WITH_SETTER("menu", getMenu, setMenu);
 
     return v8obj;
 }

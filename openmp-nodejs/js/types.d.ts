@@ -79,6 +79,7 @@ declare interface IPlayer {
   readonly ip: string;
   ghostMode: boolean;
   specialAction: number;
+  menu: number;
 
 
   kick(): void;
@@ -117,4 +118,18 @@ declare interface IPickup {
   position: Vector3;
 
   destroy(): void;
+}
+
+declare interface IMenu {
+  readonly id: number;
+  readonly enabled: boolean;
+  readonly position: Vector3;
+
+  destroy(): void;
+  disable(): void;
+  showForPlayer(player: IPlayer): void;
+  hideForPlayer(player: IPlayer): void;
+  addCell(itemText: string, menuColumnId: number): void;
+  setColumnHeader(header: string, menuColumnId: number): void;
+  getCell(colId: number, menuRowId: number): string;
 }

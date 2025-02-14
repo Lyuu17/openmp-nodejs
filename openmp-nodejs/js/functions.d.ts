@@ -106,3 +106,21 @@ declare function getPickup(id: number): IPickup;
  * @param isStatic
  */
 declare function createPickup(model: number, pickupType: number, position: Vector3, virtualworld: number, isStatic: boolean): IPickup;
+
+// ========================================= menus =========================================
+
+/**
+ * Get a menu by id
+ * @param id 
+ */
+declare function getMenu(id: number): IMenu;
+
+/**
+ * Create a menu
+ * @param title
+ * @param position
+ * @param columns
+ * @param col1Width
+ * @param col2Width
+ */
+declare function createMenu(title: string, position: Vector2, columns: number, col1Width: number, col2Width: number): IMenu;

@@ -8,6 +8,7 @@
 #include <Server/Components/Classes/classes.hpp>
 #include <Server/Components/Vehicles/vehicles.hpp>
 #include <Server/Components/Pickups/pickups.hpp>
+#include <Server/Components/Menus/menus.hpp>
 #include <sdk.hpp>
 
 #define PRINTLN(x, ...) \
@@ -29,6 +30,7 @@ private:
     IClassesComponent*  m_classes         = nullptr;
     IVehiclesComponent* m_vehicles        = nullptr;
     IPickupsComponent*  m_pickups         = nullptr;
+    IMenusComponent*    m_menus           = nullptr;
     ResourceManager*    m_resourceManager = nullptr;
 
 public:
@@ -47,6 +49,7 @@ public:
     IClassesComponent*  getClasses();
     IVehiclesComponent* getVehicles();
     IPickupsComponent*  getPickups();
+    IMenusComponent*    getMenus();
     ResourceManager*    getResourceManager();
 
     static NodejsComponent* getInstance();

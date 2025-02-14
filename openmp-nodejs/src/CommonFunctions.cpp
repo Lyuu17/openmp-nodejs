@@ -85,11 +85,7 @@ void CommonFunctions::Init(Resource* resource)
         if (v8messageStr.IsEmpty())
             return;
 
-        auto v8player = info[1]->ToObject(isolate->GetCurrentContext());
-        if (v8player.IsEmpty())
-            return;
-
-        auto playerId = Utils::GetIdFromV8Object(v8player);
+        auto playerId = Utils::GetIdFromV8Object(info[1]);
         if (!playerId.has_value())
             return;
 

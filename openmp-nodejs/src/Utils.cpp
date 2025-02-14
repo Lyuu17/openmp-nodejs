@@ -196,7 +196,7 @@ std::optional<bool> Utils::GetBooleanFromV8Value(v8::MaybeLocal<v8::Value> val)
     return v8num->Value();
 }
 
-std::optional<uint32_t> Utils::GetIdFromV8Object(v8::MaybeLocal<v8::Object> val)
+std::optional<uint32_t> Utils::GetIdFromV8Object(v8::MaybeLocal<v8::Value> val)
 {
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
@@ -204,7 +204,10 @@ std::optional<uint32_t> Utils::GetIdFromV8Object(v8::MaybeLocal<v8::Object> val)
     if (val.IsEmpty())
         return std::nullopt;
 
-    auto idField = val.ToLocalChecked()->Get(context, Utils::v8Str("id"));
+    if (!val.ToLocalChecked()->IsObject())
+        return std::nullopt;
+
+    auto idField = val.ToLocalChecked().As<v8::Object>()->Get(context, Utils::v8Str("id"));
     if (idField.IsEmpty())
         return std::nullopt;
 

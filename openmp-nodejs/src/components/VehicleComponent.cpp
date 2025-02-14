@@ -55,18 +55,14 @@ void VehicleComponent::putPlayer(const v8::FunctionCallbackInfo<v8::Value>& info
 
     if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
 
-    auto v8player = info[0]->ToObject(info.GetIsolate()->GetCurrentContext());
-    auto v8seat   = info[1]->ToInteger(info.GetIsolate()->GetCurrentContext());
-    if (v8player.IsEmpty() || v8seat.IsEmpty())
-        return;
-
-    auto playerId = Utils::GetIdFromV8Object(v8player);
-    if (!playerId.has_value())
+    auto playerId = Utils::GetIdFromV8Object(info[0]);
+    auto v8seat   = Utils::GetIntegerFromV8Value(info[1]);
+    if (!playerId.has_value() || !v8seat.has_value())
         return;
 
     auto player = NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value());
 
-    vehicleComponent->m_vehicle->putPlayer(*player, v8seat.ToLocalChecked()->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    vehicleComponent->m_vehicle->putPlayer(*player, v8seat.value());
 }
 
 // ====================== accessors ======================

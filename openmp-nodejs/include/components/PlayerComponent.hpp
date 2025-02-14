@@ -93,6 +93,9 @@ struct PlayerComponent final : public IExtension,
     static void getSpecialAction(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
     static void setSpecialAction(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 
+    static void getMenu(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+    static void setMenu(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+
     v8::Local<v8::Object> CreateJavaScriptObject() override;
 
     static void InitFunctions(Resource*);
