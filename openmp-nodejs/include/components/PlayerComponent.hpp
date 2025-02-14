@@ -16,6 +16,8 @@ struct PlayerComponent final : public IExtension,
     IPlayer*         m_player;
     ResourceManager* m_resourceManager;
 
+    v8::Global<v8::Function> m_dialogCallback;
+
     PlayerComponent(IPlayer*, ResourceManager*);
     ~PlayerComponent();
 

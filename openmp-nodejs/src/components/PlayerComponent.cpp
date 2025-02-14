@@ -16,6 +16,7 @@ PlayerComponent::PlayerComponent(IPlayer* player, ResourceManager* resourceManag
 
 PlayerComponent::~PlayerComponent()
 {
+    m_dialogCallback.Reset();
 }
 
 void PlayerComponent::freeExtension()
@@ -228,6 +229,8 @@ void PlayerComponent::hideDialog(const v8::FunctionCallbackInfo<v8::Value>& info
         return;
     }
 
+    playerComponent->m_dialogCallback.Reset();
+
     playerDialogData->hide(*playerComponent->m_player);
 }
 
@@ -244,14 +247,14 @@ void PlayerComponent::showDialog(const v8::FunctionCallbackInfo<v8::Value>& info
         return;
     }
 
-    auto v8dialogId    = Utils::GetIntegerFromV8Value(info[0]);
-    auto v8dialogStyle = Utils::GetIntegerFromV8Value(info[1]);
-    auto v8title       = info[2]->ToString(info.GetIsolate()->GetCurrentContext());
-    auto v8body        = info[3]->ToString(info.GetIsolate()->GetCurrentContext());
-    auto v8button1     = info[4]->ToString(info.GetIsolate()->GetCurrentContext());
-    auto v8button2     = info[5]->ToString(info.GetIsolate()->GetCurrentContext());
+    auto v8dialogStyle = Utils::GetIntegerFromV8Value(info[0]);
+    auto v8title       = info[1]->ToString(info.GetIsolate()->GetCurrentContext());
+    auto v8body        = info[2]->ToString(info.GetIsolate()->GetCurrentContext());
+    auto v8button1     = info[3]->ToString(info.GetIsolate()->GetCurrentContext());
+    auto v8button2     = info[4]->ToString(info.GetIsolate()->GetCurrentContext());
+    auto v8cb          = info[5];
 
-    if (!v8dialogId.has_value() || !v8dialogStyle.has_value() || v8title.IsEmpty() || v8body.IsEmpty() || v8button1.IsEmpty() || v8button2.IsEmpty())
+    if (!v8dialogStyle.has_value() || v8title.IsEmpty() || v8body.IsEmpty() || v8button1.IsEmpty() || v8button2.IsEmpty() || v8cb.IsEmpty() || !v8cb->IsFunction())
         return;
 
     auto title   = Utils::strV8(v8title.ToLocalChecked());
@@ -259,7 +262,9 @@ void PlayerComponent::showDialog(const v8::FunctionCallbackInfo<v8::Value>& info
     auto button1 = Utils::strV8(v8button1.ToLocalChecked());
     auto button2 = Utils::strV8(v8button2.ToLocalChecked());
 
-    playerDialogData->show(*playerComponent->m_player, v8dialogId.value(), (DialogStyle)v8dialogStyle.value(), title, body, button1, button2);
+    playerComponent->m_dialogCallback.Reset(info.GetIsolate(), v8cb.As<v8::Function>());
+
+    playerDialogData->show(*playerComponent->m_player, 0, (DialogStyle)v8dialogStyle.value(), title, body, button1, button2);
 }
 
 // ====================== accessors ======================

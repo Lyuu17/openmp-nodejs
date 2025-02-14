@@ -95,7 +95,7 @@ declare interface IPlayer {
   spawn(): void;
   forceClassSelection(): void;
   hideDialog(): void;
-  showDialog(id: number, style: number, title: string, body: string, button1: string, button2: string): void;
+  showDialog(style: number, title: string, body: string, button1: string, button2: string, callback: IEventHandler): void;
 }
 
 declare interface IVehicle {
