@@ -46,7 +46,7 @@ void PickupComponent::destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
 
-    delete pickupComponent->m_pickup;
+    NodejsComponent::getInstance()->getPickups()->release(pickupComponent->m_pickup->getID());
 }
 
 // ====================== accessors ======================
