@@ -10,6 +10,8 @@ v8::Local<v8::String> Utils::v8Str(const std::string& x)
 std::string Utils::strV8(v8::Local<v8::String> str)
 {
     v8::String::Utf8Value v8str { v8::Isolate::GetCurrent(), str };
+    if (!*v8str)
+        return {};
     return { *v8str };
 }
 
@@ -281,7 +283,14 @@ void Utils::PrintSourceLineWithUnderline(v8::Isolate* isolate, v8::Local<v8::Mes
         return;
     }
 
-    auto                  sourceLine = maybeSourceLine.ToLocalChecked();
+    auto sourceLine = maybeSourceLine.ToLocalChecked();
+
+    int length = sourceLine->Length();
+    if (length > 256)
+    {
+        return;
+    }
+
     v8::String::Utf8Value utf8SourceLine(isolate, sourceLine);
     const char*           sourceLineStr = *utf8SourceLine;
 
@@ -295,9 +304,8 @@ void Utils::PrintSourceLineWithUnderline(v8::Isolate* isolate, v8::Local<v8::Mes
         return;
     }
 
-    int start  = startCol.FromJust();
-    int end    = endCol.FromJust();
-    int length = sourceLine->Length();
+    int start = startCol.FromJust();
+    int end   = endCol.FromJust();
 
     if (start <= 0 || start >= length || end >= length)
     {
