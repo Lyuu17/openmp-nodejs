@@ -57,11 +57,7 @@ void CommonFunctions::Init(Resource* resource)
         for (int i = 1; i < info.Length(); i++)
             args.push_back(info[i]);
 
-        std::initializer_list<v8::Local<v8::Value>> argsList;
-        if (args.size() > 0)
-            argsList = std::initializer_list<v8::Local<v8::Value>>(&(args.front()), &(args.back()));
-
-        resource->Emit(Utils::strV8(v8str.ToLocalChecked()), argsList);
+        resource->Emit(Utils::strV8(v8str.ToLocalChecked()), args);
     }, resource);
 
     resource->AddFunction("message", [](const v8::FunctionCallbackInfo<v8::Value>& info) {

@@ -171,7 +171,7 @@ void Resource::AddListener(const std::string& name, v8::Local<v8::Function> list
     m_listeners[name].emplace_back(v8::Global<v8::Function>(m_isolate, listener));
 }
 
-void Resource::Emit(const std::string& name, const std::initializer_list<v8::Local<v8::Value>>& values, bool waitAsync)
+void Resource::Emit(const std::string& name, const std::vector<v8::Local<v8::Value>>& values, bool waitAsync)
 {
     if (!m_listeners.contains(name))
         return;
