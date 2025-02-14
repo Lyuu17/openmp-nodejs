@@ -80,6 +80,7 @@ declare interface IPlayer {
   ghostMode: boolean;
   specialAction: number;
   menu: number;
+  dialog: number;
 
 
   kick(): void;
@@ -93,6 +94,8 @@ declare interface IPlayer {
   resetWeapons(): void;
   spawn(): void;
   forceClassSelection(): void;
+  hideDialog(): void;
+  showDialog(id: number, style: number, title: string, body: string, button1: string, button2: string): void;
 }
 
 declare interface IVehicle {

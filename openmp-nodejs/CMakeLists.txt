@@ -1,5 +1,6 @@
 set(SOURCES
     "src/components/events/ClassEventsComponent.cpp"
+    "src/components/events/DialogEventsComponent.cpp"
     "src/components/events/MenuEventsComponent.cpp"
     "src/components/events/PickupEventsComponent.cpp"
     "src/components/events/PlayerEventsComponent.cpp"

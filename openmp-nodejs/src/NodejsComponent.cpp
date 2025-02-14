@@ -9,6 +9,7 @@
 #include "components/events/VehicleEventsComponent.hpp"
 #include "components/events/PickupEventsComponent.hpp"
 #include "components/events/MenuEventsComponent.hpp"
+#include "components/events/DialogEventsComponent.hpp"
 
 #include "ResourceManager.hpp"
 
@@ -46,6 +47,7 @@ void NodejsComponent::onInit(IComponentList* components)
     m_vehicles = components->queryComponent<IVehiclesComponent>();
     m_pickups  = components->queryComponent<IPickupsComponent>();
     m_menus    = components->queryComponent<IMenusComponent>();
+    m_dialogs  = components->queryComponent<IDialogsComponent>();
 
     m_resourceManager = queryExtension<ResourceManager>(this);
     m_resourceManager->LoadResourcesFromPath("resources");
@@ -55,6 +57,7 @@ void NodejsComponent::onInit(IComponentList* components)
     addExtension(new VehicleEventsComponent(m_core, m_vehicles, m_resourceManager), true);
     addExtension(new PickupEventsComponent(m_core, m_pickups, m_resourceManager), true);
     addExtension(new MenuEventsComponent(m_core, m_menus, m_resourceManager), true);
+    addExtension(new DialogEventsComponent(m_core, m_dialogs, m_resourceManager), true);
 }
 
 void NodejsComponent::free()
@@ -94,6 +97,11 @@ IPickupsComponent* NodejsComponent::getPickups()
 IMenusComponent* NodejsComponent::getMenus()
 {
     return m_menus;
+}
+
+IDialogsComponent* NodejsComponent::getDialogs()
+{
+    return m_dialogs;
 }
 
 ResourceManager* NodejsComponent::getResourceManager()

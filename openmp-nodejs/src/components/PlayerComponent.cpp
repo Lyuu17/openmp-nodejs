@@ -215,6 +215,53 @@ void PlayerComponent::forceClassSelection(const v8::FunctionCallbackInfo<v8::Val
     playerComponent->m_player->forceClassSelection();
 }
 
+void PlayerComponent::hideDialog(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerDialogData = queryExtension<IPlayerDialogData>(playerComponent->m_player);
+    if (!playerDialogData)
+    {
+        info.GetReturnValue().SetNull();
+        return;
+    }
+
+    playerDialogData->hide(*playerComponent->m_player);
+}
+
+void PlayerComponent::showDialog(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerDialogData = queryExtension<IPlayerDialogData>(playerComponent->m_player);
+    if (!playerDialogData)
+    {
+        info.GetReturnValue().SetNull();
+        return;
+    }
+
+    auto v8dialogId    = Utils::GetIntegerFromV8Value(info[0]);
+    auto v8dialogStyle = Utils::GetIntegerFromV8Value(info[1]);
+    auto v8title       = info[2]->ToString(info.GetIsolate()->GetCurrentContext());
+    auto v8body        = info[3]->ToString(info.GetIsolate()->GetCurrentContext());
+    auto v8button1     = info[4]->ToString(info.GetIsolate()->GetCurrentContext());
+    auto v8button2     = info[5]->ToString(info.GetIsolate()->GetCurrentContext());
+
+    if (!v8dialogId.has_value() || !v8dialogStyle.has_value() || v8title.IsEmpty() || v8body.IsEmpty() || v8button1.IsEmpty() || v8button2.IsEmpty())
+        return;
+
+    auto title   = Utils::strV8(v8title.ToLocalChecked());
+    auto body    = Utils::strV8(v8body.ToLocalChecked());
+    auto button1 = Utils::strV8(v8button1.ToLocalChecked());
+    auto button2 = Utils::strV8(v8button2.ToLocalChecked());
+
+    playerDialogData->show(*playerComponent->m_player, v8dialogId.value(), (DialogStyle)v8dialogStyle.value(), title, body, button1, button2);
+}
+
 // ====================== accessors ======================
 
 void PlayerComponent::getName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -749,6 +796,22 @@ void PlayerComponent::setMenu(v8::Local<v8::Name> property, v8::Local<v8::Value>
     playerMenuData->setMenuID(v8menu.value());
 }
 
+void PlayerComponent::getDialog(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerDialogData = queryExtension<IPlayerDialogData>(playerComponent->m_player);
+    if (!playerDialogData)
+    {
+        info.GetReturnValue().SetNull();
+        return;
+    }
+
+    info.GetReturnValue().Set(playerDialogData->getActiveID());
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -769,6 +832,8 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("resetWeapons", resetWeapons);
     SET_FUNCTION("spawn", spawn);
     SET_FUNCTION("forceClassSelection", forceClassSelection);
+    SET_FUNCTION("hideDialog", hideDialog);
+    SET_FUNCTION("showDialog", showDialog);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
@@ -795,6 +860,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("ghostMode", getGhostMode, setGhostMode);
     SET_ACCESSOR_WITH_SETTER("specialAction", getSpecialAction, setSpecialAction);
     SET_ACCESSOR_WITH_SETTER("menu", getMenu, setMenu);
+    SET_ACCESSOR("dialog", getDialog);
 
     return v8obj;
 }
