@@ -77,6 +77,8 @@ declare interface IPlayer {
   spawnInfo: ISpawnInfo;
   readonly vehicle: IVehicle;
   readonly ip: string;
+  ghostMode: boolean;
+  specialAction: number;
 
 
   kick(): void;

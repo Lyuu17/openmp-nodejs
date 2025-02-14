@@ -672,6 +672,50 @@ void PlayerComponent::getIp(v8::Local<v8::Name> property, const v8::PropertyCall
     info.GetReturnValue().Set(Utils::v8Str(addressStr.data()));
 }
 
+void PlayerComponent::getGhostMode(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
+
+    info.GetReturnValue().Set(playerComponent->m_player->isGhostModeEnabled());
+}
+
+void PlayerComponent::setGhostMode(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
+
+    auto v8bool = Utils::GetBooleanFromV8Value(value);
+    if (!v8bool.has_value())
+        return;
+
+    playerComponent->m_player->toggleGhostMode(v8bool.value());
+}
+
+void PlayerComponent::getSpecialAction(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
+
+    info.GetReturnValue().Set(playerComponent->m_player->getAction());
+}
+
+void PlayerComponent::setSpecialAction(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent);
+
+    auto v8action = Utils::GetIntegerFromV8Value(value);
+    if (!v8action.has_value())
+        return;
+
+    playerComponent->m_player->setAction((PlayerSpecialAction)v8action.value());
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -715,6 +759,8 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("spawnInfo", getSpawnInfo, setSpawnInfo);
     SET_ACCESSOR("vehicle", getVehicle);
     SET_ACCESSOR("ip", getIp);
+    SET_ACCESSOR_WITH_SETTER("ghostMode", getGhostMode, setGhostMode);
+    SET_ACCESSOR_WITH_SETTER("specialAction", getSpecialAction, setSpecialAction);
 
     return v8obj;
 }
