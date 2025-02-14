@@ -40,6 +40,8 @@ namespace Utils
         if (!resource->DoesObjectFromExtensionExist(component))
         {
             resource->ThrowException("attempting to access a deleted component");
+            return false;
         }
+        return true;
     };
 } // namespace Utils

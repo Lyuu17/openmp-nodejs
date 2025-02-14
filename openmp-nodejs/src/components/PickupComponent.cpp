@@ -44,7 +44,7 @@ void PickupComponent::destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
 
-    Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent);
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
 
     delete pickupComponent->m_pickup;
 }
@@ -55,7 +55,7 @@ void PickupComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCall
 {
     auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
 
-    Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent);
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
 
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), pickupComponent->m_pickup->getID()));
 }
@@ -64,7 +64,7 @@ void PickupComponent::getType(v8::Local<v8::Name> property, const v8::PropertyCa
 {
     auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
 
-    Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent);
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
 
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), (int)pickupComponent->m_pickup->getType()));
 }
@@ -73,7 +73,7 @@ void PickupComponent::setType(v8::Local<v8::Name> property, v8::Local<v8::Value>
 {
     auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
 
-    Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent);
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -86,7 +86,7 @@ void PickupComponent::getModel(v8::Local<v8::Name> property, const v8::PropertyC
 {
     auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
 
-    Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent);
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
 
     info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), pickupComponent->m_pickup->getModel()));
 }
@@ -95,7 +95,7 @@ void PickupComponent::setModel(v8::Local<v8::Name> property, v8::Local<v8::Value
 {
     auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
 
-    Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent);
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
 
     auto v8int = Utils::GetIntegerFromV8Value(value);
     if (!v8int.has_value())
@@ -108,7 +108,7 @@ void PickupComponent::getPosition(v8::Local<v8::Name> property, const v8::Proper
 {
     auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
 
-    Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent);
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
 
     info.GetReturnValue().Set(Utils::v8Vector3(pickupComponent->m_pickup->getPosition()));
 }
@@ -117,7 +117,7 @@ void PickupComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::Va
 {
     auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
 
-    Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent);
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
 
     auto v8vec3 = Utils::vector3V8(value);
     if (!v8vec3.has_value())
