@@ -49,6 +49,44 @@ void PickupComponent::destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
     NodejsComponent::getInstance()->getPickups()->release(pickupComponent->m_pickup->getID());
 }
 
+void PickupComponent::setPickupHiddenForPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
+
+    auto playerId = Utils::GetIdFromV8Object(info[0]);
+    if (!playerId.has_value())
+        return;
+
+    auto player = NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value());
+    if (!player)
+        return;
+
+    auto v8hidden = Utils::GetBooleanFromV8Value(info[1]);
+    if (!v8hidden.has_value())
+        return;
+
+    pickupComponent->m_pickup->setPickupHiddenForPlayer(*player, v8hidden.value());
+}
+
+void PickupComponent::isPickupHiddenForPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
+
+    auto playerId = Utils::GetIdFromV8Object(info[0]);
+    if (!playerId.has_value())
+        return;
+
+    auto player = NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value());
+    if (!player)
+        return;
+
+    info.GetReturnValue().Set(pickupComponent->m_pickup->isPickupHiddenForPlayer(*player));
+}
+
 // ====================== accessors ======================
 
 void PickupComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -136,6 +174,8 @@ v8::Local<v8::Object> PickupComponent::CreateJavaScriptObject()
 #define SET_FUNCTION(f, func) v8obj->Set(context, Utils::v8Str(f), v8::Function::New(context, func, v8::External::New(isolate, this)).ToLocalChecked());
 
     SET_FUNCTION("destroy", destroy);
+    SET_FUNCTION("setPickupHiddenForPlayer", setPickupHiddenForPlayer);
+    SET_FUNCTION("isPickupHiddenForPlayer", isPickupHiddenForPlayer);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));

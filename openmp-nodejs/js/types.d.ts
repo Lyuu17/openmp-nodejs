@@ -121,6 +121,8 @@ declare interface IPickup {
   position: Vector3;
 
   destroy(): void;
+  setPickupHiddenForPlayer(player: IPlayer, toggle: boolean): void;
+  isPickupHiddenForPlayer(player: IPlayer): boolean;
 }
 
 declare interface IMenu {

@@ -23,6 +23,8 @@ struct PickupComponent final : public IExtension,
     void reset() override;
 
     static void destroy(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void setPickupHiddenForPlayer(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void isPickupHiddenForPlayer(const v8::FunctionCallbackInfo<v8::Value>& info);
 
     static void getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 
