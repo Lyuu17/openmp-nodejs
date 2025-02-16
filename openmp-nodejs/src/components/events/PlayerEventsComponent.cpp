@@ -332,7 +332,16 @@ void PlayerEventsComponent::onPlayerGiveDamage(IPlayer& player, IPlayer& to, flo
     });
 }
 
-void PlayerEventsComponent::onPlayerClickMap(IPlayer& player, Vector3 pos) {}
+void PlayerEventsComponent::onPlayerClickMap(IPlayer& player, Vector3 pos)
+{
+    m_resourceManager->Exec([&](Resource* resource) {
+        auto v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerComponent>(player));
+        auto v8position  = Utils::v8Vector3(pos);
+
+        resource->Emit("onPlayerClickMap", { v8objPlayer, v8position });
+    });
+}
+
 void PlayerEventsComponent::onPlayerClickPlayer(IPlayer& player, IPlayer& clicked, PlayerClickSource source) {}
 void PlayerEventsComponent::onClientCheckResponse(IPlayer& player, int actionType, int address, int results) {}
 
