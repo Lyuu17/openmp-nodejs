@@ -49,11 +49,9 @@ void PlayerComponent::ban(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
 
-    std::string reason {};
-    if (info[0]->IsString())
-        reason = Utils::strV8(info[0]->ToString(info.GetIsolate()->GetCurrentContext()).ToLocalChecked());
+    auto reason = Utils::strV8(info[0]);
 
-    playerComponent->m_player->ban(reason.c_str());
+    playerComponent->m_player->ban(reason.value_or(""));
 }
 
 void PlayerComponent::giveMoney(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -248,23 +246,18 @@ void PlayerComponent::showDialog(const v8::FunctionCallbackInfo<v8::Value>& info
     }
 
     auto v8dialogStyle = Utils::GetIntegerFromV8Value(info[0]);
-    auto v8title       = info[1]->ToString(info.GetIsolate()->GetCurrentContext());
-    auto v8body        = info[2]->ToString(info.GetIsolate()->GetCurrentContext());
-    auto v8button1     = info[3]->ToString(info.GetIsolate()->GetCurrentContext());
-    auto v8button2     = info[4]->ToString(info.GetIsolate()->GetCurrentContext());
+    auto v8title       = Utils::strV8(info[1]);
+    auto v8body        = Utils::strV8(info[2]);
+    auto v8button1     = Utils::strV8(info[3]);
+    auto v8button2     = Utils::strV8(info[4]);
     auto v8cb          = info[5];
 
-    if (!v8dialogStyle.has_value() || v8title.IsEmpty() || v8body.IsEmpty() || v8button1.IsEmpty() || v8button2.IsEmpty() || v8cb.IsEmpty() || !v8cb->IsFunction())
+    if (!v8dialogStyle.has_value() || !v8title.has_value() || !v8body.has_value() || !v8button1.has_value() || !v8button2.has_value() || v8cb.IsEmpty() || !v8cb->IsFunction())
         return;
-
-    auto title   = Utils::strV8(v8title.ToLocalChecked());
-    auto body    = Utils::strV8(v8body.ToLocalChecked());
-    auto button1 = Utils::strV8(v8button1.ToLocalChecked());
-    auto button2 = Utils::strV8(v8button2.ToLocalChecked());
 
     playerComponent->m_dialogCallback.Reset(info.GetIsolate(), v8cb.As<v8::Function>());
 
-    playerDialogData->show(*playerComponent->m_player, 0, (DialogStyle)v8dialogStyle.value(), title, body, button1, button2);
+    playerDialogData->show(*playerComponent->m_player, 0, (DialogStyle)v8dialogStyle.value(), v8title.value(), v8body.value(), v8button1.value(), v8button2.value());
 }
 
 void PlayerComponent::setMapIcon(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -299,6 +292,23 @@ void PlayerComponent::unsetMapIcon(const v8::FunctionCallbackInfo<v8::Value>& in
     playerComponent->m_player->unsetMapIcon(v8mapIcon.value());
 }
 
+void PlayerComponent::sendGameText(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8message = Utils::strV8(info[0]);
+    auto v8time    = Utils::GetIntegerFromV8Value(info[1]);
+    auto v8style   = Utils::GetIntegerFromV8Value(info[2]);
+
+    if (!v8message.has_value() || !v8time.has_value() || !v8style.has_value())
+        return;
+
+    auto duration = std::chrono::milliseconds(v8time.value());
+    playerComponent->m_player->sendGameText(v8message.value(), duration, v8style.value());
+}
+
 // ====================== accessors ======================
 
 void PlayerComponent::getName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -316,11 +326,11 @@ void PlayerComponent::setName(v8::Local<v8::Name> property, v8::Local<v8::Value>
 
     if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
 
-    auto v8str = value->ToString(info.GetIsolate()->GetCurrentContext());
-    if (v8str.IsEmpty())
+    auto v8str = Utils::strV8(value);
+    if (!v8str.has_value())
         return;
 
-    playerComponent->m_player->setName(Utils::strV8(v8str.ToLocalChecked()));
+    playerComponent->m_player->setName(v8str.value());
 }
 
 void PlayerComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -873,6 +883,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("showDialog", showDialog);
     SET_FUNCTION("setMapIcon", setMapIcon);
     SET_FUNCTION("unsetMapIcon", unsetMapIcon);
+    SET_FUNCTION("sendGameText", sendGameText);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));

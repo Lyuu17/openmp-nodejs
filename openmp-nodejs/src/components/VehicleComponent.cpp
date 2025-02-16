@@ -168,11 +168,11 @@ void VehicleComponent::setPlate(v8::Local<v8::Name> property, v8::Local<v8::Valu
 
     if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
 
-    auto v8str = value->ToString(info.GetIsolate()->GetCurrentContext());
-    if (v8str.IsEmpty())
+    auto v8str = Utils::strV8(value);
+    if (!v8str.has_value())
         return;
 
-    vehicleComponent->m_vehicle->setPlate(Utils::strV8(v8str.ToLocalChecked()));
+    vehicleComponent->m_vehicle->setPlate(v8str.value());
 }
 
 void VehicleComponent::getModel(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)

@@ -7,11 +7,13 @@ v8::Local<v8::String> Utils::v8Str(const std::string& x)
     return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), x.c_str()).ToLocalChecked();
 }
 
-std::string Utils::strV8(v8::Local<v8::String> str)
+std::optional<std::string> Utils::strV8(v8::MaybeLocal<v8::Value> str)
 {
-    v8::String::Utf8Value v8str { v8::Isolate::GetCurrent(), str };
+    if (str.IsEmpty() || !str.ToLocalChecked()->IsString())
+        return std::nullopt;
+    v8::String::Utf8Value v8str { v8::Isolate::GetCurrent(), str.ToLocalChecked() };
     if (!*v8str)
-        return {};
+        return std::nullopt;
     return { *v8str };
 }
 

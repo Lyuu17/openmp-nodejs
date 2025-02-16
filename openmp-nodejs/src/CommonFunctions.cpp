@@ -8,27 +8,27 @@
 void CommonFunctions::Init(Resource* resource)
 {
     resource->AddFunction("print", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-        auto v8str = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
-        if (v8str.IsEmpty())
+        auto v8str = Utils::strV8(info[0]);
+        if (!v8str.has_value())
             return;
 
-        PRINTLN("{}", Utils::strV8(v8str.ToLocalChecked()));
+        PRINTLN("{}", v8str.value());
     });
 
     resource->AddFunction("printError", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-        auto v8str = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
-        if (v8str.IsEmpty())
+        auto v8str = Utils::strV8(info[0]);
+        if (!v8str.has_value())
             return;
 
-        LOGLN(Error, "{}", Utils::strV8(v8str.ToLocalChecked()));
+        LOGLN(Error, "{}", v8str.value());
     });
 
     resource->AddFunction("printWarning", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-        auto v8str = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
-        if (v8str.IsEmpty())
+        auto v8str = Utils::strV8(info[0]);
+        if (!v8str.has_value())
             return;
 
-        LOGLN(Warning, "{}", Utils::strV8(v8str.ToLocalChecked()));
+        LOGLN(Warning, "{}", v8str.value());
     });
 
     resource->AddFunction("on", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -36,12 +36,12 @@ void CommonFunctions::Init(Resource* resource)
 
         auto resource = (Resource*)info.Data().As<v8::External>()->Value();
 
-        auto v8str  = info[0]->ToString(isolate->GetCurrentContext());
+        auto v8str  = Utils::strV8(info[0]);
         auto v8func = info[1].As<v8::Function>();
-        if (v8str.IsEmpty() || v8func.IsEmpty())
+        if (!v8str.has_value() || v8func.IsEmpty())
             return;
 
-        resource->AddListener(Utils::strV8(v8str.ToLocalChecked()), v8func);
+        resource->AddListener(v8str.value(), v8func);
     }, resource);
 
     resource->AddFunction("emit", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -49,36 +49,36 @@ void CommonFunctions::Init(Resource* resource)
 
         auto resource = (Resource*)info.Data().As<v8::External>()->Value();
 
-        auto v8str = info[0]->ToString(isolate->GetCurrentContext());
-        if (v8str.IsEmpty())
+        auto v8str = Utils::strV8(info[0]);
+        if (!v8str.has_value())
             return;
 
         std::vector<v8::Local<v8::Value>> args;
         for (int i = 1; i < info.Length(); i++)
             args.push_back(info[i]);
 
-        resource->Emit(Utils::strV8(v8str.ToLocalChecked()), args);
+        resource->Emit(v8str.value(), args);
     }, resource);
 
     resource->AddFunction("message", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
         auto isolate = info.GetIsolate();
 
-        auto v8messageStr = info[0]->ToString(isolate->GetCurrentContext());
-        if (v8messageStr.IsEmpty())
+        auto v8messageStr = Utils::strV8(info[0]);
+        if (!v8messageStr.has_value())
             return;
 
         auto messageColor = Utils::GetIntegerFromV8Value(info[1]);
 
         Colour color = Colour::FromRGBA(messageColor.value_or(0xFFFFFFFF));
 
-        NodejsComponent::getInstance()->getCore()->getPlayers().sendClientMessageToAll(color, Utils::strV8(v8messageStr.ToLocalChecked()).c_str());
+        NodejsComponent::getInstance()->getCore()->getPlayers().sendClientMessageToAll(color, v8messageStr.value());
     });
 
     resource->AddFunction("messagePlayer", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
         auto isolate = info.GetIsolate();
 
-        auto v8messageStr = info[0]->ToString(isolate->GetCurrentContext());
-        if (v8messageStr.IsEmpty())
+        auto v8messageStr = Utils::strV8(info[0]);
+        if (!v8messageStr.has_value())
             return;
 
         auto playerId = Utils::GetIdFromV8Object(info[1]);
@@ -89,7 +89,7 @@ void CommonFunctions::Init(Resource* resource)
 
         Colour color = Colour::FromRGBA(messageColor.value_or(0xFFFFFFFF));
 
-        NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value())->sendClientMessage(color, Utils::strV8(v8messageStr.ToLocalChecked()).c_str());
+        NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value())->sendClientMessage(color, v8messageStr.value());
     });
 
     resource->AddFunction("Quat", [](const v8::FunctionCallbackInfo<v8::Value>& info) {

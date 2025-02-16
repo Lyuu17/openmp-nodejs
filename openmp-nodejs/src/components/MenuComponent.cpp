@@ -96,17 +96,12 @@ void MenuComponent::addCell(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if (!Utils::CheckExtensionExist<MenuComponent>(info.GetIsolate(), menuComponent)) return;
 
-    auto v8text = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
-    if (v8text.IsEmpty())
+    auto v8text = Utils::strV8(info[0]);
+    auto colId  = Utils::GetIntegerFromV8Value(info[1]);
+    if (!v8text.has_value() || !colId.has_value())
         return;
 
-    auto text = Utils::strV8(v8text.ToLocalChecked());
-
-    auto colId = Utils::GetIntegerFromV8Value(info[1]);
-    if (!colId.has_value())
-        return;
-
-    info.GetReturnValue().Set(menuComponent->m_menu->addCell(text, colId.value()));
+    info.GetReturnValue().Set(menuComponent->m_menu->addCell(v8text.value(), colId.value()));
 }
 
 void MenuComponent::setColumnHeader(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -115,17 +110,12 @@ void MenuComponent::setColumnHeader(const v8::FunctionCallbackInfo<v8::Value>& i
 
     if (!Utils::CheckExtensionExist<MenuComponent>(info.GetIsolate(), menuComponent)) return;
 
-    auto v8header = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
-    if (v8header.IsEmpty())
+    auto v8header = Utils::strV8(info[0]);
+    auto colId    = Utils::GetIntegerFromV8Value(info[1]);
+    if (!v8header.has_value() || !colId.has_value())
         return;
 
-    auto header = Utils::strV8(v8header.ToLocalChecked());
-
-    auto colId = Utils::GetIntegerFromV8Value(info[1]);
-    if (!colId.has_value())
-        return;
-
-    menuComponent->m_menu->setColumnHeader(header, colId.value());
+    menuComponent->m_menu->setColumnHeader(v8header.value(), colId.value());
 }
 
 void MenuComponent::getCell(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -228,23 +218,18 @@ void MenuComponent::InitFunctions(Resource* resource)
                                                                  .ToLocalChecked());
 
     context->Global()->Set(context, Utils::v8Str("createMenu"), v8::Function::New(context, [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-        auto v8title = info[0]->ToString(info.GetIsolate()->GetCurrentContext());
-        if (v8title.IsEmpty())
-            return;
-
-        auto title = Utils::strV8(v8title.ToLocalChecked());
-
+        auto v8title     = Utils::strV8(info[0]);
         auto v8position  = Utils::vector3V8(info[1]);
         auto v8columns   = Utils::GetIntegerFromV8Value(info[2]);
         auto v8col1Width = Utils::GetIntegerFromV8Value(info[3]);
         auto v8col2Width = Utils::GetIntegerFromV8Value(info[4]);
 
-        if (!v8position.has_value() || !v8columns.has_value() || !v8col1Width.has_value() || !v8col2Width.has_value())
+        if (!v8title.has_value() || !v8position.has_value() || !v8columns.has_value() || !v8col1Width.has_value() || !v8col2Width.has_value())
         {
             return;
         }
 
-        auto menu = NodejsComponent::getInstance()->getMenus()->create(title, v8position.value(), v8columns.value(), v8col1Width.value(), v8col2Width.value());
+        auto menu = NodejsComponent::getInstance()->getMenus()->create(v8title.value(), v8position.value(), v8columns.value(), v8col1Width.value(), v8col2Width.value());
         if (menu == nullptr)
         {
             info.GetReturnValue().SetNull();
