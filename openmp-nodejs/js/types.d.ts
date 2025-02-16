@@ -105,6 +105,7 @@ declare interface IPlayer {
   showDialog(style: number, title: string, body: string, button1: string, button2: string, callback: IEventHandler): void;
   setMapIcon(id: number, position: Vector3, type: number, color: Colour, style: number): void;
   unsetMapIcon(id: number): void;
+  sendGameText(text: string, time: number, style: number): void;
 }
 
 declare interface IVehicle {
