@@ -57,6 +57,33 @@ std::optional<Vector3> Utils::vector3V8(v8::MaybeLocal<v8::Value> val)
     return vec3;
 }
 
+std::optional<Colour> Utils::colourV8(v8::MaybeLocal<v8::Value> val)
+{
+    if (val.IsEmpty())
+        return std::nullopt;
+
+    if (!val.ToLocalChecked()->IsObject())
+        return std::nullopt;
+
+    auto colorObj = val.ToLocalChecked().As<v8::Object>();
+
+    auto v8maybeR = colorObj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("r"));
+    auto v8maybeG = colorObj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("g"));
+    auto v8maybeB = colorObj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("b"));
+    auto v8maybeA = colorObj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("a"));
+
+    if (v8maybeR.IsEmpty() || v8maybeG.IsEmpty() || v8maybeB.IsEmpty())
+        return std::nullopt;
+
+    Colour color {
+        (uint8_t)GetIntegerFromV8Value(v8maybeR).value_or(0),
+        (uint8_t)GetIntegerFromV8Value(v8maybeG).value_or(0),
+        (uint8_t)GetIntegerFromV8Value(v8maybeB).value_or(0),
+        (uint8_t)GetIntegerFromV8Value(v8maybeA).value_or(0)
+    };
+    return color;
+}
+
 std::optional<GTAQuat> Utils::quatV8(v8::MaybeLocal<v8::Value> val)
 {
     if (val.IsEmpty())

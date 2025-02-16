@@ -267,6 +267,38 @@ void PlayerComponent::showDialog(const v8::FunctionCallbackInfo<v8::Value>& info
     playerDialogData->show(*playerComponent->m_player, 0, (DialogStyle)v8dialogStyle.value(), title, body, button1, button2);
 }
 
+void PlayerComponent::setMapIcon(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8mapIcon      = Utils::GetIntegerFromV8Value(info[0]);
+    auto v8position     = Utils::vector3V8(info[1]);
+    auto v8type         = Utils::GetIntegerFromV8Value(info[2]);
+    auto v8color        = Utils::colourV8(info[3]);
+    auto v8mapIconStyle = Utils::GetIntegerFromV8Value(info[4]);
+
+    if (!v8mapIcon.has_value() || !v8position.has_value() || !v8type.has_value() || !v8color.has_value() || !v8mapIconStyle.has_value())
+        return;
+
+    playerComponent->m_player->setMapIcon(v8mapIcon.value(), v8position.value(), v8type.value(), v8color.value(), (MapIconStyle)v8mapIconStyle.value());
+}
+
+void PlayerComponent::unsetMapIcon(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8mapIcon = Utils::GetIntegerFromV8Value(info[0]);
+
+    if (!v8mapIcon.has_value())
+        return;
+
+    playerComponent->m_player->unsetMapIcon(v8mapIcon.value());
+}
+
 // ====================== accessors ======================
 
 void PlayerComponent::getName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -839,6 +871,8 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("forceClassSelection", forceClassSelection);
     SET_FUNCTION("hideDialog", hideDialog);
     SET_FUNCTION("showDialog", showDialog);
+    SET_FUNCTION("setMapIcon", setMapIcon);
+    SET_FUNCTION("unsetMapIcon", unsetMapIcon);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));

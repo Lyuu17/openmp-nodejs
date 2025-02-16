@@ -43,6 +43,13 @@ declare class Vector3 {
   z: number;
 }
 
+declare class Colour {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}
+
 declare interface ISpawnInfo {
   team: number;
   skin: number;
@@ -96,6 +103,8 @@ declare interface IPlayer {
   forceClassSelection(): void;
   hideDialog(): void;
   showDialog(style: number, title: string, body: string, button1: string, button2: string, callback: IEventHandler): void;
+  setMapIcon(id: number, position: Vector3, type: number, color: Colour, style: number): void;
+  unsetMapIcon(id: number): void;
 }
 
 declare interface IVehicle {
