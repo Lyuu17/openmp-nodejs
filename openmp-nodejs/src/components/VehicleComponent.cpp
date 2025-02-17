@@ -1,4 +1,5 @@
 
+#include <Server/Components/Vehicles/vehicle_seats.hpp>
 #include <sdk.hpp>
 
 #include "components/VehicleComponent.hpp"
@@ -159,14 +160,21 @@ void VehicleComponent::getPassengers(v8::Local<v8::Name> property, const v8::Pro
 
     if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
 
-    auto& passengers = vehicleComponent->m_vehicle->getPassengers();
+    auto  maxPassengers = Impl::getVehiclePassengerSeats(vehicleComponent->m_vehicle->getModel());
+    auto& passengers    = vehicleComponent->m_vehicle->getPassengers();
 
-    auto   v8obj = v8::Array::New(info.GetIsolate(), passengers.size());
-    size_t i     = 0;
+    auto v8obj = v8::Array::New(info.GetIsolate(), maxPassengers);
     for (const auto& passenger : passengers)
     {
+        auto passengerVehicleData = queryExtension<IPlayerVehicleData>(passenger);
+        if (!passengerVehicleData)
+        {
+            info.GetReturnValue().SetNull();
+            continue;
+        }
+
         auto passengerComponent = queryExtension<PlayerComponent>(passenger);
-        v8obj->Set(info.GetIsolate()->GetCurrentContext(), i++, passengerComponent->CreateJavaScriptObject());
+        v8obj->Set(info.GetIsolate()->GetCurrentContext(), passengerVehicleData->getSeat(), passengerComponent->CreateJavaScriptObject());
     }
 
     info.GetReturnValue().Set(v8obj);
