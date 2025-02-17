@@ -859,6 +859,28 @@ void PlayerComponent::getDialog(v8::Local<v8::Name> property, const v8::Property
     info.GetReturnValue().Set(playerDialogData->getActiveID());
 }
 
+void PlayerComponent::getColour(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    info.GetReturnValue().Set(Utils::v8Colour(playerComponent->m_player->getColour()));
+}
+
+void PlayerComponent::setColour(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8col = Utils::colourV8(value);
+    if (!v8col.has_value())
+        return;
+
+    playerComponent->m_player->setColour(v8col.value());
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -911,6 +933,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("specialAction", getSpecialAction, setSpecialAction);
     SET_ACCESSOR_WITH_SETTER("menu", getMenu, setMenu);
     SET_ACCESSOR("dialog", getDialog);
+    SET_ACCESSOR_WITH_SETTER("colour", getColour, setColour);
 
     return v8obj;
 }

@@ -88,6 +88,7 @@ declare interface IPlayer {
   specialAction: number;
   menu: number;
   dialog: number;
+  color: Colour;
 
 
   kick(): void;

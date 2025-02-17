@@ -105,6 +105,9 @@ struct PlayerComponent final : public IExtension,
 
     static void getDialog(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 
+    static void getColour(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+    static void setColour(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+
     v8::Local<v8::Object> CreateJavaScriptObject() override;
 
     static void InitFunctions(Resource*);

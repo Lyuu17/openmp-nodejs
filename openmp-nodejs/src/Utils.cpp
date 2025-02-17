@@ -59,6 +59,16 @@ std::optional<Vector3> Utils::vector3V8(v8::MaybeLocal<v8::Value> val)
     return vec3;
 }
 
+v8::Local<v8::Object> Utils::v8Colour(const Colour& col)
+{
+    auto v8obj = v8::Object::New(v8::Isolate::GetCurrent());
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("r"), v8::Integer::New(v8::Isolate::GetCurrent(), col.r));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("g"), v8::Integer::New(v8::Isolate::GetCurrent(), col.g));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("b"), v8::Integer::New(v8::Isolate::GetCurrent(), col.b));
+    v8obj->Set(v8::Isolate::GetCurrent()->GetCurrentContext(), v8Str("a"), v8::Integer::New(v8::Isolate::GetCurrent(), col.a));
+    return v8obj;
+}
+
 std::optional<Colour> Utils::colourV8(v8::MaybeLocal<v8::Value> val)
 {
     if (val.IsEmpty())
