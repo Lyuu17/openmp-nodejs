@@ -63,6 +63,12 @@ declare interface IWeaponSlots {
   ammo: number;
 }
 
+declare interface ICheckpoint {
+  position: Vector3;
+  radius: number;
+  enabled: boolean;
+}
+
 declare interface IPlayer {
 
   name: string;
@@ -91,6 +97,7 @@ declare interface IPlayer {
   colour: Colour;
   shopName: string;
   virtualWorld: number;
+  checkpoint: ICheckpoint;
 
 
   kick(): void;

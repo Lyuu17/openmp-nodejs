@@ -10,6 +10,7 @@
 #include <Server/Components/Pickups/pickups.hpp>
 #include <Server/Components/Menus/menus.hpp>
 #include <Server/Components/Dialogs/dialogs.hpp>
+#include <Server/Components/Checkpoints/checkpoints.hpp>
 #include <sdk.hpp>
 
 #define PRINTLN(x, ...) \
@@ -28,12 +29,13 @@ private:
 
     ICore* m_core = nullptr;
 
-    IClassesComponent*  m_classes         = nullptr;
-    IVehiclesComponent* m_vehicles        = nullptr;
-    IPickupsComponent*  m_pickups         = nullptr;
-    IMenusComponent*    m_menus           = nullptr;
-    IDialogsComponent*  m_dialogs         = nullptr;
-    ResourceManager*    m_resourceManager = nullptr;
+    IClassesComponent*     m_classes         = nullptr;
+    IVehiclesComponent*    m_vehicles        = nullptr;
+    IPickupsComponent*     m_pickups         = nullptr;
+    IMenusComponent*       m_menus           = nullptr;
+    IDialogsComponent*     m_dialogs         = nullptr;
+    ICheckpointsComponent* m_checkpoints     = nullptr;
+    ResourceManager*       m_resourceManager = nullptr;
 
 public:
     ~NodejsComponent();

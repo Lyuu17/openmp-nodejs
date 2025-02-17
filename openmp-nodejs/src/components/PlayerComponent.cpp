@@ -3,6 +3,7 @@
 
 #include "components/PlayerComponent.hpp"
 #include "components/VehicleComponent.hpp"
+#include "components/CheckpointComponent.hpp"
 #include "Resource.hpp"
 #include "ResourceManager.hpp"
 #include "Utils.hpp"
@@ -925,6 +926,35 @@ void PlayerComponent::setVirtualWorld(v8::Local<v8::Name> property, v8::Local<v8
     playerComponent->m_player->setVirtualWorld(v8value.value());
 }
 
+void PlayerComponent::getCheckpoint(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto checkpointPlayerData = queryExtension<IPlayerCheckpointData>(playerComponent->m_player);
+    if (!checkpointPlayerData)
+    {
+        info.GetReturnValue().SetUndefined();
+        return;
+    }
+
+    auto context = info.GetIsolate()->GetCurrentContext();
+
+    auto checkpointComponent = queryExtension<CheckpointComponent>(playerComponent->m_player);
+    if (!checkpointComponent)
+    {
+        playerComponent->m_player->addExtension(new CheckpointComponent(playerComponent->m_player, NodejsComponent::getInstance()->getResourceManager()), true);
+
+        checkpointComponent = queryExtension<CheckpointComponent>(playerComponent->m_player);
+
+        assert(checkpointComponent);
+    }
+
+    auto resource = NodejsComponent::getInstance()->getResourceManager()->GetResourceFromIsolate(info.GetIsolate());
+    info.GetReturnValue().Set(resource->ObjectFromExtension(checkpointComponent));
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -980,6 +1010,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("colour", getColour, setColour);
     SET_ACCESSOR_WITH_SETTER("shopName", getShopName, setShopName);
     SET_ACCESSOR_WITH_SETTER("virtualWorld", getVirtualWorld, setVirtualWorld);
+    SET_ACCESSOR("checkpoint", getCheckpoint);
 
     return v8obj;
 }

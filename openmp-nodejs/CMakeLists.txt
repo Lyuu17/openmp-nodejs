@@ -1,10 +1,12 @@
 set(SOURCES
+    "src/components/events/CheckpointEventsComponent.cpp"
     "src/components/events/ClassEventsComponent.cpp"
     "src/components/events/DialogEventsComponent.cpp"
     "src/components/events/MenuEventsComponent.cpp"
     "src/components/events/PickupEventsComponent.cpp"
     "src/components/events/PlayerEventsComponent.cpp"
     "src/components/events/VehicleEventsComponent.cpp"
+    "src/components/CheckpointComponent.cpp"
     "src/components/ClassesComponent.cpp"
     "src/components/MenuComponent.cpp"
     "src/components/PickupComponent.cpp"

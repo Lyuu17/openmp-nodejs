@@ -10,6 +10,7 @@
 #include "components/events/PickupEventsComponent.hpp"
 #include "components/events/MenuEventsComponent.hpp"
 #include "components/events/DialogEventsComponent.hpp"
+#include "components/events/CheckpointEventsComponent.hpp"
 
 #include "ResourceManager.hpp"
 
@@ -43,11 +44,12 @@ void NodejsComponent::onInit(IComponentList* components)
 {
     addExtension(new ResourceManager(), true);
 
-    m_classes  = components->queryComponent<IClassesComponent>();
-    m_vehicles = components->queryComponent<IVehiclesComponent>();
-    m_pickups  = components->queryComponent<IPickupsComponent>();
-    m_menus    = components->queryComponent<IMenusComponent>();
-    m_dialogs  = components->queryComponent<IDialogsComponent>();
+    m_classes     = components->queryComponent<IClassesComponent>();
+    m_vehicles    = components->queryComponent<IVehiclesComponent>();
+    m_pickups     = components->queryComponent<IPickupsComponent>();
+    m_menus       = components->queryComponent<IMenusComponent>();
+    m_dialogs     = components->queryComponent<IDialogsComponent>();
+    m_checkpoints = components->queryComponent<ICheckpointsComponent>();
 
     m_resourceManager = queryExtension<ResourceManager>(this);
     m_resourceManager->LoadResourcesFromPath("resources");
@@ -58,6 +60,7 @@ void NodejsComponent::onInit(IComponentList* components)
     addExtension(new PickupEventsComponent(m_core, m_pickups, m_resourceManager), true);
     addExtension(new MenuEventsComponent(m_core, m_menus, m_resourceManager), true);
     addExtension(new DialogEventsComponent(m_core, m_dialogs, m_resourceManager), true);
+    addExtension(new CheckpointEventsComponent(m_core, m_checkpoints, m_resourceManager), true);
 }
 
 void NodejsComponent::free()
