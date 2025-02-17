@@ -153,6 +153,25 @@ void VehicleComponent::getDriver(v8::Local<v8::Name> property, const v8::Propert
     info.GetReturnValue().Set(driver->CreateJavaScriptObject());
 }
 
+void VehicleComponent::getPassengers(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto& passengers = vehicleComponent->m_vehicle->getPassengers();
+
+    auto   v8obj = v8::Array::New(info.GetIsolate(), passengers.size());
+    size_t i     = 0;
+    for (const auto& passenger : passengers)
+    {
+        auto passengerComponent = queryExtension<PlayerComponent>(passenger);
+        v8obj->Set(info.GetIsolate()->GetCurrentContext(), i++, passengerComponent->CreateJavaScriptObject());
+    }
+
+    info.GetReturnValue().Set(v8obj);
+}
+
 void VehicleComponent::getPlate(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
@@ -233,6 +252,7 @@ v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("position", getPosition, setPosition);
     SET_ACCESSOR_WITH_SETTER("rotation", getRotation, setRotation);
     SET_ACCESSOR("driver", getDriver);
+    SET_ACCESSOR("passengers", getPassengers);
     SET_ACCESSOR_WITH_SETTER("plate", getPlate, setPlate);
     SET_ACCESSOR("model", getModel);
     SET_ACCESSOR_WITH_SETTER("colour", getColour, setColour);

@@ -115,6 +115,7 @@ declare interface IVehicle {
   position: Vector3;
   rotation: Quat;
   readonly driver: IPlayer;
+  readonly passengers: IPlayer[];
   plate: string;
   readonly model: number;
   colour: number[];
