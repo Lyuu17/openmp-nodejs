@@ -881,6 +881,28 @@ void PlayerComponent::setColour(v8::Local<v8::Name> property, v8::Local<v8::Valu
     playerComponent->m_player->setColour(v8col.value());
 }
 
+void PlayerComponent::getShopName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    info.GetReturnValue().Set(Utils::v8Str(playerComponent->m_player->getShopName().data()));
+}
+
+void PlayerComponent::setShopName(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8str = Utils::strV8(value);
+    if (!v8str.has_value())
+        return;
+
+    playerComponent->m_player->setShopName(v8str.value());
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -934,6 +956,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("menu", getMenu, setMenu);
     SET_ACCESSOR("dialog", getDialog);
     SET_ACCESSOR_WITH_SETTER("colour", getColour, setColour);
+    SET_ACCESSOR_WITH_SETTER("shopName", getShopName, setShopName);
 
     return v8obj;
 }
