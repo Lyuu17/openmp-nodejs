@@ -90,6 +90,7 @@ declare interface IPlayer {
   dialog: number;
   colour: Colour;
   shopName: string;
+  virtualWorld: number;
 
 
   kick(): void;
@@ -121,6 +122,7 @@ declare interface IVehicle {
   plate: string;
   readonly model: number;
   colour: number[];
+  virtualWorld: number;
 
   repair(): void;
   putPlayer(player: IPlayer, seat: number): void;
@@ -132,6 +134,7 @@ declare interface IPickup {
   type: number;
   model: number;
   position: Vector3;
+  virtualWorld: number;
 
   destroy(): void;
   setPickupHiddenForPlayer(player: IPlayer, toggle: boolean): void;

@@ -903,6 +903,28 @@ void PlayerComponent::setShopName(v8::Local<v8::Name> property, v8::Local<v8::Va
     playerComponent->m_player->setShopName(v8str.value());
 }
 
+void PlayerComponent::getVirtualWorld(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getVirtualWorld()));
+}
+
+void PlayerComponent::setVirtualWorld(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8value = Utils::GetIntegerFromV8Value(value);
+    if (!v8value.has_value())
+        return;
+
+    playerComponent->m_player->setVirtualWorld(v8value.value());
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -957,6 +979,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR("dialog", getDialog);
     SET_ACCESSOR_WITH_SETTER("colour", getColour, setColour);
     SET_ACCESSOR_WITH_SETTER("shopName", getShopName, setShopName);
+    SET_ACCESSOR_WITH_SETTER("virtualWorld", getVirtualWorld, setVirtualWorld);
 
     return v8obj;
 }

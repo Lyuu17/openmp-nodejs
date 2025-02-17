@@ -164,6 +164,28 @@ void PickupComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::Va
     pickupComponent->m_pickup->setPositionNoUpdate(v8vec3.value());
 }
 
+void PickupComponent::getVirtualWorld(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
+
+    info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), pickupComponent->m_pickup->getVirtualWorld()));
+}
+
+void PickupComponent::setVirtualWorld(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto pickupComponent = (PickupComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PickupComponent>(info.GetIsolate(), pickupComponent)) return;
+
+    auto v8value = Utils::GetIntegerFromV8Value(value);
+    if (!v8value.has_value())
+        return;
+
+    pickupComponent->m_pickup->setVirtualWorld(v8value.value());
+}
+
 v8::Local<v8::Object> PickupComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -184,6 +206,7 @@ v8::Local<v8::Object> PickupComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("type", getType, setType);
     SET_ACCESSOR_WITH_SETTER("model", getModel, setModel);
     SET_ACCESSOR_WITH_SETTER("position", getPosition, setPosition);
+    SET_ACCESSOR_WITH_SETTER("virtualWorld", getVirtualWorld, setVirtualWorld);
 
     return v8obj;
 }

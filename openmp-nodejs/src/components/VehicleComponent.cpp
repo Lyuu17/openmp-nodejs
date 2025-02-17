@@ -240,6 +240,28 @@ void VehicleComponent::setColour(v8::Local<v8::Name> property, v8::Local<v8::Val
     vehicleComponent->m_vehicle->setColour(v8color1.value_or(0), v8color2.value_or(0));
 }
 
+void VehicleComponent::getVirtualWorld(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), vehicleComponent->m_vehicle->getVirtualWorld()));
+}
+
+void VehicleComponent::setVirtualWorld(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto v8value = Utils::GetIntegerFromV8Value(value);
+    if (!v8value.has_value())
+        return;
+
+    vehicleComponent->m_vehicle->setVirtualWorld(v8value.value());
+}
+
 v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -264,6 +286,7 @@ v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("plate", getPlate, setPlate);
     SET_ACCESSOR("model", getModel);
     SET_ACCESSOR_WITH_SETTER("colour", getColour, setColour);
+    SET_ACCESSOR_WITH_SETTER("virtualWorld", getVirtualWorld, setVirtualWorld);
 
     return v8obj;
 }
