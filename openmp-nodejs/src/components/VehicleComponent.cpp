@@ -66,6 +66,45 @@ void VehicleComponent::putPlayer(const v8::FunctionCallbackInfo<v8::Value>& info
     vehicleComponent->m_vehicle->putPlayer(*player, v8seat.value());
 }
 
+void VehicleComponent::addComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto v8comp = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8comp.has_value())
+        return;
+
+    vehicleComponent->m_vehicle->addComponent(v8comp.value());
+}
+
+void VehicleComponent::getComponentInSlot(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto v8slot = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8slot.has_value())
+        return;
+
+    info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), vehicleComponent->m_vehicle->getComponentInSlot(v8slot.value())));
+}
+
+void VehicleComponent::removeComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto v8comp = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8comp.has_value())
+        return;
+
+    vehicleComponent->m_vehicle->removeComponent(v8comp.value());
+}
+
 // ====================== accessors ======================
 
 void VehicleComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -273,6 +312,9 @@ v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
 
     SET_FUNCTION("repair", repair);
     SET_FUNCTION("putPlayer", putPlayer);
+    SET_FUNCTION("addComponent", addComponent);
+    SET_FUNCTION("getComponentInSlot", getComponentInSlot);
+    SET_FUNCTION("removeComponent", removeComponent);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));

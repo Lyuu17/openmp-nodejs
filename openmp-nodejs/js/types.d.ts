@@ -133,6 +133,9 @@ declare interface IVehicle {
 
   repair(): void;
   putPlayer(player: IPlayer, seat: number): void;
+  addComponent(componentId: number): void;
+  getComponentInSlot(slot: number): number;
+  removeComponent(componentId: number): void;
 }
 
 declare interface IPickup {
