@@ -728,13 +728,13 @@ void PlayerComponent::getVehicle(v8::Local<v8::Name> property, const v8::Propert
     auto playerVehicleData = queryExtension<IPlayerVehicleData>(playerComponent->m_player);
     if (!playerVehicleData)
     {
-        info.GetReturnValue().SetNull();
+        info.GetReturnValue().SetUndefined();
         return;
     }
 
     if (!playerVehicleData->getVehicle())
     {
-        info.GetReturnValue().SetNull();
+        info.GetReturnValue().SetUndefined();
         return;
     }
 

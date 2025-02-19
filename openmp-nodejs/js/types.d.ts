@@ -88,7 +88,7 @@ declare interface IPlayer {
   wantedLevel: number;
   controllable: boolean;
   spawnInfo: ISpawnInfo;
-  readonly vehicle: IVehicle;
+  readonly vehicle: IVehicle | undefined;
   readonly ip: string;
   ghostMode: boolean;
   specialAction: number;
