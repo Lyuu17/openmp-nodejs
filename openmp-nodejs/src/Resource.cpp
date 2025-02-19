@@ -10,6 +10,7 @@
 #include "components/VehicleComponent.hpp"
 #include "components/PickupComponent.hpp"
 #include "components/MenuComponent.hpp"
+#include "components/TextdrawComponent.hpp"
 
 #include "bootstrapjs.hpp"
 
@@ -82,6 +83,7 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
         VehicleComponent::InitFunctions(this);
         PickupComponent::InitFunctions(this);
         MenuComponent::InitFunctions(this);
+        TextdrawComponent::InitFunctions(this);
     }
 
     // parse package json

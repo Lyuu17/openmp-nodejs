@@ -11,6 +11,7 @@
 #include <Server/Components/Menus/menus.hpp>
 #include <Server/Components/Dialogs/dialogs.hpp>
 #include <Server/Components/Checkpoints/checkpoints.hpp>
+#include <Server/Components/TextDraws/textdraws.hpp>
 #include <sdk.hpp>
 
 #define PRINTLN(x, ...) \
@@ -35,6 +36,7 @@ private:
     IMenusComponent*       m_menus           = nullptr;
     IDialogsComponent*     m_dialogs         = nullptr;
     ICheckpointsComponent* m_checkpoints     = nullptr;
+    ITextDrawsComponent*   m_textdraws       = nullptr;
     ResourceManager*       m_resourceManager = nullptr;
 
 public:
@@ -49,13 +51,14 @@ public:
     void reset() override;
     void onTick(std::chrono::microseconds elapsed, std::chrono::steady_clock::time_point now) override;
 
-    ICore*              getCore();
-    IClassesComponent*  getClasses();
-    IVehiclesComponent* getVehicles();
-    IPickupsComponent*  getPickups();
-    IMenusComponent*    getMenus();
-    IDialogsComponent*  getDialogs();
-    ResourceManager*    getResourceManager();
+    ICore*               getCore();
+    IClassesComponent*   getClasses();
+    IVehiclesComponent*  getVehicles();
+    IPickupsComponent*   getPickups();
+    IMenusComponent*     getMenus();
+    IDialogsComponent*   getDialogs();
+    ITextDrawsComponent* getTextDraws();
+    ResourceManager*     getResourceManager();
 
     static NodejsComponent* getInstance();
 };

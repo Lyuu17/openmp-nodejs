@@ -346,6 +346,42 @@ void PlayerComponent::setCameraBehind(const v8::FunctionCallbackInfo<v8::Value>&
     playerComponent->m_player->setCameraBehind();
 }
 
+void PlayerComponent::beginSelection(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerTextDrawData = queryExtension<IPlayerTextDrawData>(playerComponent->m_player);
+    if (!playerTextDrawData)
+    {
+        info.GetReturnValue().SetUndefined();
+        return;
+    }
+
+    auto v8col = Utils::colourV8(info[0]);
+    if (!v8col.has_value())
+        return;
+
+    playerTextDrawData->beginSelection(v8col.value());
+}
+
+void PlayerComponent::endSelection(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerTextDrawData = queryExtension<IPlayerTextDrawData>(playerComponent->m_player);
+    if (!playerTextDrawData)
+    {
+        info.GetReturnValue().SetUndefined();
+        return;
+    }
+
+    playerTextDrawData->endSelection();
+}
+
 // ====================== accessors ======================
 
 void PlayerComponent::getName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -991,6 +1027,22 @@ void PlayerComponent::getCheckpoint(v8::Local<v8::Name> property, const v8::Prop
     info.GetReturnValue().Set(resource->ObjectFromExtension(checkpointComponent));
 }
 
+void PlayerComponent::isSelecting(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerTextDrawData = queryExtension<IPlayerTextDrawData>(playerComponent->m_player);
+    if (!playerTextDrawData)
+    {
+        info.GetReturnValue().SetUndefined();
+        return;
+    }
+
+    info.GetReturnValue().Set(playerTextDrawData->isSelecting());
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -1019,6 +1071,8 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("setCameraPosition", setCameraPosition);
     SET_FUNCTION("setCameraLookAt", setCameraLookAt);
     SET_FUNCTION("setCameraBehind", setCameraBehind);
+    SET_FUNCTION("beginSelection", beginSelection);
+    SET_FUNCTION("endSelection", endSelection);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
@@ -1050,6 +1104,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("shopName", getShopName, setShopName);
     SET_ACCESSOR_WITH_SETTER("virtualWorld", getVirtualWorld, setVirtualWorld);
     SET_ACCESSOR("checkpoint", getCheckpoint);
+    SET_ACCESSOR("isSelecting", isSelecting);
 
     return v8obj;
 }

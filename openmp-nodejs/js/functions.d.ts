@@ -124,3 +124,19 @@ declare function getMenu(id: number): IMenu;
  * @param col2Width
  */
 declare function createMenu(title: string, position: Vector2, columns: number, col1Width: number, col2Width: number): IMenu;
+
+// ========================================= textdraws =========================================
+
+/**
+ * Get a textdraw by id
+ * @param id
+ */
+declare function getTextDraw(id: number, player?: IPlayer): ITextDraw | IPlayerTextDraw;
+
+/**
+ * Create a textdraw
+ * @param position
+ * @param text
+ * @param player optional
+ */
+declare function createTextDraw(position: Vector2, text: string, player?: IPlayer): ITextDraw | IPlayerTextDraw;

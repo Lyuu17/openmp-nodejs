@@ -25,6 +25,29 @@ v8::Local<v8::Object> Utils::v8Vector2(Vector2 vec2)
     return v8obj;
 }
 
+std::optional<Vector2> Utils::vector2V8(v8::MaybeLocal<v8::Value> val)
+{
+    if (val.IsEmpty())
+        return std::nullopt;
+
+    if (!val.ToLocalChecked()->IsObject())
+        return std::nullopt;
+
+    auto vec3Obj = val.ToLocalChecked().As<v8::Object>();
+
+    auto v8maybeX = vec3Obj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("x"));
+    auto v8maybeY = vec3Obj->Get(v8::Isolate::GetCurrent()->GetCurrentContext(), Utils::v8Str("y"));
+
+    if (v8maybeX.IsEmpty() || v8maybeY.IsEmpty())
+        return std::nullopt;
+
+    Vector2 vec2 {
+        GetDoubleFromV8Value(v8maybeX).value_or(0),
+        GetDoubleFromV8Value(v8maybeY).value_or(0)
+    };
+    return vec2;
+}
+
 v8::Local<v8::Object> Utils::v8Vector3(Vector3 vec3)
 {
     auto v8obj = v8::Object::New(v8::Isolate::GetCurrent());
@@ -186,6 +209,9 @@ std::optional<int32_t> Utils::GetIntegerFromV8Value(v8::MaybeLocal<v8::Value> va
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
 
+    if (val.ToLocalChecked()->IsNullOrUndefined())
+        return std::nullopt;
+
     if (!val.ToLocalChecked()->IsInt32())
         return std::nullopt;
 
@@ -207,6 +233,9 @@ std::optional<double> Utils::GetDoubleFromV8Value(v8::MaybeLocal<v8::Value> val)
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
 
+    if (val.ToLocalChecked()->IsNullOrUndefined())
+        return std::nullopt;
+
     if (!val.ToLocalChecked()->IsNumber())
         return std::nullopt;
 
@@ -225,6 +254,9 @@ std::optional<bool> Utils::GetBooleanFromV8Value(v8::MaybeLocal<v8::Value> val)
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
 
+    if (val.ToLocalChecked()->IsNullOrUndefined())
+        return std::nullopt;
+
     if (!val.ToLocalChecked()->IsBoolean())
         return std::nullopt;
 
@@ -241,6 +273,9 @@ std::optional<uint32_t> Utils::GetIdFromV8Object(v8::MaybeLocal<v8::Value> val)
     auto context = isolate->GetCurrentContext();
 
     if (val.IsEmpty())
+        return std::nullopt;
+
+    if (val.ToLocalChecked()->IsNullOrUndefined())
         return std::nullopt;
 
     if (!val.ToLocalChecked()->IsObject())
@@ -263,6 +298,9 @@ std::optional<WeaponSlots> Utils::GetWeaponSlotsDataFromV8Object(v8::MaybeLocal<
     auto context = isolate->GetCurrentContext();
 
     if (val.IsEmpty())
+        return std::nullopt;
+
+    if (val.ToLocalChecked()->IsNullOrUndefined())
         return std::nullopt;
 
     if (!val.ToLocalChecked()->IsArray())

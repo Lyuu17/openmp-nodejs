@@ -13,6 +13,7 @@ namespace Utils
     std::optional<std::string> strV8(v8::MaybeLocal<v8::Value>);
 
     v8::Local<v8::Object>  v8Vector2(Vector2 vec2);
+    std::optional<Vector2> vector2V8(v8::MaybeLocal<v8::Value> val);
     v8::Local<v8::Object>  v8Vector3(Vector3 vec3);
     std::optional<Vector3> vector3V8(v8::MaybeLocal<v8::Value> val);
     v8::Local<v8::Object>  v8Colour(const Colour& col);

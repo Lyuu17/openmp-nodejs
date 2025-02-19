@@ -98,6 +98,7 @@ declare interface IPlayer {
   shopName: string;
   virtualWorld: number;
   checkpoint: ICheckpoint;
+  readonly isSelecting: boolean;
 
 
   kick(): void;
@@ -119,6 +120,8 @@ declare interface IPlayer {
   setCameraPosition(position: Vector3): void;
   setCameraLookAt(position: Vector3): void;
   setCameraBehind(position: Vector3): void;
+  beginSelection(colour: Colour): void;
+  endSelection(): void;
 }
 
 declare interface IVehicle {
@@ -166,4 +169,40 @@ declare interface IMenu {
   addCell(itemText: string, menuColumnId: number): void;
   setColumnHeader(header: string, menuColumnId: number): void;
   getCell(colId: number, menuRowId: number): string;
+}
+
+declare interface ITextDrawBase {
+  readonly id: number;
+  position: Vector2;
+  text: string;
+  letterSize: Vector2;
+  textSize: Vector2;
+  alignment: number;
+  colour: Colour;
+  box: boolean;
+  boxColor: Colour;
+  shadow: number;
+  outline: number;
+  backgroundColor: Colour;
+  style: number;
+  proportional: boolean;
+  selectable: boolean;
+  previewModel: number;
+  previewRotation: Vector3;
+  previewVehicleColour: [number, number];
+  previewZoom: number;
+
+  destroy(): void;
+  showForPlayer(player: IPlayer, show: boolean): void;
+  isShownForPlayer(player: IPlayer): boolean;
+  restream(): void;
+}
+
+declare interface ITextDraw extends ITextDrawBase {
+  showForPlayer(player: IPlayer, show: boolean): void;
+  isShownForPlayer(player: IPlayer): boolean;
+}
+
+declare interface IPlayerTextDraw extends ITextDrawBase {
+  visible: boolean;
 }
