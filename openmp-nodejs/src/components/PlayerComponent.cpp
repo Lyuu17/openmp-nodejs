@@ -310,6 +310,42 @@ void PlayerComponent::sendGameText(const v8::FunctionCallbackInfo<v8::Value>& in
     playerComponent->m_player->sendGameText(v8message.value(), duration, v8style.value());
 }
 
+void PlayerComponent::setCameraPosition(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8pos = Utils::vector3V8(info[0]);
+    if (!v8pos.has_value())
+        return;
+
+    playerComponent->m_player->setCameraPosition(v8pos.value());
+}
+
+void PlayerComponent::setCameraLookAt(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8pos     = Utils::vector3V8(info[0]);
+    auto v8cutType = Utils::GetIntegerFromV8Value(info[1]);
+    if (!v8pos.has_value() || !v8cutType.has_value())
+        return;
+
+    playerComponent->m_player->setCameraLookAt(v8pos.value(), v8cutType.value());
+}
+
+void PlayerComponent::setCameraBehind(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    playerComponent->m_player->setCameraBehind();
+}
+
 // ====================== accessors ======================
 
 void PlayerComponent::getName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -980,6 +1016,9 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("setMapIcon", setMapIcon);
     SET_FUNCTION("unsetMapIcon", unsetMapIcon);
     SET_FUNCTION("sendGameText", sendGameText);
+    SET_FUNCTION("setCameraPosition", setCameraPosition);
+    SET_FUNCTION("setCameraLookAt", setCameraLookAt);
+    SET_FUNCTION("setCameraBehind", setCameraBehind);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
