@@ -124,8 +124,8 @@ declare interface IVehicle {
   health: number;
   position: Vector3;
   rotation: Quat;
-  readonly driver: IPlayer;
-  readonly passengers: IPlayer[];
+  readonly driver: IPlayer | undefined;
+  readonly passengers: (IPlayer | undefined)[];
   plate: string;
   readonly model: number;
   colour: number[];

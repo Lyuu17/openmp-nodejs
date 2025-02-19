@@ -188,6 +188,12 @@ void VehicleComponent::getDriver(v8::Local<v8::Name> property, const v8::Propert
 
     if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
 
+    if (!vehicleComponent->m_vehicle->getDriver())
+    {
+        info.GetReturnValue().SetUndefined();
+        return;
+    }
+
     auto driver = queryExtension<PlayerComponent>(vehicleComponent->m_vehicle->getDriver());
 
     info.GetReturnValue().Set(driver->CreateJavaScriptObject());
