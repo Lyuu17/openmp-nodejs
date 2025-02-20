@@ -307,6 +307,90 @@ void VehicleComponent::setVirtualWorld(v8::Local<v8::Name> property, v8::Local<v
     vehicleComponent->m_vehicle->setVirtualWorld(v8value.value());
 }
 
+void VehicleComponent::getEngine(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto& params = vehicleComponent->m_vehicle->getParams();
+
+    info.GetReturnValue().Set(v8::Boolean::New(info.GetIsolate(), params.engine));
+}
+
+void VehicleComponent::setEngine(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto v8value = Utils::GetBooleanFromV8Value(value);
+    if (!v8value.has_value())
+        return;
+
+    VehicleParams params { vehicleComponent->m_vehicle->getParams() };
+
+    params.engine = v8value.value();
+
+    vehicleComponent->m_vehicle->setParams(params);
+}
+
+void VehicleComponent::getLights(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto& params = vehicleComponent->m_vehicle->getParams();
+
+    info.GetReturnValue().Set(v8::Boolean::New(info.GetIsolate(), params.lights));
+}
+
+void VehicleComponent::setLights(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto v8value = Utils::GetBooleanFromV8Value(value);
+    if (!v8value.has_value())
+        return;
+
+    VehicleParams params { vehicleComponent->m_vehicle->getParams() };
+
+    params.lights = v8value.value();
+
+    vehicleComponent->m_vehicle->setParams(params);
+}
+
+void VehicleComponent::getAlarm(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto& params = vehicleComponent->m_vehicle->getParams();
+
+    info.GetReturnValue().Set(v8::Boolean::New(info.GetIsolate(), params.alarm));
+}
+
+void VehicleComponent::setAlarm(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto v8value = Utils::GetBooleanFromV8Value(value);
+    if (!v8value.has_value())
+        return;
+
+    VehicleParams params { vehicleComponent->m_vehicle->getParams() };
+
+    params.alarm = v8value.value();
+
+    vehicleComponent->m_vehicle->setParams(params);
+}
+
 v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -335,6 +419,9 @@ v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
     SET_ACCESSOR("model", getModel);
     SET_ACCESSOR_WITH_SETTER("colour", getColour, setColour);
     SET_ACCESSOR_WITH_SETTER("virtualWorld", getVirtualWorld, setVirtualWorld);
+    SET_ACCESSOR_WITH_SETTER("engine", getEngine, setEngine);
+    SET_ACCESSOR_WITH_SETTER("lights", getLights, setLights);
+    SET_ACCESSOR_WITH_SETTER("alarm", getAlarm, setAlarm);
 
     return v8obj;
 }

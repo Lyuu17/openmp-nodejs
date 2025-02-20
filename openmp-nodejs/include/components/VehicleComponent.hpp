@@ -54,6 +54,15 @@ struct VehicleComponent final : public IExtension,
     static void getVirtualWorld(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
     static void setVirtualWorld(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 
+    static void getEngine(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+    static void setEngine(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+
+    static void getLights(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+    static void setLights(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+
+    static void getAlarm(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+    static void setAlarm(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+
     v8::Local<v8::Object> CreateJavaScriptObject() override;
 
     static void InitFunctions(Resource*);

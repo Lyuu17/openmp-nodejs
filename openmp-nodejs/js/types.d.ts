@@ -136,6 +136,9 @@ declare interface IVehicle {
   readonly model: number;
   colour: number[];
   virtualWorld: number;
+  engine: boolean;
+  lights: boolean;
+  alarm: boolean;
 
   repair(): void;
   putPlayer(player: IPlayer, seat: number): void;
