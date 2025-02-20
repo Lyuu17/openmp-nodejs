@@ -8,6 +8,23 @@
 
 #include <sdk.hpp>
 
+enum class VehicleParamType
+{
+    DOORS,
+    BONNET,
+    BOOT,
+    OBJECTIVE,
+    SIREN,
+    DOOR_DRIVER,
+    DOOR_PASSENGER,
+    DOOR_BACKLEFT,
+    DOOR_BACKRIGHT,
+    WINDOW_DRIVER,
+    WINDOW_PASSENGER,
+    WINDOW_BACKLEFT,
+    WINDOW_BACKRIGHT,
+};
+
 struct VehicleComponent final : public IExtension,
                                 public IJavaScriptClassExtension
 {
@@ -27,6 +44,8 @@ struct VehicleComponent final : public IExtension,
     static void addComponent(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void getComponentInSlot(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void removeComponent(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void getParam(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void setParam(const v8::FunctionCallbackInfo<v8::Value>& info);
 
     static void getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 

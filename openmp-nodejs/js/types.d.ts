@@ -145,6 +145,8 @@ declare interface IVehicle {
   addComponent(componentId: number): void;
   getComponentInSlot(slot: number): number;
   removeComponent(componentId: number): void;
+  getParam(paramId: number): number;
+  setParam(paramId: number, value: number, player?: IPlayer): void;
 }
 
 declare interface IPickup {

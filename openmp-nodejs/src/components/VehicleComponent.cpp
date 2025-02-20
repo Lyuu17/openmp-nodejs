@@ -105,6 +105,86 @@ void VehicleComponent::removeComponent(const v8::FunctionCallbackInfo<v8::Value>
     vehicleComponent->m_vehicle->removeComponent(v8comp.value());
 }
 
+void VehicleComponent::getParam(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto v8paramId = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8paramId.has_value())
+        return;
+
+    auto& params = vehicleComponent->m_vehicle->getParams();
+
+    switch ((VehicleParamType)v8paramId.value())
+    {
+    case VehicleParamType::DOORS: info.GetReturnValue().Set(params.doors); break;
+    case VehicleParamType::BONNET: info.GetReturnValue().Set(params.bonnet); break;
+    case VehicleParamType::BOOT: info.GetReturnValue().Set(params.boot); break;
+    case VehicleParamType::OBJECTIVE: info.GetReturnValue().Set(params.objective); break;
+    case VehicleParamType::SIREN: info.GetReturnValue().Set(params.siren); break;
+    case VehicleParamType::DOOR_DRIVER: info.GetReturnValue().Set(params.doorDriver); break;
+    case VehicleParamType::DOOR_PASSENGER: info.GetReturnValue().Set(params.doorPassenger); break;
+    case VehicleParamType::DOOR_BACKLEFT: info.GetReturnValue().Set(params.doorBackLeft); break;
+    case VehicleParamType::DOOR_BACKRIGHT: info.GetReturnValue().Set(params.doorBackRight); break;
+    case VehicleParamType::WINDOW_DRIVER: info.GetReturnValue().Set(params.windowDriver); break;
+    case VehicleParamType::WINDOW_PASSENGER: info.GetReturnValue().Set(params.windowPassenger); break;
+    case VehicleParamType::WINDOW_BACKLEFT: info.GetReturnValue().Set(params.windowBackLeft); break;
+    case VehicleParamType::WINDOW_BACKRIGHT: info.GetReturnValue().Set(params.windowBackRight); break;
+    default:
+        break;
+    }
+}
+
+void VehicleComponent::setParam(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto vehicleComponent = (VehicleComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<VehicleComponent>(info.GetIsolate(), vehicleComponent)) return;
+
+    auto v8paramId = Utils::GetIntegerFromV8Value(info[0]);
+    if (!v8paramId.has_value())
+        return;
+
+    auto v8value = Utils::GetIntegerFromV8Value(info[1]);
+    if (!v8value.has_value())
+        return;
+
+    VehicleParams params { vehicleComponent->m_vehicle->getParams() };
+
+    switch ((VehicleParamType)v8paramId.value())
+    {
+    case VehicleParamType::DOORS: params.doors = v8value.value(); break;
+    case VehicleParamType::BONNET: params.bonnet = v8value.value(); break;
+    case VehicleParamType::BOOT: params.boot = v8value.value(); break;
+    case VehicleParamType::OBJECTIVE: params.objective = v8value.value(); break;
+    case VehicleParamType::SIREN: params.siren = v8value.value(); break;
+    case VehicleParamType::DOOR_DRIVER: params.doorDriver = v8value.value(); break;
+    case VehicleParamType::DOOR_PASSENGER: params.doorPassenger = v8value.value(); break;
+    case VehicleParamType::DOOR_BACKLEFT: params.doorBackLeft = v8value.value(); break;
+    case VehicleParamType::DOOR_BACKRIGHT: params.doorBackRight = v8value.value(); break;
+    case VehicleParamType::WINDOW_DRIVER: params.windowDriver = v8value.value(); break;
+    case VehicleParamType::WINDOW_PASSENGER: params.windowPassenger = v8value.value(); break;
+    case VehicleParamType::WINDOW_BACKLEFT: params.windowBackLeft = v8value.value(); break;
+    case VehicleParamType::WINDOW_BACKRIGHT: params.windowBackRight = v8value.value(); break;
+    default:
+        break;
+    }
+
+    auto playerId = Utils::GetIdFromV8Object(info[2]);
+    if (!playerId.has_value())
+    {
+        vehicleComponent->m_vehicle->setParams(params);
+    }
+    else
+    {
+        auto player = NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value());
+
+        if (player) vehicleComponent->m_vehicle->setParamsForPlayer(*player, params);
+    }
+}
+
 // ====================== accessors ======================
 
 void VehicleComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -405,6 +485,8 @@ v8::Local<v8::Object> VehicleComponent::CreateJavaScriptObject()
     SET_FUNCTION("addComponent", addComponent);
     SET_FUNCTION("getComponentInSlot", getComponentInSlot);
     SET_FUNCTION("removeComponent", removeComponent);
+    SET_FUNCTION("getParam", getParam);
+    SET_FUNCTION("setParam", setParam);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
