@@ -44,6 +44,8 @@ declare class Vector3 {
 }
 
 declare class Colour {
+  constructor(r: number, g: number, b: number, a: number);
+
   r: number;
   g: number;
   b: number;
@@ -198,8 +200,6 @@ declare interface ITextDrawBase {
   previewZoom: number;
 
   destroy(): void;
-  showForPlayer(player: IPlayer, show: boolean): void;
-  isShownForPlayer(player: IPlayer): boolean;
   restream(): void;
 }
 

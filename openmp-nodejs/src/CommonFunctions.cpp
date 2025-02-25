@@ -142,4 +142,20 @@ void CommonFunctions::Init(Resource* resource)
 
         info.GetReturnValue().Set(Utils::v8Vector3(vec3));
     });
+
+    resource->AddFunction("Colour", [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+        auto isolate = info.GetIsolate();
+
+        if (!info.IsConstructCall())
+            return;
+
+        auto v8r = Utils::GetIntegerFromV8Value(info[0]);
+        auto v8g = Utils::GetIntegerFromV8Value(info[1]);
+        auto v8b = Utils::GetIntegerFromV8Value(info[2]);
+        auto v8a = Utils::GetIntegerFromV8Value(info[3]);
+
+        Colour col { (uint8_t)v8r.value_or(0.0), (uint8_t)v8g.value_or(0.0), (uint8_t)v8b.value_or(0.0), (uint8_t)v8b.value_or(0.0) };
+
+        info.GetReturnValue().Set(Utils::v8Colour(col));
+    });
 }
