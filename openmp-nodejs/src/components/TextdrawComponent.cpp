@@ -637,13 +637,13 @@ void TextdrawComponent::InitFunctions(Resource* resource)
 
             textdraw = playerTextDrawData->get(v8id.value());
 
-            ENSURE_TEXTDRAW_HAS_COMPONENT(textdraw, player, TextdrawComponent);
+            if (textdraw) ENSURE_TEXTDRAW_HAS_COMPONENT(textdraw, player, TextdrawComponent);
         }
         else
         {
             textdraw = NodejsComponent::getInstance()->getTextDraws()->get(v8id.value());
 
-            ENSURE_TEXTDRAW_HAS_COMPONENT(textdraw, nullptr, TextdrawComponent);
+            if (textdraw) ENSURE_TEXTDRAW_HAS_COMPONENT(textdraw, nullptr, TextdrawComponent);
         }
 
         if (!textdraw)
