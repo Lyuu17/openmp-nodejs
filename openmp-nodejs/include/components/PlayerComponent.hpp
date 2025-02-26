@@ -123,6 +123,8 @@ struct PlayerComponent final : public IExtension,
 
     static void isSelecting(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 
+    static void getKeys(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+
     v8::Local<v8::Object> CreateJavaScriptObject() override;
 
     static void InitFunctions(Resource*);

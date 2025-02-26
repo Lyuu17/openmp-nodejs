@@ -1043,6 +1043,20 @@ void PlayerComponent::isSelecting(v8::Local<v8::Name> property, const v8::Proper
     info.GetReturnValue().Set(playerTextDrawData->isSelecting());
 }
 
+void PlayerComponent::getKeys(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8obj = v8::Object::New(info.GetIsolate());
+    v8obj->Set(info.GetIsolate()->GetCurrentContext(), Utils::v8Str("keys"), v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getKeyData().keys));
+    v8obj->Set(info.GetIsolate()->GetCurrentContext(), Utils::v8Str("upDown"), v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getKeyData().upDown));
+    v8obj->Set(info.GetIsolate()->GetCurrentContext(), Utils::v8Str("leftRight"), v8::Integer::New(info.GetIsolate(), playerComponent->m_player->getKeyData().leftRight));
+
+    info.GetReturnValue().Set(v8obj);
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -1105,6 +1119,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("virtualWorld", getVirtualWorld, setVirtualWorld);
     SET_ACCESSOR("checkpoint", getCheckpoint);
     SET_ACCESSOR("isSelecting", isSelecting);
+    SET_ACCESSOR("keys", getKeys);
 
     return v8obj;
 }

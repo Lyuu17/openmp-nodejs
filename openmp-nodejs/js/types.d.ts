@@ -52,6 +52,12 @@ declare class Colour {
   a: number;
 }
 
+declare interface IKeyData {
+  keys: number;
+  upDown: number;
+  leftRight: number;
+}
+
 declare interface ISpawnInfo {
   team: number;
   skin: number;
@@ -101,6 +107,7 @@ declare interface IPlayer {
   virtualWorld: number;
   checkpoint: ICheckpoint;
   readonly isSelecting: boolean;
+  readonly keys: IKeyData;
 
 
   kick(): void;
