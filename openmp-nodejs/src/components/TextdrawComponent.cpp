@@ -196,7 +196,7 @@ void TextdrawComponent::getTextSize(v8::Local<v8::Name> property, const v8::Prop
     auto textdrawComponent = (TextdrawComponent*)info.Data().As<v8::External>()->Value();
     if (!Utils::CheckExtensionExist<TextdrawComponent>(info.GetIsolate(), textdrawComponent)) return;
 
-    info.GetReturnValue().Set(Utils::v8Vector2(textdrawComponent->m_textdraw->getLetterSize()));
+    info.GetReturnValue().Set(Utils::v8Vector2(textdrawComponent->m_textdraw->getTextSize()));
 }
 
 void TextdrawComponent::setTextSize(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
