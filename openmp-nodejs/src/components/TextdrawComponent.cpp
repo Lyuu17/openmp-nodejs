@@ -621,7 +621,7 @@ void TextdrawComponent::InitFunctions(Resource* resource)
         IPlayer*       player   = nullptr;
         ITextDrawBase* textdraw = nullptr;
 
-        auto playerId = Utils::GetIdFromV8Object(info[0]);
+        auto playerId = Utils::GetIdFromV8Object(info[1]);
         if (playerId.has_value())
         {
             player = NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value());
