@@ -108,6 +108,8 @@ declare interface IPlayer {
   checkpoint: ICheckpoint;
   readonly isSelecting: boolean;
   readonly keys: IKeyData;
+  readonly selectingObject: boolean;
+  readonly editingObject: boolean;
 
 
   kick(): void;
@@ -131,6 +133,10 @@ declare interface IPlayer {
   setCameraBehind(position: Vector3): void;
   beginSelection(colour: Colour): void;
   endSelection(): void;
+  beginObjectSelection(): void;
+  endObjectSelection(): void;
+  beginObjectEdit(object: IObject | IPlayerObject): void;
+  endObjectEdit(): void;
 }
 
 declare interface IVehicle {
@@ -217,4 +223,23 @@ declare interface ITextDraw extends ITextDrawBase {
 
 declare interface IPlayerTextDraw extends ITextDrawBase {
   visible: boolean;
+}
+
+declare interface IObjectBase {
+  readonly id: number;
+  position: Vector3;
+  rotation: Quat;
+  virtualWorld: number;
+  drawDistance: number;
+  model: number;
+
+  destroy(): void;
+}
+
+declare interface IObject extends IObjectBase {
+
+}
+
+declare interface IPlayerObject extends IObjectBase {
+
 }

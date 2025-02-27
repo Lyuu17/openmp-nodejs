@@ -12,6 +12,7 @@
 #include "components/events/DialogEventsComponent.hpp"
 #include "components/events/CheckpointEventsComponent.hpp"
 #include "components/events/TextdrawEventsComponent.hpp"
+#include "components/events/ObjectEventsComponent.hpp"
 
 #include "ResourceManager.hpp"
 
@@ -52,6 +53,7 @@ void NodejsComponent::onInit(IComponentList* components)
     m_dialogs     = components->queryComponent<IDialogsComponent>();
     m_checkpoints = components->queryComponent<ICheckpointsComponent>();
     m_textdraws   = components->queryComponent<ITextDrawsComponent>();
+    m_objects     = components->queryComponent<IObjectsComponent>();
 
     m_resourceManager = queryExtension<ResourceManager>(this);
     m_resourceManager->LoadResourcesFromPath("resources");
@@ -64,6 +66,7 @@ void NodejsComponent::onInit(IComponentList* components)
     addExtension(new DialogEventsComponent(m_core, m_dialogs, m_resourceManager), true);
     addExtension(new CheckpointEventsComponent(m_core, m_checkpoints, m_resourceManager), true);
     addExtension(new TextdrawEventsComponent(m_core, m_textdraws, m_resourceManager), true);
+    addExtension(new ObjectEventsComponent(m_core, m_objects, m_resourceManager), true);
 }
 
 void NodejsComponent::free()
@@ -113,6 +116,11 @@ IDialogsComponent* NodejsComponent::getDialogs()
 ITextDrawsComponent* NodejsComponent::getTextDraws()
 {
     return m_textdraws;
+}
+
+IObjectsComponent* NodejsComponent::getObjects()
+{
+    return m_objects;
 }
 
 ResourceManager* NodejsComponent::getResourceManager()

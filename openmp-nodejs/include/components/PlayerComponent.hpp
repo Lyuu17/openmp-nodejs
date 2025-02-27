@@ -45,6 +45,10 @@ struct PlayerComponent final : public IExtension,
     static void setCameraBehind(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void beginSelection(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void endSelection(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void beginObjectSelection(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void endObjectSelection(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void beginObjectEdit(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void endObjectEdit(const v8::FunctionCallbackInfo<v8::Value>& info);
 
     static void getName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
     static void setName(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
@@ -124,6 +128,10 @@ struct PlayerComponent final : public IExtension,
     static void isSelecting(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 
     static void getKeys(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+
+    static void getSelectingObject(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+
+    static void getEditingObject(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 
     v8::Local<v8::Object> CreateJavaScriptObject() override;
 

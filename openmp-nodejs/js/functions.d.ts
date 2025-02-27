@@ -140,3 +140,21 @@ declare function getTextDraw(id: number, player?: IPlayer): ITextDraw | IPlayerT
  * @param player optional
  */
 declare function createTextDraw(position: Vector2, text: string, player?: IPlayer): ITextDraw | IPlayerTextDraw;
+
+// ========================================= objects =========================================
+
+/**
+ * Get an object by id
+ * @param id
+ */
+declare function getObject(id: number, player?: IPlayer): IObject | IPlayerObject;
+
+/**
+ * Create an object
+ * @param model
+ * @param position
+ * @param rotation
+ * @param drawDistance optional
+ * @param player optional
+ */
+declare function createObject(model: number, position: Vector3, rotation: Quat, drawDistance?: number, player?: IPlayer): IObject | IPlayerObject;

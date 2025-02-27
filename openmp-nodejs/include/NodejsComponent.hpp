@@ -12,6 +12,7 @@
 #include <Server/Components/Dialogs/dialogs.hpp>
 #include <Server/Components/Checkpoints/checkpoints.hpp>
 #include <Server/Components/TextDraws/textdraws.hpp>
+#include <Server/Components/Objects/objects.hpp>
 #include <sdk.hpp>
 
 #define PRINTLN(x, ...) \
@@ -37,6 +38,7 @@ private:
     IDialogsComponent*     m_dialogs         = nullptr;
     ICheckpointsComponent* m_checkpoints     = nullptr;
     ITextDrawsComponent*   m_textdraws       = nullptr;
+    IObjectsComponent*     m_objects         = nullptr;
     ResourceManager*       m_resourceManager = nullptr;
 
 public:
@@ -58,6 +60,7 @@ public:
     IMenusComponent*     getMenus();
     IDialogsComponent*   getDialogs();
     ITextDrawsComponent* getTextDraws();
+    IObjectsComponent*   getObjects();
     ResourceManager*     getResourceManager();
 
     static NodejsComponent* getInstance();

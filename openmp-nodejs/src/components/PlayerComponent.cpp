@@ -382,6 +382,86 @@ void PlayerComponent::endSelection(const v8::FunctionCallbackInfo<v8::Value>& in
     playerTextDrawData->endSelection();
 }
 
+void PlayerComponent::beginObjectSelection(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerObjectData = queryExtension<IPlayerObjectData>(playerComponent->m_player);
+    if (!playerObjectData)
+        return;
+
+    playerObjectData->beginSelecting();
+}
+
+void PlayerComponent::endObjectSelection(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerObjectData = queryExtension<IPlayerObjectData>(playerComponent->m_player);
+    if (!playerObjectData)
+        return;
+
+    playerObjectData->endEditing();
+}
+
+void PlayerComponent::beginObjectEdit(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerObjectData = queryExtension<IPlayerObjectData>(playerComponent->m_player);
+    if (!playerObjectData)
+        return;
+
+    if (info[0]->IsNullOrUndefined())
+    {
+        playerObjectData->endEditing();
+        return;
+    }
+
+    auto v8objectId = Utils::GetIdFromV8Object(info[0]);
+    if (!v8objectId.has_value())
+        return;
+
+    // global obj
+    {
+        auto object = NodejsComponent::getInstance()->getObjects()->get(v8objectId.value());
+        if (object)
+        {
+            playerObjectData->beginEditing(*object);
+            return;
+        }
+    }
+
+    // player obj
+    {
+        auto object = playerObjectData->get(v8objectId.value());
+        if (object)
+        {
+            playerObjectData->beginEditing(*object);
+            return;
+        }
+    }
+}
+
+void PlayerComponent::endObjectEdit(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerObjectData = queryExtension<IPlayerObjectData>(playerComponent->m_player);
+    if (!playerObjectData)
+        return;
+
+    playerObjectData->endEditing();
+}
+
 // ====================== accessors ======================
 
 void PlayerComponent::getName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -1043,6 +1123,38 @@ void PlayerComponent::isSelecting(v8::Local<v8::Name> property, const v8::Proper
     info.GetReturnValue().Set(playerTextDrawData->isSelecting());
 }
 
+void PlayerComponent::getSelectingObject(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerObjectData = queryExtension<IPlayerObjectData>(playerComponent->m_player);
+    if (!playerObjectData)
+    {
+        info.GetReturnValue().SetUndefined();
+        return;
+    }
+
+    info.GetReturnValue().Set(playerObjectData->selectingObject());
+}
+
+void PlayerComponent::getEditingObject(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerObjectData = queryExtension<IPlayerObjectData>(playerComponent->m_player);
+    if (!playerObjectData)
+    {
+        info.GetReturnValue().SetUndefined();
+        return;
+    }
+
+    info.GetReturnValue().Set(playerObjectData->editingObject());
+}
+
 void PlayerComponent::getKeys(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
@@ -1087,6 +1199,10 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("setCameraBehind", setCameraBehind);
     SET_FUNCTION("beginSelection", beginSelection);
     SET_FUNCTION("endSelection", endSelection);
+    SET_FUNCTION("beginObjectSelection", beginObjectSelection);
+    SET_FUNCTION("endObjectSelection", endObjectSelection);
+    SET_FUNCTION("beginObjectEdit", beginObjectEdit);
+    SET_FUNCTION("endObjectEdit", endObjectEdit);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
@@ -1120,6 +1236,8 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR("checkpoint", getCheckpoint);
     SET_ACCESSOR("isSelecting", isSelecting);
     SET_ACCESSOR("keys", getKeys);
+    SET_ACCESSOR("selectingObject", getSelectingObject);
+    SET_ACCESSOR("editingObject", getEditingObject);
 
     return v8obj;
 }
