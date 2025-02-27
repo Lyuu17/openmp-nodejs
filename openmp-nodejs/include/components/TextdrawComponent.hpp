@@ -17,6 +17,7 @@ struct TextdrawComponent final : public IExtension,
     ITextDrawBase*   m_textdraw;
     IPlayer*         m_player;
     ResourceManager* m_resourceManager;
+    bool             m_shouldRestream;
 
     TextdrawComponent(ITextDrawBase*, IPlayer*, ResourceManager*);
     ~TextdrawComponent();

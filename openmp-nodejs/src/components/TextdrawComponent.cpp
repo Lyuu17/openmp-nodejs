@@ -17,6 +17,7 @@ TextdrawComponent::TextdrawComponent(ITextDrawBase* textdraw, IPlayer* player, R
     : m_textdraw(textdraw)
     , m_player(player)
     , m_resourceManager(resourceManager)
+    , m_shouldRestream(false)
 {
 }
 
@@ -120,7 +121,13 @@ void TextdrawComponent::restream(const v8::FunctionCallbackInfo<v8::Value>& info
 
     if (!Utils::CheckExtensionExist<TextdrawComponent>(info.GetIsolate(), textdrawComponent)) return;
 
+    auto v8force = Utils::GetBooleanFromV8Value(info[0]);
+
+    if (!textdrawComponent->m_shouldRestream && !v8force.has_value() || v8force.has_value() && !v8force.value()) return;
+
     textdrawComponent->m_textdraw->restream();
+
+    textdrawComponent->m_shouldRestream = false;
 }
 
 // ====================== accessors ======================
@@ -150,6 +157,8 @@ void TextdrawComponent::setPosition(v8::Local<v8::Name> property, v8::Local<v8::
     auto position = Utils::vector2V8(value);
     if (!position.has_value()) return;
 
+    if (textdrawComponent->m_textdraw->getPosition() != position.value()) textdrawComponent->m_shouldRestream = true;
+
     textdrawComponent->m_textdraw->setPosition(position.value());
 }
 
@@ -168,6 +177,8 @@ void TextdrawComponent::setText(v8::Local<v8::Name> property, v8::Local<v8::Valu
 
     auto text = Utils::strV8(value);
     if (!text.has_value()) return;
+
+    if (textdrawComponent->m_textdraw->getText() != text.value()) textdrawComponent->m_shouldRestream = true;
 
     textdrawComponent->m_textdraw->setText(text.value());
 }
@@ -188,6 +199,8 @@ void TextdrawComponent::setLetterSize(v8::Local<v8::Name> property, v8::Local<v8
     auto size = Utils::vector2V8(value);
     if (!size.has_value()) return;
 
+    if (textdrawComponent->m_textdraw->getLetterSize() != size.value()) textdrawComponent->m_shouldRestream = true;
+
     textdrawComponent->m_textdraw->setLetterSize(size.value());
 }
 
@@ -206,6 +219,8 @@ void TextdrawComponent::setTextSize(v8::Local<v8::Name> property, v8::Local<v8::
 
     auto size = Utils::vector2V8(value);
     if (!size.has_value()) return;
+
+    if (textdrawComponent->m_textdraw->getTextSize() != size.value()) textdrawComponent->m_shouldRestream = true;
 
     textdrawComponent->m_textdraw->setTextSize(size.value());
 }
@@ -226,6 +241,8 @@ void TextdrawComponent::setAlignment(v8::Local<v8::Name> property, v8::Local<v8:
     auto v = Utils::GetIntegerFromV8Value(value);
     if (!v.has_value()) return;
 
+    if (textdrawComponent->m_textdraw->getAlignment() != v.value()) textdrawComponent->m_shouldRestream = true;
+
     textdrawComponent->m_textdraw->setAlignment((TextDrawAlignmentTypes)v.value());
 }
 
@@ -244,6 +261,8 @@ void TextdrawComponent::setColour(v8::Local<v8::Name> property, v8::Local<v8::Va
 
     auto v = Utils::colourV8(value);
     if (!v.has_value()) return;
+
+    if (textdrawComponent->m_textdraw->getLetterColour().RGBA() != v.value().RGBA()) textdrawComponent->m_shouldRestream = true;
 
     textdrawComponent->m_textdraw->setColour(v.value());
 }
@@ -264,6 +283,8 @@ void TextdrawComponent::setBox(v8::Local<v8::Name> property, v8::Local<v8::Value
     auto v = Utils::GetBooleanFromV8Value(value);
     if (!v.has_value()) return;
 
+    if (textdrawComponent->m_textdraw->hasBox() != v.value()) textdrawComponent->m_shouldRestream = true;
+
     textdrawComponent->m_textdraw->useBox(v.value());
 }
 
@@ -282,6 +303,8 @@ void TextdrawComponent::setBoxColour(v8::Local<v8::Name> property, v8::Local<v8:
 
     auto v = Utils::colourV8(value);
     if (!v.has_value()) return;
+
+    if (textdrawComponent->m_textdraw->getBoxColour().RGBA() != v.value().RGBA()) textdrawComponent->m_shouldRestream = true;
 
     textdrawComponent->m_textdraw->setBoxColour(v.value());
 }
@@ -302,6 +325,8 @@ void TextdrawComponent::setShadow(v8::Local<v8::Name> property, v8::Local<v8::Va
     auto v = Utils::GetIntegerFromV8Value(value);
     if (!v.has_value()) return;
 
+    if (textdrawComponent->m_textdraw->getShadow() != v.value()) textdrawComponent->m_shouldRestream = true;
+
     textdrawComponent->m_textdraw->setShadow(v.value());
 }
 
@@ -320,6 +345,8 @@ void TextdrawComponent::setOutline(v8::Local<v8::Name> property, v8::Local<v8::V
 
     auto v = Utils::GetIntegerFromV8Value(value);
     if (!v.has_value()) return;
+
+    if (textdrawComponent->m_textdraw->getOutline() != v.value()) textdrawComponent->m_shouldRestream = true;
 
     textdrawComponent->m_textdraw->setOutline(v.value());
 }
@@ -340,6 +367,8 @@ void TextdrawComponent::setBackgroundColour(v8::Local<v8::Name> property, v8::Lo
     auto v = Utils::colourV8(value);
     if (!v.has_value()) return;
 
+    if (textdrawComponent->m_textdraw->getBackgroundColour().RGBA() != v.value().RGBA()) textdrawComponent->m_shouldRestream = true;
+
     textdrawComponent->m_textdraw->setBackgroundColour(v.value());
 }
 
@@ -358,6 +387,8 @@ void TextdrawComponent::setStyle(v8::Local<v8::Name> property, v8::Local<v8::Val
 
     auto v = Utils::GetIntegerFromV8Value(value);
     if (!v.has_value()) return;
+
+    if (textdrawComponent->m_textdraw->getStyle() != v.value()) textdrawComponent->m_shouldRestream = true;
 
     textdrawComponent->m_textdraw->setStyle((TextDrawStyle)v.value());
 }
@@ -378,6 +409,8 @@ void TextdrawComponent::setProportional(v8::Local<v8::Name> property, v8::Local<
     auto v = Utils::GetDoubleFromV8Value(value);
     if (!v.has_value()) return;
 
+    if (textdrawComponent->m_textdraw->isProportional() != v.value()) textdrawComponent->m_shouldRestream = true;
+
     textdrawComponent->m_textdraw->setProportional((TextDrawStyle)v.value());
 }
 
@@ -396,6 +429,8 @@ void TextdrawComponent::setSelectable(v8::Local<v8::Name> property, v8::Local<v8
 
     auto v = Utils::GetBooleanFromV8Value(value);
     if (!v.has_value()) return;
+
+    if (textdrawComponent->m_textdraw->isSelectable() != v.value()) textdrawComponent->m_shouldRestream = true;
 
     textdrawComponent->m_textdraw->setSelectable(v.value());
 }
@@ -416,6 +451,8 @@ void TextdrawComponent::setPreviewModel(v8::Local<v8::Name> property, v8::Local<
     auto v = Utils::GetIntegerFromV8Value(value);
     if (!v.has_value()) return;
 
+    if (textdrawComponent->m_textdraw->getPreviewModel() != v.value()) textdrawComponent->m_shouldRestream = true;
+
     textdrawComponent->m_textdraw->setPreviewModel(v.value());
 }
 
@@ -434,6 +471,8 @@ void TextdrawComponent::setPreviewRotation(v8::Local<v8::Name> property, v8::Loc
 
     auto v = Utils::vector3V8(value);
     if (!v.has_value()) return;
+
+    if (textdrawComponent->m_textdraw->getPreviewRotation() != v.value()) textdrawComponent->m_shouldRestream = true;
 
     textdrawComponent->m_textdraw->setPreviewRotation(v.value());
 }
@@ -461,6 +500,8 @@ void TextdrawComponent::setPreviewVehicleColour(v8::Local<v8::Name> property, v8
     auto v8col1 = Utils::GetIntegerFromV8Value(value.As<v8::Object>()->Get(info.GetIsolate()->GetCurrentContext(), 0));
     auto v8col2 = Utils::GetIntegerFromV8Value(value.As<v8::Object>()->Get(info.GetIsolate()->GetCurrentContext(), 1));
 
+    if (textdrawComponent->m_textdraw->getPreviewVehicleColour().first != v8col1.value() || textdrawComponent->m_textdraw->getPreviewVehicleColour().second != v8col2.value()) textdrawComponent->m_shouldRestream = true;
+
     textdrawComponent->m_textdraw->setPreviewVehicleColour(v8col1.value_or(0), v8col2.value_or(0));
 }
 
@@ -479,6 +520,8 @@ void TextdrawComponent::setPreviewZoom(v8::Local<v8::Name> property, v8::Local<v
 
     auto v = Utils::GetDoubleFromV8Value(value);
     if (!v.has_value()) return;
+
+    if (textdrawComponent->m_textdraw->getPreviewZoom() != v.value()) textdrawComponent->m_shouldRestream = true;
 
     textdrawComponent->m_textdraw->setPreviewZoom(v.value());
 }
@@ -506,6 +549,8 @@ void TextdrawComponent::setVisible(v8::Local<v8::Name> property, v8::Local<v8::V
 
     auto v = Utils::GetBooleanFromV8Value(value);
     if (!v.has_value()) return;
+
+    if (textdraw->isShown() != v.value()) textdrawComponent->m_shouldRestream = true;
 
     if (v.value())
         textdraw->show();

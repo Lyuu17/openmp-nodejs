@@ -207,7 +207,7 @@ declare interface ITextDrawBase {
   previewZoom: number;
 
   destroy(): void;
-  restream(): void;
+  restream(force?: boolean): void;
 }
 
 declare interface ITextDraw extends ITextDrawBase {
