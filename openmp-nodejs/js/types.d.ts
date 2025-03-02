@@ -129,6 +129,8 @@ declare interface IPlayer {
   setMapIcon(id: number, position: Vector3, type: number, color: Colour, style: number): void;
   unsetMapIcon(id: number): void;
   sendGameText(text: string, time: number, style: number): void;
+  getCameraPosition(): Vector3;
+  getCameraLookAt(): Vector3;
   setCameraPosition(position: Vector3): void;
   setCameraLookAt(position: Vector3): void;
   setCameraBehind(position: Vector3): void;

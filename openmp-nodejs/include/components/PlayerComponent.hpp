@@ -40,6 +40,8 @@ struct PlayerComponent final : public IExtension,
     static void setMapIcon(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void unsetMapIcon(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void sendGameText(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void getCameraPosition(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void getCameraLookAt(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void setCameraPosition(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void setCameraLookAt(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void setCameraBehind(const v8::FunctionCallbackInfo<v8::Value>& info);

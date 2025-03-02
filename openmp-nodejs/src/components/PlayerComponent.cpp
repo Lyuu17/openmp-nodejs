@@ -310,6 +310,24 @@ void PlayerComponent::sendGameText(const v8::FunctionCallbackInfo<v8::Value>& in
     playerComponent->m_player->sendGameText(v8message.value(), duration, v8style.value());
 }
 
+void PlayerComponent::getCameraPosition(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    info.GetReturnValue().Set(Utils::v8Vector3(playerComponent->m_player->getCameraPosition()));
+}
+
+void PlayerComponent::getCameraLookAt(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    info.GetReturnValue().Set(Utils::v8Vector3(playerComponent->m_player->getCameraLookAt()));
+}
+
 void PlayerComponent::setCameraPosition(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
@@ -1251,6 +1269,8 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("setMapIcon", setMapIcon);
     SET_FUNCTION("unsetMapIcon", unsetMapIcon);
     SET_FUNCTION("sendGameText", sendGameText);
+    SET_FUNCTION("getCameraPosition", getCameraPosition);
+    SET_FUNCTION("getCameraLookAt", getCameraLookAt);
     SET_FUNCTION("setCameraPosition", setCameraPosition);
     SET_FUNCTION("setCameraLookAt", setCameraLookAt);
     SET_FUNCTION("setCameraBehind", setCameraBehind);
