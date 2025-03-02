@@ -110,6 +110,7 @@ declare interface IPlayer {
   readonly keys: IKeyData;
   readonly selectingObject: boolean;
   readonly editingObject: boolean;
+  spectating: boolean;
 
 
   kick(): void;
@@ -137,6 +138,7 @@ declare interface IPlayer {
   endObjectSelection(): void;
   beginObjectEdit(object: IObject | IPlayerObject): void;
   endObjectEdit(): void;
+  attachCameraToObject(object: IObject | IPlayerObject): void;
 }
 
 declare interface IVehicle {
@@ -234,6 +236,8 @@ declare interface IObjectBase {
   model: number;
 
   destroy(): void;
+  move(targetPos: Vector3, targetRot: Vector3, speed: number): void;
+  stop(): void;
 }
 
 declare interface IObject extends IObjectBase {

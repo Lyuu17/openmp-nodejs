@@ -48,6 +48,31 @@ void ObjectComponent::destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
     NodejsComponent::getInstance()->getObjects()->release(objectComponent->m_object->getID());
 }
 
+void ObjectComponent::move(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto objectComponent = (ObjectComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<ObjectComponent>(info.GetIsolate(), objectComponent)) return;
+
+    auto targetPos = Utils::vector3V8(info[0]);
+    auto targetRot = Utils::vector3V8(info[1]);
+    auto speed     = Utils::GetDoubleFromV8Value(info[2]);
+
+    if (!targetPos.has_value() || !targetRot.has_value() || !speed.has_value())
+        return;
+
+    objectComponent->m_object->move({ targetPos.value(), targetRot.value(), (float)speed.value() });
+}
+
+void ObjectComponent::stop(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto objectComponent = (ObjectComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<ObjectComponent>(info.GetIsolate(), objectComponent)) return;
+
+    objectComponent->m_object->stop();
+}
+
 // ====================== accessors ======================
 
 void ObjectComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)

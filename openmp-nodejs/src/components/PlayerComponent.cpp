@@ -462,6 +462,41 @@ void PlayerComponent::endObjectEdit(const v8::FunctionCallbackInfo<v8::Value>& i
     playerObjectData->endEditing();
 }
 
+void PlayerComponent::attachCameraToObject(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto playerObjectData = queryExtension<IPlayerObjectData>(playerComponent->m_player);
+    if (!playerObjectData)
+        return;
+
+    auto v8objectId = Utils::GetIdFromV8Object(info[0]);
+    if (!v8objectId.has_value())
+        return;
+
+    // global obj
+    {
+        auto object = NodejsComponent::getInstance()->getObjects()->get(v8objectId.value());
+        if (object)
+        {
+            playerComponent->m_player->attachCameraToObject(*object);
+            return;
+        }
+    }
+
+    // player obj
+    {
+        auto object = playerObjectData->get(v8objectId.value());
+        if (object)
+        {
+            playerComponent->m_player->attachCameraToObject(*object);
+            return;
+        }
+    }
+}
+
 // ====================== accessors ======================
 
 void PlayerComponent::getName(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -1169,6 +1204,28 @@ void PlayerComponent::getKeys(v8::Local<v8::Name> property, const v8::PropertyCa
     info.GetReturnValue().Set(v8obj);
 }
 
+void PlayerComponent::getSpectating(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    info.GetReturnValue().Set(playerComponent->m_player->getSpectateData().spectating);
+}
+
+void PlayerComponent::setSpectating(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    auto playerComponent = (PlayerComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<PlayerComponent>(info.GetIsolate(), playerComponent)) return;
+
+    auto v8value = Utils::GetBooleanFromV8Value(value);
+    if (!v8value.has_value())
+        return;
+
+    playerComponent->m_player->setSpectating(v8value.value());
+}
+
 v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -1203,6 +1260,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_FUNCTION("endObjectSelection", endObjectSelection);
     SET_FUNCTION("beginObjectEdit", beginObjectEdit);
     SET_FUNCTION("endObjectEdit", endObjectEdit);
+    SET_FUNCTION("attachCameraToObject", attachCameraToObject);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
@@ -1238,6 +1296,7 @@ v8::Local<v8::Object> PlayerComponent::CreateJavaScriptObject()
     SET_ACCESSOR("keys", getKeys);
     SET_ACCESSOR("selectingObject", getSelectingObject);
     SET_ACCESSOR("editingObject", getEditingObject);
+    SET_ACCESSOR_WITH_SETTER("spectating", getSpectating, setSpectating);
 
     return v8obj;
 }

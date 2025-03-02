@@ -1,6 +1,6 @@
 {
   "name": "@openmp-node/types",
-  "version": "1.0.64",
+  "version": "1.0.65",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
