@@ -131,6 +131,7 @@ declare interface IPlayer {
   sendGameText(text: string, time: number, style: number): void;
   getCameraPosition(): Vector3;
   getCameraLookAt(): Vector3;
+  getCameraFrontVector(): Vector3;
   setCameraPosition(position: Vector3): void;
   setCameraLookAt(position: Vector3): void;
   setCameraBehind(position: Vector3): void;

@@ -204,6 +204,8 @@ v8::Local<v8::Object> ObjectComponent::CreateJavaScriptObject()
 #define SET_FUNCTION(f, func) v8obj->Set(context, Utils::v8Str(f), v8::Function::New(context, func, v8::External::New(isolate, this)).ToLocalChecked());
 
     SET_FUNCTION("destroy", destroy);
+    SET_FUNCTION("move", move);
+    SET_FUNCTION("stop", stop);
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
