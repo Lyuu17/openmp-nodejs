@@ -73,6 +73,33 @@ void ObjectComponent::stop(const v8::FunctionCallbackInfo<v8::Value>& info)
     objectComponent->m_object->stop();
 }
 
+void ObjectComponent::setStreamedForPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto objectComponent = (ObjectComponent*)info.Data().As<v8::External>()->Value();
+
+    if (!Utils::CheckExtensionExist<ObjectComponent>(info.GetIsolate(), objectComponent)) return;
+
+    auto object = dynamic_cast<IObject*>(objectComponent->m_object);
+    if (!object) return;
+
+    auto playerId = Utils::GetIdFromV8Object(info[0]);
+    if (!playerId.has_value())
+        return;
+
+    auto player = NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value());
+    if (!player)
+        return;
+
+    auto v8stream = Utils::GetBooleanFromV8Value(info[1]);
+    if (!v8stream.has_value())
+        return;
+
+    if (v8stream.value())
+        object->streamInForPlayer(*player);
+    else
+        object->streamOutForPlayer(*player);
+}
+
 // ====================== accessors ======================
 
 void ObjectComponent::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -206,6 +233,11 @@ v8::Local<v8::Object> ObjectComponent::CreateJavaScriptObject()
     SET_FUNCTION("destroy", destroy);
     SET_FUNCTION("move", move);
     SET_FUNCTION("stop", stop);
+
+    if (dynamic_cast<IObject*>(m_object))
+    {
+        SET_FUNCTION("setStreamedForPlayer", setStreamedForPlayer);
+    }
 
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));

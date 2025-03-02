@@ -244,7 +244,7 @@ declare interface IObjectBase {
 }
 
 declare interface IObject extends IObjectBase {
-
+  setStreamedForPlayer(player: IPlayer, streamed: boolean): void;
 }
 
 declare interface IPlayerObject extends IObjectBase {
