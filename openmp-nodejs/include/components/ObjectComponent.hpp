@@ -26,6 +26,7 @@ struct ObjectComponent final : public IExtension,
     static void destroy(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void move(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void stop(const v8::FunctionCallbackInfo<v8::Value>& info);
+    static void isStreamedInForPlayer(const v8::FunctionCallbackInfo<v8::Value>& info);
     static void setStreamedForPlayer(const v8::FunctionCallbackInfo<v8::Value>& info);
 
     static void getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
@@ -44,6 +45,9 @@ struct ObjectComponent final : public IExtension,
 
     static void getModel(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
     static void setModel(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+
+    static void getAlwaysStreamedIn(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+    static void setAlwaysStreamedIn(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 
     v8::Local<v8::Object> CreateJavaScriptObject() override;
 
