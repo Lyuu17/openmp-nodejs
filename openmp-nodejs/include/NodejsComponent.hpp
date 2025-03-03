@@ -13,6 +13,7 @@
 #include <Server/Components/Checkpoints/checkpoints.hpp>
 #include <Server/Components/TextDraws/textdraws.hpp>
 #include <Server/Components/Objects/objects.hpp>
+#include <Server/Components/CustomModels/custommodels.hpp>
 #include <sdk.hpp>
 
 #define PRINTLN(x, ...) \
@@ -31,15 +32,16 @@ private:
 
     ICore* m_core = nullptr;
 
-    IClassesComponent*     m_classes         = nullptr;
-    IVehiclesComponent*    m_vehicles        = nullptr;
-    IPickupsComponent*     m_pickups         = nullptr;
-    IMenusComponent*       m_menus           = nullptr;
-    IDialogsComponent*     m_dialogs         = nullptr;
-    ICheckpointsComponent* m_checkpoints     = nullptr;
-    ITextDrawsComponent*   m_textdraws       = nullptr;
-    IObjectsComponent*     m_objects         = nullptr;
-    ResourceManager*       m_resourceManager = nullptr;
+    IClassesComponent*      m_classes         = nullptr;
+    IVehiclesComponent*     m_vehicles        = nullptr;
+    IPickupsComponent*      m_pickups         = nullptr;
+    IMenusComponent*        m_menus           = nullptr;
+    IDialogsComponent*      m_dialogs         = nullptr;
+    ICheckpointsComponent*  m_checkpoints     = nullptr;
+    ITextDrawsComponent*    m_textdraws       = nullptr;
+    IObjectsComponent*      m_objects         = nullptr;
+    ICustomModelsComponent* m_customModels    = nullptr;
+    ResourceManager*        m_resourceManager = nullptr;
 
 public:
     ~NodejsComponent();

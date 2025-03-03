@@ -1,6 +1,7 @@
 set(SOURCES
     "src/components/events/CheckpointEventsComponent.cpp"
     "src/components/events/ClassEventsComponent.cpp"
+    "src/components/events/CustomModelEventsComponent .cpp"
     "src/components/events/DialogEventsComponent.cpp"
     "src/components/events/MenuEventsComponent.cpp"
     "src/components/events/ObjectEventsComponent.cpp"

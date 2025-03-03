@@ -13,6 +13,7 @@
 #include "components/events/CheckpointEventsComponent.hpp"
 #include "components/events/TextdrawEventsComponent.hpp"
 #include "components/events/ObjectEventsComponent.hpp"
+#include "components/events/CustomModelEventsComponent.hpp"
 
 #include "ResourceManager.hpp"
 
@@ -46,14 +47,15 @@ void NodejsComponent::onInit(IComponentList* components)
 {
     addExtension(new ResourceManager(), true);
 
-    m_classes     = components->queryComponent<IClassesComponent>();
-    m_vehicles    = components->queryComponent<IVehiclesComponent>();
-    m_pickups     = components->queryComponent<IPickupsComponent>();
-    m_menus       = components->queryComponent<IMenusComponent>();
-    m_dialogs     = components->queryComponent<IDialogsComponent>();
-    m_checkpoints = components->queryComponent<ICheckpointsComponent>();
-    m_textdraws   = components->queryComponent<ITextDrawsComponent>();
-    m_objects     = components->queryComponent<IObjectsComponent>();
+    m_classes      = components->queryComponent<IClassesComponent>();
+    m_vehicles     = components->queryComponent<IVehiclesComponent>();
+    m_pickups      = components->queryComponent<IPickupsComponent>();
+    m_menus        = components->queryComponent<IMenusComponent>();
+    m_dialogs      = components->queryComponent<IDialogsComponent>();
+    m_checkpoints  = components->queryComponent<ICheckpointsComponent>();
+    m_textdraws    = components->queryComponent<ITextDrawsComponent>();
+    m_objects      = components->queryComponent<IObjectsComponent>();
+    m_customModels = components->queryComponent<ICustomModelsComponent>();
 
     m_resourceManager = queryExtension<ResourceManager>(this);
     m_resourceManager->LoadResourcesFromPath("resources");
@@ -67,6 +69,7 @@ void NodejsComponent::onInit(IComponentList* components)
     addExtension(new CheckpointEventsComponent(m_core, m_checkpoints, m_resourceManager), true);
     addExtension(new TextdrawEventsComponent(m_core, m_textdraws, m_resourceManager), true);
     addExtension(new ObjectEventsComponent(m_core, m_objects, m_resourceManager), true);
+    addExtension(new CustomModelEventsComponent(m_core, m_customModels, m_resourceManager), true);
 }
 
 void NodejsComponent::free()
