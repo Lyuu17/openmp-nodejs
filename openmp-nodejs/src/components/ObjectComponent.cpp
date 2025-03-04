@@ -338,13 +338,13 @@ void ObjectComponent::InitFunctions(Resource* resource)
 
             object = playerObjectData->create(v8model.value(), v8pos.value(), v8rot.value(), v8drawDistance.value_or(0.0f));
 
-            ENSURE_HAS_EXTENSION(object, player, ObjectComponent);
+            if (object) ENSURE_HAS_EXTENSION(object, player, ObjectComponent);
         }
         else
         {
             object = NodejsComponent::getInstance()->getObjects()->create(v8model.value(), v8pos.value(), v8rot.value(), v8drawDistance.value_or(0.0f));
 
-            ENSURE_HAS_EXTENSION(object, nullptr, ObjectComponent);
+            if (object) ENSURE_HAS_EXTENSION(object, nullptr, ObjectComponent);
         }
 
         if (!object)
