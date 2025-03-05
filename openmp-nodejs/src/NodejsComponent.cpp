@@ -3,17 +3,17 @@
 
 #include "NodejsComponent.hpp"
 
-#include "components/PlayerComponent.hpp"
-#include "components/events/ClassEventsComponent.hpp"
-#include "components/events/PlayerEventsComponent.hpp"
-#include "components/events/VehicleEventsComponent.hpp"
-#include "components/events/PickupEventsComponent.hpp"
-#include "components/events/MenuEventsComponent.hpp"
-#include "components/events/DialogEventsComponent.hpp"
-#include "components/events/CheckpointEventsComponent.hpp"
-#include "components/events/TextdrawEventsComponent.hpp"
-#include "components/events/ObjectEventsComponent.hpp"
-#include "components/events/CustomModelEventsComponent.hpp"
+#include "classes/PlayerExtension.hpp"
+#include "events/ClassEventsExtension.hpp"
+#include "events/PlayerEventsExtension.hpp"
+#include "events/VehicleEventsExtension.hpp"
+#include "events/PickupEventsExtension.hpp"
+#include "events/MenuEventsExtension.hpp"
+#include "events/DialogEventsExtension.hpp"
+#include "events/CheckpointEventsExtension.hpp"
+#include "events/TextdrawEventsExtension.hpp"
+#include "events/ObjectEventsExtension.hpp"
+#include "events/CustomModelEventsExtension.hpp"
 
 #include "ResourceManager.hpp"
 
@@ -60,16 +60,16 @@ void NodejsComponent::onInit(IComponentList* components)
     m_resourceManager = queryExtension<ResourceManager>(this);
     m_resourceManager->LoadResourcesFromPath("resources");
 
-    addExtension(new ClassEventsComponent(m_core, m_classes, m_resourceManager), true);
-    addExtension(new PlayerEventsComponent(m_core, m_resourceManager), true);
-    addExtension(new VehicleEventsComponent(m_core, m_vehicles, m_resourceManager), true);
-    addExtension(new PickupEventsComponent(m_core, m_pickups, m_resourceManager), true);
-    addExtension(new MenuEventsComponent(m_core, m_menus, m_resourceManager), true);
-    addExtension(new DialogEventsComponent(m_core, m_dialogs, m_resourceManager), true);
-    addExtension(new CheckpointEventsComponent(m_core, m_checkpoints, m_resourceManager), true);
-    addExtension(new TextdrawEventsComponent(m_core, m_textdraws, m_resourceManager), true);
-    addExtension(new ObjectEventsComponent(m_core, m_objects, m_resourceManager), true);
-    addExtension(new CustomModelEventsComponent(m_core, m_customModels, m_resourceManager), true);
+    addExtension(new ClassEventsExtension(m_core, m_classes, m_resourceManager), true);
+    addExtension(new PlayerEventsExtension(m_core, m_resourceManager), true);
+    addExtension(new VehicleEventsExtension(m_core, m_vehicles, m_resourceManager), true);
+    addExtension(new PickupEventsExtension(m_core, m_pickups, m_resourceManager), true);
+    addExtension(new MenuEventsExtension(m_core, m_menus, m_resourceManager), true);
+    addExtension(new DialogEventsExtension(m_core, m_dialogs, m_resourceManager), true);
+    addExtension(new CheckpointEventsExtension(m_core, m_checkpoints, m_resourceManager), true);
+    addExtension(new TextDrawEventsExtension(m_core, m_textdraws, m_resourceManager), true);
+    addExtension(new ObjectEventsExtension(m_core, m_objects, m_resourceManager), true);
+    addExtension(new CustomModelEventsExtension(m_core, m_customModels, m_resourceManager), true);
 }
 
 void NodejsComponent::free()

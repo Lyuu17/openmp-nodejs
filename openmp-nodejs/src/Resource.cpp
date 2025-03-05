@@ -5,13 +5,13 @@
 #include "Utils.hpp"
 #include "NodejsComponent.hpp"
 #include "CommonFunctions.hpp"
-#include "components/ClassesComponent.hpp"
-#include "components/PlayerComponent.hpp"
-#include "components/VehicleComponent.hpp"
-#include "components/PickupComponent.hpp"
-#include "components/MenuComponent.hpp"
-#include "components/TextdrawComponent.hpp"
-#include "components/ObjectComponent.hpp"
+#include "classes/ClassesExtension.hpp"
+#include "classes/PlayerExtension.hpp"
+#include "classes/VehicleExtension.hpp"
+#include "classes/PickupExtension.hpp"
+#include "classes/MenuExtension.hpp"
+#include "classes/TextdrawExtension.hpp"
+#include "classes/ObjectExtension.hpp"
 
 #include "bootstrapjs.hpp"
 
@@ -79,13 +79,13 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
 
     // init components
     {
-        ClassesComponent::InitFunctions(this);
-        PlayerComponent::InitFunctions(this);
-        VehicleComponent::InitFunctions(this);
-        PickupComponent::InitFunctions(this);
-        MenuComponent::InitFunctions(this);
-        TextdrawComponent::InitFunctions(this);
-        ObjectComponent::InitFunctions(this);
+        ClassesExtension::InitFunctions(this);
+        PlayerExtension::InitFunctions(this);
+        VehicleExtension::InitFunctions(this);
+        PickupExtension::InitFunctions(this);
+        MenuExtension::InitFunctions(this);
+        TextDrawExtension::InitFunctions(this);
+        ObjectExtension::InitFunctions(this);
     }
 
     // parse package json
