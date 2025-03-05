@@ -8,6 +8,7 @@
 #include <sdk.hpp>
 
 struct PlayerEventsExtension final : public IExtension,
+                                     public PoolEventHandler<IPlayer>,
                                      public PlayerConnectEventHandler,
                                      public PlayerSpawnEventHandler,
                                      public PlayerStreamEventHandler,
@@ -32,6 +33,8 @@ public:
     void reset() override;
 
     /* events */
+    void onPoolEntryCreated(IPlayer& entry) override;
+    void onPoolEntryDestroyed(IPlayer& entry) override;
     void onIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port) override;
     void onPlayerConnect(IPlayer& player) override;
     void onPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason) override;

@@ -10,6 +10,7 @@ PlayerEventsExtension::PlayerEventsExtension(ICore* core, ResourceManager* resou
     : m_core(core)
     , m_resourceManager(resourceManager)
 {
+    m_core->getPlayers().getPoolEventDispatcher().addEventHandler(this);
     m_core->getPlayers().getPlayerConnectDispatcher().addEventHandler(this);
     m_core->getPlayers().getPlayerSpawnDispatcher().addEventHandler(this);
     m_core->getPlayers().getPlayerStreamDispatcher().addEventHandler(this);
@@ -26,6 +27,7 @@ PlayerEventsExtension::~PlayerEventsExtension()
 {
     if (m_core)
     {
+        m_core->getPlayers().getPoolEventDispatcher().removeEventHandler(this);
         m_core->getPlayers().getPlayerConnectDispatcher().removeEventHandler(this);
         m_core->getPlayers().getPlayerSpawnDispatcher().removeEventHandler(this);
         m_core->getPlayers().getPlayerStreamDispatcher().removeEventHandler(this);
@@ -50,10 +52,17 @@ void PlayerEventsExtension::reset()
 
 // =========== events
 
-void PlayerEventsExtension::onIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port)
+void PlayerEventsExtension::onPoolEntryCreated(IPlayer& player)
 {
     player.addExtension(new PlayerExtension(m_core->getPlayers().get(player.getID()), NodejsComponent::getInstance()->getResourceManager()), true);
+}
 
+void PlayerEventsExtension::onPoolEntryDestroyed(IPlayer& player)
+{
+}
+
+void PlayerEventsExtension::onIncomingConnection(IPlayer& player, StringView ipAddress, unsigned short port)
+{
     m_resourceManager->Exec([&](Resource* resource) {
         v8::Local<v8::Object>  v8objPlayer = resource->ObjectFromExtension(queryExtension<PlayerExtension>(player));
         v8::Local<v8::String>  ip          = v8::String::NewFromUtf8(resource->m_isolate, ipAddress.data()).ToLocalChecked();

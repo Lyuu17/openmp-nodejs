@@ -58,6 +58,8 @@ public:
 
     inline v8::Local<v8::Object> ObjectFromExtension(IJavaScriptClassExtension* ext)
     {
+        assert(ext);
+
         v8::EscapableHandleScope handle_scope(m_isolate);
 
         auto               context = m_isolate->GetCurrentContext();
