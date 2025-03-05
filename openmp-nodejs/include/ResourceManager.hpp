@@ -9,11 +9,12 @@ class ResourceManager : public IExtension {
 public:
     PROVIDE_EXT_UID(0xB80687827766FA13);
 
-    v8::Isolate*            m_isolate = nullptr;
-    v8::Global<v8::Context> m_context;
-    node::Environment*      m_parentEnv = nullptr;
-
-    std::unique_ptr<node::MultiIsolatePlatform> m_platform;
+    node::ArrayBufferAllocator* m_allocator;
+    v8::Isolate*                m_isolate;
+    v8::Global<v8::Context>     m_context;
+    node::IsolateData*          m_nodeData;
+    node::Environment*          m_parentEnv;
+    node::MultiIsolatePlatform* m_platform;
 
     std::unordered_map<std::filesystem::path, ResourcePtr> m_resources;
 

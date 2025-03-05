@@ -20,14 +20,15 @@ public:
 
     std::string m_name;
 
-    v8::Isolate*            m_isolate;
-    node::IsolateData*      nodeData = nullptr;
-    node::Environment*      env      = nullptr;
-    uv_loop_t*              uvLoop   = nullptr;
-    v8::Global<v8::Context> m_context;
-    v8::Global<v8::Value>   m_exports;
-    v8::Global<v8::Object>  m_asyncResource;
-    node::async_context     m_asyncContext;
+    node::ArrayBufferAllocator* m_allocator;
+    v8::Isolate*                m_isolate;
+    node::IsolateData*          m_nodeData = nullptr;
+    node::Environment*          m_env      = nullptr;
+    uv_loop_t*                  m_uvLoop   = nullptr;
+    v8::Global<v8::Context>     m_context;
+    v8::Global<v8::Value>       m_exports;
+    v8::Global<v8::Object>      m_asyncResource;
+    node::async_context         m_asyncContext;
 
     std::unordered_map<std::filesystem::path, v8::Global<v8::Module>>      m_modules;
     std::unordered_map<std::string, std::vector<v8::Global<v8::Function>>> m_listeners;

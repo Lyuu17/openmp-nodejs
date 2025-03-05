@@ -11,11 +11,11 @@ ResourceManager::ResourceManager()
 
     auto result = node::InitializeOncePerProcess(args);
 
-    m_platform.reset(result->platform());
+    m_platform = result->platform();
 
-    auto allocator              = node::CreateArrayBufferAllocator();
-    m_isolate                   = node::NewIsolate(allocator, uv_default_loop(), m_platform.get());
-    node::IsolateData* nodeData = node::CreateIsolateData(m_isolate, uv_default_loop(), m_platform.get(), allocator);
+    m_allocator = node::CreateArrayBufferAllocator();
+    m_isolate   = node::NewIsolate(m_allocator, uv_default_loop(), m_platform);
+    m_nodeData  = node::CreateIsolateData(m_isolate, uv_default_loop(), m_platform, m_allocator);
 
     {
         v8::Locker         locker(m_isolate);
@@ -28,13 +28,13 @@ ResourceManager::ResourceManager()
 
         v8::Context::Scope scope(context);
 
-        m_parentEnv = node::CreateEnvironment(nodeData, context, result->args(), result->exec_args());
+        m_parentEnv = node::CreateEnvironment(m_nodeData, context, result->args(), result->exec_args());
 
         /*
             Load here only needs for debugging as this environment only used as a parent for real environments
         */
 
-        // node::LoadEnvironment(parentEnv, "console.log('PARENT INIT'); setInterval(() => {}, 1000);");
+        // node::LoadEnvironment(m_parentEnv, "console.log('PARENT INIT'); setInterval(() => {}, 1000);");
     }
 }
 
@@ -45,8 +45,40 @@ ResourceManager::~ResourceManager()
 
     m_resources.clear();
 
-    v8::V8::Dispose();
-    v8::V8::DisposePlatform();
+    // clean up parent resource
+    {
+        {
+            v8::Locker         locker(m_isolate);
+            v8::Isolate::Scope isolateScope(m_isolate);
+
+            v8::HandleScope    handleScope(m_isolate);
+            v8::Context::Scope context_scope(m_context.Get(m_isolate));
+
+            node::EmitProcessBeforeExit(m_parentEnv);
+            node::EmitProcessExit(m_parentEnv);
+
+            node::Stop(m_parentEnv);
+
+            // node::FreeEnvironment(m_parentEnv);
+            node::FreeIsolateData(m_nodeData);
+
+            m_context.Reset();
+        }
+
+        bool platform_finished = false;
+        m_platform->AddIsolateFinishedCallback(m_isolate, [](void* data) {
+            *static_cast<bool*>(data) = true;
+        }, &platform_finished);
+        m_platform->UnregisterIsolate(m_isolate);
+
+        m_isolate->Dispose();
+
+        // Wait until the platform has cleaned up all relevant resources.
+        while (!platform_finished)
+            uv_run(uv_default_loop(), UV_RUN_ONCE);
+
+        node::FreeArrayBufferAllocator(m_allocator);
+    }
 
     node::TearDownOncePerProcess();
 }
@@ -72,7 +104,7 @@ void ResourceManager::Tick()
     m_platform->DrainTasks(m_isolate);
 
     for (auto& [path, resource] : m_resources)
-        resource->OnTick(m_platform.get());
+        resource->OnTick(m_platform);
 }
 
 void ResourceManager::LoadResourcesFromPath(const std::filesystem::path& path)
@@ -96,11 +128,11 @@ void ResourceManager::LoadResource(const std::filesystem::path& path)
 
     const auto folderName = path.filename().string();
 
-    auto resource = std::make_unique<Resource>(m_platform.get(), path, folderName, packageJsonContent);
+    auto resource = std::make_unique<Resource>(m_platform, path, folderName, packageJsonContent);
 
     auto [insertPair, result] = m_resources.emplace(path, std::move(resource));
 
-    insertPair->second->Start(m_platform.get(), m_parentEnv);
+    insertPair->second->Start(m_platform, m_parentEnv);
     insertPair->second->Exec([](Resource* resource) {
         resource->Emit("OnResourceLoad", {});
     });

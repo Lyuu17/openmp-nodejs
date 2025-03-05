@@ -19,13 +19,14 @@ Resource::Resource(node::MultiIsolatePlatform* platform, const std::filesystem::
     : m_folderPath(folderPath)
     , m_folderName(folderName)
     , m_packageBuf(packageJsonBuf)
+    , m_asyncContext({})
 {
-    uvLoop = new uv_loop_t;
-    uv_loop_init(uvLoop);
+    m_uvLoop = new uv_loop_t;
+    uv_loop_init(m_uvLoop);
 
-    auto allocator = node::CreateArrayBufferAllocator();
-    m_isolate      = node::NewIsolate(allocator, uvLoop, platform);
-    nodeData       = node::CreateIsolateData(m_isolate, uvLoop, platform, allocator);
+    m_allocator = node::CreateArrayBufferAllocator();
+    m_isolate   = node::NewIsolate(m_allocator, m_uvLoop, platform);
+    m_nodeData  = node::CreateIsolateData(m_isolate, m_uvLoop, platform, m_allocator);
 
     v8::Locker         locker(m_isolate);
     v8::Isolate::Scope iscope(m_isolate);
@@ -37,30 +38,51 @@ Resource::Resource(node::MultiIsolatePlatform* platform, const std::filesystem::
 
 Resource::~Resource()
 {
-    v8::Locker         locker(m_isolate);
-    v8::Isolate::Scope isolateScope(m_isolate);
-    v8::HandleScope    handleScope(m_isolate);
-    v8::Context::Scope context_scope(GetContext());
+    auto platform = m_nodeData->platform();
 
-    node::EmitAsyncDestroy(m_isolate, m_asyncContext);
-    m_asyncResource.Reset();
+    {
+        v8::Locker         locker(m_isolate);
+        v8::Isolate::Scope isolateScope(m_isolate);
 
-    m_modules.clear();
-    m_listeners.clear();
-    m_objectsFromExtension.clear();
+        v8::HandleScope    handleScope(m_isolate);
+        v8::Context::Scope context_scope(GetContext());
 
-    node::EmitProcessBeforeExit(env);
-    node::EmitProcessExit(env);
+        node::EmitAsyncDestroy(m_isolate, m_asyncContext);
+        m_asyncResource.Reset();
 
-    node::Stop(env);
+        m_exports.Reset();
 
-    node::FreeEnvironment(env);
-    node::FreeIsolateData(nodeData);
+        m_modules.clear();
+        m_listeners.clear();
+        m_objectsFromExtension.clear();
 
-    uv_loop_close(uvLoop);
-    delete uvLoop;
+        node::EmitProcessBeforeExit(m_env);
+        node::EmitProcessExit(m_env);
+
+        node::Stop(m_env);
+
+        node::FreeEnvironment(m_env);
+        node::FreeIsolateData(m_nodeData);
+
+        m_context.Reset();
+    }
+
+    bool platform_finished = false;
+    platform->AddIsolateFinishedCallback(m_isolate, [](void* data) {
+        *static_cast<bool*>(data) = true;
+    }, &platform_finished);
+    platform->UnregisterIsolate(m_isolate);
 
     m_isolate->Dispose();
+
+    // Wait until the platform has cleaned up all relevant resources.
+    while (!platform_finished)
+        uv_run(m_uvLoop, UV_RUN_ONCE);
+
+    uv_loop_close(m_uvLoop);
+    delete m_uvLoop;
+
+    node::FreeArrayBufferAllocator(m_allocator);
 
     m_envStarted = false;
 }
@@ -135,8 +157,8 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
         PRINTLN("Resource loaded: {}", resourceName);
     }, this);
 
-    env = node::CreateEnvironment(nodeData, context, args, exec_args, flags, threadId, std::move(inspector));
-    node::LoadEnvironment(env, bootstrapjs);
+    m_env = node::CreateEnvironment(m_nodeData, context, args, exec_args, flags, threadId, std::move(inspector));
+    node::LoadEnvironment(m_env, bootstrapjs);
 
     m_asyncResource.Reset(m_isolate, v8::Object::New(m_isolate));
     m_asyncContext = node::EmitAsyncInit(m_isolate, m_asyncResource.Get(m_isolate), m_name.c_str());
@@ -167,7 +189,7 @@ void Resource::OnTick(node::MultiIsolatePlatform* platform)
 
     platform->DrainTasks(m_isolate);
 
-    uv_run(uvLoop, UV_RUN_NOWAIT);
+    uv_run(m_uvLoop, UV_RUN_NOWAIT);
 }
 
 void Resource::AddListener(const std::string& name, v8::Local<v8::Function> listener)
