@@ -39,7 +39,11 @@ void DialogEventsExtension::onDialogResponse(IPlayer& player, int dialogId, Dial
         if (!playerComponent)
             return;
 
-        if (playerComponent->m_dialogCallback.IsEmpty())
+        if (!playerComponent->m_dialogCallback.contains(resource->m_isolate))
+            return;
+
+        auto& dialogCallbackGlobal = playerComponent->m_dialogCallback[resource->m_isolate];
+        if (dialogCallbackGlobal.IsEmpty())
             return;
 
         auto v8objPlayer = resource->ObjectFromExtension(playerComponent);
@@ -53,7 +57,7 @@ void DialogEventsExtension::onDialogResponse(IPlayer& player, int dialogId, Dial
 
         auto ctx = resource->m_isolate->GetCurrentContext();
 
-        auto dialogCallback = playerComponent->m_dialogCallback.Get(resource->m_isolate);
+        auto dialogCallback = dialogCallbackGlobal.Get(resource->m_isolate);
         dialogCallback->Call(ctx, ctx->Global(), args.size(), args.data());
     });
 }

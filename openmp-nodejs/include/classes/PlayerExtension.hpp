@@ -16,7 +16,7 @@ struct PlayerExtension final : public IExtension,
     IPlayer*         m_player;
     ResourceManager* m_resourceManager;
 
-    v8::Global<v8::Function> m_dialogCallback;
+    std::unordered_map<v8::Isolate*, v8::Global<v8::Function>> m_dialogCallback;
 
     PlayerExtension(IPlayer*, ResourceManager*);
     ~PlayerExtension();

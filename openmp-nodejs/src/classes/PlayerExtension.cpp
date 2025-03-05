@@ -17,7 +17,7 @@ PlayerExtension::PlayerExtension(IPlayer* player, ResourceManager* resourceManag
 
 PlayerExtension::~PlayerExtension()
 {
-    m_dialogCallback.Reset();
+    m_dialogCallback.clear();
 }
 
 void PlayerExtension::freeExtension()
@@ -228,7 +228,7 @@ void PlayerExtension::hideDialog(const v8::FunctionCallbackInfo<v8::Value>& info
         return;
     }
 
-    playerComponent->m_dialogCallback.Reset();
+    playerComponent->m_dialogCallback.clear();
 
     playerDialogData->hide(*playerComponent->m_player);
 }
@@ -256,7 +256,7 @@ void PlayerExtension::showDialog(const v8::FunctionCallbackInfo<v8::Value>& info
     if (!v8dialogStyle.has_value() || !v8title.has_value() || !v8body.has_value() || !v8button1.has_value() || !v8button2.has_value() || v8cb.IsEmpty() || !v8cb->IsFunction())
         return;
 
-    playerComponent->m_dialogCallback.Reset(info.GetIsolate(), v8cb.As<v8::Function>());
+    playerComponent->m_dialogCallback[info.GetIsolate()].Reset(info.GetIsolate(), v8cb.As<v8::Function>());
 
     playerDialogData->show(*playerComponent->m_player, 0, (DialogStyle)v8dialogStyle.value(), v8title.value(), v8body.value(), v8button1.value(), v8button2.value());
 }
