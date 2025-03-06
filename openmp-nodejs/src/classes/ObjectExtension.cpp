@@ -73,53 +73,6 @@ void ObjectExtension::stop(const v8::FunctionCallbackInfo<v8::Value>& info)
     objectComponent->m_object->stop();
 }
 
-void ObjectExtension::isStreamedInForPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    auto objectComponent = (ObjectExtension*)info.Data().As<v8::External>()->Value();
-
-    if (!Utils::CheckExtensionExist<ObjectExtension>(info.GetIsolate(), objectComponent)) return;
-
-    auto object = dynamic_cast<IObject*>(objectComponent->m_object);
-    if (!object) return;
-
-    auto playerId = Utils::GetIdFromV8Object(info[0]);
-    if (!playerId.has_value())
-        return;
-
-    auto player = NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value());
-    if (!player)
-        return;
-
-    info.GetReturnValue().Set(object->isStreamedInForPlayer(*player));
-}
-
-void ObjectExtension::setStreamedForPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    auto objectComponent = (ObjectExtension*)info.Data().As<v8::External>()->Value();
-
-    if (!Utils::CheckExtensionExist<ObjectExtension>(info.GetIsolate(), objectComponent)) return;
-
-    auto object = dynamic_cast<IObject*>(objectComponent->m_object);
-    if (!object) return;
-
-    auto playerId = Utils::GetIdFromV8Object(info[0]);
-    if (!playerId.has_value())
-        return;
-
-    auto player = NodejsComponent::getInstance()->getCore()->getPlayers().get(playerId.value());
-    if (!player)
-        return;
-
-    auto v8stream = Utils::GetBooleanFromV8Value(info[1]);
-    if (!v8stream.has_value())
-        return;
-
-    if (v8stream.value())
-        object->streamInForPlayer(*player);
-    else
-        object->streamOutForPlayer(*player);
-}
-
 // ====================== accessors ======================
 
 void ObjectExtension::getId(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -241,34 +194,6 @@ void ObjectExtension::setModel(v8::Local<v8::Name> property, v8::Local<v8::Value
     objectComponent->m_object->setModel(v.value());
 }
 
-void ObjectExtension::getAlwaysStreamedIn(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    auto objectComponent = (ObjectExtension*)info.Data().As<v8::External>()->Value();
-
-    if (!Utils::CheckExtensionExist<ObjectExtension>(info.GetIsolate(), objectComponent)) return;
-
-    auto object = dynamic_cast<IObject*>(objectComponent->m_object);
-    if (!object) return;
-
-    info.GetReturnValue().Set(object->isAlwaysStreamedIn());
-}
-
-void ObjectExtension::setAlwaysStreamedIn(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-    auto objectComponent = (ObjectExtension*)info.Data().As<v8::External>()->Value();
-
-    if (!Utils::CheckExtensionExist<ObjectExtension>(info.GetIsolate(), objectComponent)) return;
-
-    auto object = dynamic_cast<IObject*>(objectComponent->m_object);
-    if (!object) return;
-
-    auto v = Utils::GetBooleanFromV8Value(value);
-    if (!v.has_value())
-        return;
-
-    object->setAlwaysStreamedIn(v.value());
-}
-
 v8::Local<v8::Object> ObjectExtension::CreateJavaScriptObject()
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -282,12 +207,6 @@ v8::Local<v8::Object> ObjectExtension::CreateJavaScriptObject()
     SET_FUNCTION("move", move);
     SET_FUNCTION("stop", stop);
 
-    if (dynamic_cast<IObject*>(m_object))
-    {
-        SET_FUNCTION("isStreamedInForPlayer", isStreamedInForPlayer);
-        SET_FUNCTION("setStreamedForPlayer", setStreamedForPlayer);
-    }
-
 #define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
 #define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
 
@@ -297,11 +216,6 @@ v8::Local<v8::Object> ObjectExtension::CreateJavaScriptObject()
     SET_ACCESSOR_WITH_SETTER("virtualWorld", getVirtualWorld, setVirtualWorld);
     SET_ACCESSOR_WITH_SETTER("drawDistance", getDrawDistance, setDrawDistance);
     SET_ACCESSOR_WITH_SETTER("model", getModel, setModel);
-
-    if (dynamic_cast<IObject*>(m_object))
-    {
-        SET_ACCESSOR_WITH_SETTER("alwaysStreamedIn", getAlwaysStreamedIn, setAlwaysStreamedIn);
-    }
 
     return v8obj;
 }
