@@ -14,6 +14,7 @@
 #include <Server/Components/TextDraws/textdraws.hpp>
 #include <Server/Components/Objects/objects.hpp>
 #include <Server/Components/CustomModels/custommodels.hpp>
+#include <Server/Components/Pawn/pawn.hpp>
 #include <sdk.hpp>
 
 #define PRINTLN(x, ...) \
@@ -32,6 +33,8 @@ private:
 
     ICore* m_core = nullptr;
 
+    bool m_loaded = false;
+
     IClassesComponent*      m_classes         = nullptr;
     IVehiclesComponent*     m_vehicles        = nullptr;
     IPickupsComponent*      m_pickups         = nullptr;
@@ -41,6 +44,7 @@ private:
     ITextDrawsComponent*    m_textdraws       = nullptr;
     IObjectsComponent*      m_objects         = nullptr;
     ICustomModelsComponent* m_customModels    = nullptr;
+    IPawnComponent*         m_pawn            = nullptr;
     ResourceManager*        m_resourceManager = nullptr;
 
 public:
@@ -63,6 +67,7 @@ public:
     IDialogsComponent*   getDialogs();
     ITextDrawsComponent* getTextDraws();
     IObjectsComponent*   getObjects();
+    IPawnComponent*      getPawn();
     ResourceManager*     getResourceManager();
 
     static NodejsComponent* getInstance();

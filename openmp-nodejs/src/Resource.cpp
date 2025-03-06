@@ -12,6 +12,7 @@
 #include "classes/MenuExtension.hpp"
 #include "classes/TextdrawExtension.hpp"
 #include "classes/ObjectExtension.hpp"
+#include "classes/PawnExtension.hpp"
 
 #include "bootstrapjs.hpp"
 
@@ -108,6 +109,7 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
         MenuExtension::InitFunctions(this);
         TextDrawExtension::InitFunctions(this);
         ObjectExtension::InitFunctions(this);
+        PawnExtension::InitFunctions(this);
     }
 
     // parse package json

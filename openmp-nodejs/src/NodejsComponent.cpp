@@ -56,9 +56,7 @@ void NodejsComponent::onInit(IComponentList* components)
     m_textdraws    = components->queryComponent<ITextDrawsComponent>();
     m_objects      = components->queryComponent<IObjectsComponent>();
     m_customModels = components->queryComponent<ICustomModelsComponent>();
-
-    m_resourceManager = queryExtension<ResourceManager>(this);
-    m_resourceManager->LoadResourcesFromPath("resources");
+    m_pawn         = components->queryComponent<IPawnComponent>();
 
     addExtension(new ClassEventsExtension(m_core, m_classes, m_resourceManager), true);
     addExtension(new PlayerEventsExtension(m_core, m_resourceManager), true);
@@ -83,6 +81,14 @@ void NodejsComponent::reset()
 
 void NodejsComponent::onTick(std::chrono::microseconds elapsed, std::chrono::steady_clock::time_point now)
 {
+    if (!m_loaded)
+    {
+        m_resourceManager = queryExtension<ResourceManager>(this);
+        m_resourceManager->LoadResourcesFromPath("resources");
+
+        m_loaded = true;
+    }
+
     m_resourceManager->Tick();
 }
 
@@ -124,6 +130,11 @@ ITextDrawsComponent* NodejsComponent::getTextDraws()
 IObjectsComponent* NodejsComponent::getObjects()
 {
     return m_objects;
+}
+
+IPawnComponent* NodejsComponent::getPawn()
+{
+    return m_pawn;
 }
 
 ResourceManager* NodejsComponent::getResourceManager()

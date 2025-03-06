@@ -337,6 +337,48 @@ std::optional<WeaponSlots> Utils::GetWeaponSlotsDataFromV8Object(v8::MaybeLocal<
     return weaponSlots;
 }
 
+void Utils::v8PawnCall(int idx, cell& ret, IPawnScript* script, const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    cell amx_addr = script->GetHEA();
+
+    int err {};
+    for (int i = 1; i < info.Length(); i++)
+    {
+        if (info[i]->IsString())
+        {
+            err = script->PushString(nullptr, nullptr, Utils::strV8(info[i]).value(), false, false);
+        }
+        else if (info[i]->IsBoolean())
+        {
+            err = script->PushOne(Utils::GetBooleanFromV8Value(info[i]).value());
+        }
+        else if (info[i]->IsInt32())
+        {
+            err = script->PushOne(Utils::GetIntegerFromV8Value(info[i]).value());
+        }
+        else if (info[i]->IsNumber())
+        {
+            err = script->PushOne(Utils::GetDoubleFromV8Value(info[i]).value());
+        }
+
+        if (err != AMX_ERR_NONE)
+        {
+            break;
+        }
+    }
+
+    if (err == AMX_ERR_NONE)
+        err = script->Exec(&ret, idx);
+
+    if (err != AMX_ERR_NONE)
+        script->PrintError(err);
+
+    // Release everything at once.  Technically all that `Release` does is reset the heap back
+    // to where it was before the call to any memory-allocating functions.  You could do that
+    // for every allocating parameter in reverse order, or just do it once for all of them together.
+    script->Release(amx_addr);
+}
+
 void Utils::PrintWavyUnderline(int start, int length)
 {
     LOGLN(LogLevel::Error, "{}{}", std::string(start, ' ').c_str(), std::string(length, '^').c_str());

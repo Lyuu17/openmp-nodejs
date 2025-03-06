@@ -1,0 +1,3 @@
+[submodule "dependencies/pawn"]
+	path = dependencies/pawn
+	url = https://github.com/openmultiplayer/compiler.git
