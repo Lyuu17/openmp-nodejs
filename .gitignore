@@ -4,6 +4,7 @@
 !.vscode/settings.json
 bin/*
 build/*
-dependencies/node
+dependencies/node/*
+!dependencies/node/.gitkeep
 
 CMakeSettings.json
