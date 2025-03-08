@@ -5,6 +5,7 @@ set(SOURCES
     "src/events/DialogEventsExtension.cpp"
     "src/events/MenuEventsExtension.cpp"
     "src/events/ObjectEventsExtension.cpp"
+    "src/events/PawnEventsExtension.cpp"
     "src/events/PickupEventsExtension.cpp"
     "src/events/PlayerEventsExtension.cpp"
     "src/events/TextDrawEventsExtension.cpp"

@@ -14,6 +14,7 @@
 #include "events/TextdrawEventsExtension.hpp"
 #include "events/ObjectEventsExtension.hpp"
 #include "events/CustomModelEventsExtension.hpp"
+#include "events/PawnEventsExtension.hpp"
 
 #include "ResourceManager.hpp"
 
@@ -68,6 +69,7 @@ void NodejsComponent::onInit(IComponentList* components)
     addExtension(new TextDrawEventsExtension(m_core, m_textdraws, m_resourceManager), true);
     addExtension(new ObjectEventsExtension(m_core, m_objects, m_resourceManager), true);
     addExtension(new CustomModelEventsExtension(m_core, m_customModels, m_resourceManager), true);
+    addExtension(new PawnEventsExtension(m_core, m_pawn, m_resourceManager), true);
 }
 
 void NodejsComponent::free()
