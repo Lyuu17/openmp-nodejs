@@ -16,6 +16,11 @@ void PawnExtension::callPublicFunction(const v8::FunctionCallbackInfo<v8::Value>
     if (!pawnComponent) return;
 
     auto name = Utils::strV8(info[0]);
+    auto args = Utils::strV8(info[1]);
+
+    if (!args.has_value()) args = "";
+
+    if (!name.has_value()) return;
 
     auto mainScript = pawnComponent->mainScript();
     if (mainScript)
@@ -24,7 +29,7 @@ void PawnExtension::callPublicFunction(const v8::FunctionCallbackInfo<v8::Value>
         cell ret = DefaultReturnValue_False;
         if (!mainScript->FindPublic(name.value().c_str(), &idx))
         {
-            Utils::v8PawnCall(idx, ret, mainScript, info);
+            Utils::v8PawnCall(idx, ret, mainScript, args.value(), info);
 
             info.GetReturnValue().Set(ret);
             return;
@@ -38,7 +43,7 @@ void PawnExtension::callPublicFunction(const v8::FunctionCallbackInfo<v8::Value>
         cell ret = DefaultReturnValue_False;
         if (!sideScript->FindPublic(name.value().c_str(), &idx))
         {
-            Utils::v8PawnCall(idx, ret, sideScript, info);
+            Utils::v8PawnCall(idx, ret, sideScript, args.value(), info);
 
             info.GetReturnValue().Set(ret);
             return;
@@ -52,6 +57,11 @@ void PawnExtension::callNativeFunction(const v8::FunctionCallbackInfo<v8::Value>
     if (!pawnComponent) return;
 
     auto name = Utils::strV8(info[0]);
+    auto args = Utils::strV8(info[1]);
+
+    if (!args.has_value()) args = "";
+
+    if (!name.has_value()) return;
 
     auto mainScript = pawnComponent->mainScript();
     if (mainScript)
@@ -61,7 +71,7 @@ void PawnExtension::callNativeFunction(const v8::FunctionCallbackInfo<v8::Value>
         cell ret = DefaultReturnValue_False;
         if (!mainScript->FindNative(name.value().c_str(), &idx))
         {
-            Utils::v8PawnCall(idx, ret, mainScript, info);
+            Utils::v8PawnCall(idx, ret, mainScript, args.value(), info);
 
             info.GetReturnValue().Set(ret);
             return;
@@ -75,7 +85,7 @@ void PawnExtension::callNativeFunction(const v8::FunctionCallbackInfo<v8::Value>
         cell ret = DefaultReturnValue_False;
         if (!sideScript->FindNative(name.value().c_str(), &idx))
         {
-            Utils::v8PawnCall(idx, ret, sideScript, info);
+            Utils::v8PawnCall(idx, ret, sideScript, args.value(), info);
 
             info.GetReturnValue().Set(ret);
             return;

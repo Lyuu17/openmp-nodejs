@@ -59,6 +59,9 @@ void NodejsComponent::onInit(IComponentList* components)
     m_customModels = components->queryComponent<ICustomModelsComponent>();
     m_pawn         = components->queryComponent<IPawnComponent>();
 
+    m_resourceManager = queryExtension<ResourceManager>(this);
+    m_resourceManager->LoadResourcesFromPath("resources");
+
     addExtension(new ClassEventsExtension(m_core, m_classes, m_resourceManager), true);
     addExtension(new PlayerEventsExtension(m_core, m_resourceManager), true);
     addExtension(new VehicleEventsExtension(m_core, m_vehicles, m_resourceManager), true);
@@ -83,14 +86,6 @@ void NodejsComponent::reset()
 
 void NodejsComponent::onTick(std::chrono::microseconds elapsed, std::chrono::steady_clock::time_point now)
 {
-    if (!m_loaded)
-    {
-        m_resourceManager = queryExtension<ResourceManager>(this);
-        m_resourceManager->LoadResourcesFromPath("resources");
-
-        m_loaded = true;
-    }
-
     m_resourceManager->Tick();
 }
 

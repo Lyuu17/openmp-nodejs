@@ -33,8 +33,6 @@ private:
 
     ICore* m_core = nullptr;
 
-    bool m_loaded = false;
-
     IClassesComponent*      m_classes         = nullptr;
     IVehiclesComponent*     m_vehicles        = nullptr;
     IPickupsComponent*      m_pickups         = nullptr;

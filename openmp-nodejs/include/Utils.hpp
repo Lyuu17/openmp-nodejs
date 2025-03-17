@@ -33,7 +33,7 @@ namespace Utils
 
     std::optional<WeaponSlots> GetWeaponSlotsDataFromV8Object(v8::MaybeLocal<v8::Value> val);
 
-    void v8PawnCall(int idx, cell& ret, IPawnScript* script, const v8::FunctionCallbackInfo<v8::Value>& info);
+    void v8PawnCall(int idx, cell& ret, IPawnScript* script, const std::string& args, const v8::FunctionCallbackInfo<v8::Value>& info);
 
     void PrintWavyUnderline(int start, int length);
     int  CountLeadingSpaces(const char* str, int length);

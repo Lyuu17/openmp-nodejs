@@ -337,12 +337,12 @@ std::optional<WeaponSlots> Utils::GetWeaponSlotsDataFromV8Object(v8::MaybeLocal<
     return weaponSlots;
 }
 
-void Utils::v8PawnCall(int idx, cell& ret, IPawnScript* script, const v8::FunctionCallbackInfo<v8::Value>& info)
+void Utils::v8PawnCall(int idx, cell& ret, IPawnScript* script, const std::string& args, const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     cell amx_addr = script->GetHEA();
 
     int err {};
-    for (int i = 1; i < info.Length(); i++)
+    for (int i = 2, arg = 0; i < info.Length() && arg < args.size(); i++, arg++)
     {
         if (info[i]->IsString())
         {
@@ -352,11 +352,11 @@ void Utils::v8PawnCall(int idx, cell& ret, IPawnScript* script, const v8::Functi
         {
             err = script->PushOne(Utils::GetBooleanFromV8Value(info[i]).value());
         }
-        else if (info[i]->IsInt32())
+        else if (args[arg] == 'i')
         {
             err = script->PushOne(Utils::GetIntegerFromV8Value(info[i]).value());
         }
-        else if (info[i]->IsNumber())
+        else if (args[arg] == 'f' || args[arg] == 'd')
         {
             err = script->PushOne(Utils::GetDoubleFromV8Value(info[i]).value());
         }
