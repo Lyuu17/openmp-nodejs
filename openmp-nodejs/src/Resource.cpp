@@ -14,6 +14,8 @@
 #include "classes/ObjectExtension.hpp"
 #include "classes/PawnExtension.hpp"
 
+#include "modules/streamer/StreamerModule.hpp"
+
 #include "bootstrapjs.hpp"
 
 Resource::Resource(node::MultiIsolatePlatform* platform, const std::filesystem::path& folderPath, const std::string& folderName, const std::string& packageJsonBuf)
@@ -110,6 +112,8 @@ void Resource::Start(node::MultiIsolatePlatform* platform, node::Environment* pa
         TextDrawExtension::InitFunctions(this);
         ObjectExtension::InitFunctions(this);
         PawnExtension::InitFunctions(this);
+
+        StreamerModule::InitFunctions(this);
     }
 
     // parse package json

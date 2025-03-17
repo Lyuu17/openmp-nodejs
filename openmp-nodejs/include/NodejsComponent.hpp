@@ -17,6 +17,8 @@
 #include <Server/Components/Pawn/pawn.hpp>
 #include <sdk.hpp>
 
+#include <StreamerComponent.hpp>
+
 #define PRINTLN(x, ...) \
     NodejsComponent::getInstance()->getCore()->printLn(std::format(x, __VA_ARGS__).c_str());
 
@@ -43,6 +45,7 @@ private:
     IObjectsComponent*      m_objects         = nullptr;
     ICustomModelsComponent* m_customModels    = nullptr;
     IPawnComponent*         m_pawn            = nullptr;
+    IOmpStreamerComponent*  m_streamer        = nullptr;
     ResourceManager*        m_resourceManager = nullptr;
 
 public:
@@ -57,16 +60,17 @@ public:
     void reset() override;
     void onTick(std::chrono::microseconds elapsed, std::chrono::steady_clock::time_point now) override;
 
-    ICore*               getCore();
-    IClassesComponent*   getClasses();
-    IVehiclesComponent*  getVehicles();
-    IPickupsComponent*   getPickups();
-    IMenusComponent*     getMenus();
-    IDialogsComponent*   getDialogs();
-    ITextDrawsComponent* getTextDraws();
-    IObjectsComponent*   getObjects();
-    IPawnComponent*      getPawn();
-    ResourceManager*     getResourceManager();
+    ICore*                 getCore();
+    IClassesComponent*     getClasses();
+    IVehiclesComponent*    getVehicles();
+    IPickupsComponent*     getPickups();
+    IMenusComponent*       getMenus();
+    IDialogsComponent*     getDialogs();
+    ITextDrawsComponent*   getTextDraws();
+    IObjectsComponent*     getObjects();
+    IPawnComponent*        getPawn();
+    IOmpStreamerComponent* getStreamer();
+    ResourceManager*       getResourceManager();
 
     static NodejsComponent* getInstance();
 };

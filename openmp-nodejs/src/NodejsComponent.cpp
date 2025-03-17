@@ -58,6 +58,7 @@ void NodejsComponent::onInit(IComponentList* components)
     m_objects      = components->queryComponent<IObjectsComponent>();
     m_customModels = components->queryComponent<ICustomModelsComponent>();
     m_pawn         = components->queryComponent<IPawnComponent>();
+    m_streamer     = components->queryComponent<IOmpStreamerComponent>();
 
     m_resourceManager = queryExtension<ResourceManager>(this);
     m_resourceManager->LoadResourcesFromPath("resources");
@@ -132,6 +133,11 @@ IObjectsComponent* NodejsComponent::getObjects()
 IPawnComponent* NodejsComponent::getPawn()
 {
     return m_pawn;
+}
+
+IOmpStreamerComponent* NodejsComponent::getStreamer()
+{
+    return m_streamer;
 }
 
 ResourceManager* NodejsComponent::getResourceManager()

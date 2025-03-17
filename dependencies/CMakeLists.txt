@@ -2,6 +2,7 @@
 add_subdirectory(json)
 add_subdirectory(open.mp-sdk)
 add_subdirectory(node)
+add_subdirectory(samp-streamer-plugin)
 
 # PAWN runtime
 # ------------

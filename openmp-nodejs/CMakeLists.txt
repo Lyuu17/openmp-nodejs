@@ -19,6 +19,8 @@ set(SOURCES
     "src/classes/PlayerExtension.cpp"
     "src/classes/TextDrawExtension.cpp"
     "src/classes/VehicleExtension.cpp"
+    "src/modules/streamer/StreamerModule.cpp"
+    "src/modules/streamer/StreamerObjectExtension.cpp"
     "src/CommonFunctions.cpp"
     "src/main.cpp"
     "src/NodejsComponent.cpp"
@@ -30,7 +32,7 @@ set(SOURCES
 
 add_library(openmp-nodejs SHARED ${SOURCES})
 target_include_directories(openmp-nodejs PRIVATE include)
-target_link_libraries(openmp-nodejs PRIVATE OMP-SDK node nlohmann_json::nlohmann_json pawn-runtime)
+target_link_libraries(openmp-nodejs PRIVATE OMP-SDK node nlohmann_json::nlohmann_json pawn-runtime samp-streamer-plugin)
 set_target_properties(openmp-nodejs PROPERTIES PREFIX "")
 
 if ((MSVC) AND (MSVC_VERSION GREATER_EQUAL 1914))
