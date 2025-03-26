@@ -7,6 +7,7 @@
 #include "ResourceManager.hpp"
 #include "Utils.hpp"
 #include "NodejsComponent.hpp"
+#include "V8Class.hpp"
 
 #define ENSURE_OBJECT_HAS_EXTENSION(obj, ext)                                                        \
     if (!queryExtension<ext>(obj))                                                                   \
@@ -109,18 +110,18 @@ v8::Local<v8::Object> StreamerObjectExtension::CreateJavaScriptObject()
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
 
-    auto v8obj = v8::Object::New(isolate);
+    auto v8class = V8Class<StreamerObjectExtension>::NewClass("Dynamic Object");
 
-#define SET_FUNCTION(f, func) v8obj->Set(context, Utils::v8Str(f), v8::Function::New(context, func).ToLocalChecked());
+#define SET_FUNCTION(f, func) v8class->Set(context, Utils::v8Str(f), v8::Function::New(context, func).ToLocalChecked());
 
     SET_FUNCTION("destroy", destroy);
 
-#define SET_ACCESSOR(f, getter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
-#define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8obj->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
+#define SET_ACCESSOR(f, getter) v8class->SetNativeDataProperty(context, Utils::v8Str(f), getter, nullptr, v8::External::New(isolate, this));
+#define SET_ACCESSOR_WITH_SETTER(f, getter, setter) v8class->SetNativeDataProperty(context, Utils::v8Str(f), getter, setter, v8::External::New(isolate, this));
 
     SET_ACCESSOR("id", getId);
     SET_ACCESSOR_WITH_SETTER("position", getPosition, setPosition);
     SET_ACCESSOR_WITH_SETTER("rotation", getRotation, setRotation);
 
-    return v8obj;
+    return v8class.get();
 }

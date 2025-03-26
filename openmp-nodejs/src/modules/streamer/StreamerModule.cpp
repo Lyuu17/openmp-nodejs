@@ -4,6 +4,7 @@
 #include "modules/streamer/StreamerModule.hpp"
 #include "modules/streamer/StreamerObjectExtension.hpp"
 
+#include "V8Class.hpp"
 #include "Resource.hpp"
 #include "ResourceManager.hpp"
 #include "Utils.hpp"
@@ -85,14 +86,14 @@ v8::Local<v8::Object> StreamerModule::CreateJavaScriptObject(Resource* resource)
     auto isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetCurrentContext();
 
-    auto v8obj = v8::Object::New(isolate);
+    auto v8class = V8Class<StreamerModule>::NewClass("Streamer Module");
 
-#define SET_FUNCTION(f, func) v8obj->Set(context, Utils::v8Str(f), v8::Function::New(context, func, v8::External::New(isolate, resource)).ToLocalChecked());
+#define SET_FUNCTION(f, func) v8class->Set(context, Utils::v8Str(f), v8::Function::New(context, func, v8::External::New(isolate, resource)).ToLocalChecked());
 
     SET_FUNCTION("getDynamicObject", getDynamicObject);
     SET_FUNCTION("createDynamicObject", createDynamicObject);
 
-    return v8obj;
+    return v8class.get();
 }
 
 void StreamerModule::InitFunctions(Resource* resource)

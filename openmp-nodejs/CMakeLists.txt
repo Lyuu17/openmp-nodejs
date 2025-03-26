@@ -20,6 +20,7 @@ set(SOURCES
     "src/classes/TextDrawExtension.cpp"
     "src/classes/VehicleExtension.cpp"
     "src/modules/streamer/StreamerModule.cpp"
+    "src/modules/streamer/StreamerModuleEvents.cpp"
     "src/modules/streamer/StreamerObjectExtension.cpp"
     "src/CommonFunctions.cpp"
     "src/main.cpp"

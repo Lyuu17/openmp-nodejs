@@ -16,6 +16,8 @@
 #include "events/CustomModelEventsExtension.hpp"
 #include "events/PawnEventsExtension.hpp"
 
+#include "modules/streamer/StreamerModuleEvents.hpp"
+
 #include "ResourceManager.hpp"
 
 NodejsComponent* NodejsComponent::m_instance = nullptr;
@@ -74,6 +76,7 @@ void NodejsComponent::onInit(IComponentList* components)
     addExtension(new ObjectEventsExtension(m_core, m_objects, m_resourceManager), true);
     addExtension(new CustomModelEventsExtension(m_core, m_customModels, m_resourceManager), true);
     addExtension(new PawnEventsExtension(m_core, m_pawn, m_resourceManager), true);
+    addExtension(new StreamerModuleEvents(m_core, m_streamer, m_resourceManager), true);
 }
 
 void NodejsComponent::free()
