@@ -112,7 +112,7 @@ v8::Local<v8::Object> StreamerObjectExtension::CreateJavaScriptObject()
 
     auto v8class = V8Class<StreamerObjectExtension>::NewClass("Dynamic Object");
 
-#define SET_FUNCTION(f, func) v8class->Set(context, Utils::v8Str(f), v8::Function::New(context, func).ToLocalChecked());
+#define SET_FUNCTION(f, func) v8class->Set(context, Utils::v8Str(f), v8::Function::New(context, func, v8::External::New(isolate, this)).ToLocalChecked());
 
     SET_FUNCTION("destroy", destroy);
 
