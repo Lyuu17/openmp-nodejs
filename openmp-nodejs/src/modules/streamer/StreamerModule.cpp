@@ -81,6 +81,41 @@ void StreamerModule::createDynamicObject(const v8::FunctionCallbackInfo<v8::Valu
     info.GetReturnValue().Set(resource->ObjectFromExtension(objExt));
 }
 
+void StreamerModule::update(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto resource = (Resource*)info.Data().As<v8::External>()->Value();
+
+    auto streamerComponent = NodejsComponent::getInstance()->getStreamer();
+    if (!streamerComponent) return;
+
+    auto playerId = Utils::GetIdFromV8Object(info[0]);
+    auto type     = Utils::GetIntegerFromV8Value(info[1]);
+
+    if (!playerId.has_value() || !type.has_value()) return;
+
+    info.GetReturnValue().Set(streamerComponent->update(playerId.value(), (StreamerItemType)type.value()));
+}
+
+void StreamerModule::updateEx(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    auto resource = (Resource*)info.Data().As<v8::External>()->Value();
+
+    auto streamerComponent = NodejsComponent::getInstance()->getStreamer();
+    if (!streamerComponent) return;
+
+    auto playerId        = Utils::GetIdFromV8Object(info[0]);
+    auto type            = Utils::GetIntegerFromV8Value(info[1]);
+    auto pos             = Utils::vector3V8(info[2]);
+    auto worldId         = Utils::GetIntegerFromV8Value(info[3]);
+    auto interiorId      = Utils::GetIntegerFromV8Value(info[4]);
+    auto compensatedTime = Utils::GetIntegerFromV8Value(info[5]);
+    auto freezePlayer    = Utils::GetBooleanFromV8Value(info[6]);
+
+    if (!playerId.has_value() || !pos.has_value() || !type.has_value()) return;
+
+    info.GetReturnValue().Set(streamerComponent->updateEx(playerId.value(), pos.value(), worldId.value_or(-1), interiorId.value_or(-1), (StreamerItemType)type.value(), compensatedTime.value_or(-1), freezePlayer.value_or(false)));
+}
+
 v8::Local<v8::Object> StreamerModule::CreateJavaScriptObject(Resource* resource)
 {
     auto isolate = v8::Isolate::GetCurrent();
@@ -92,6 +127,8 @@ v8::Local<v8::Object> StreamerModule::CreateJavaScriptObject(Resource* resource)
 
     SET_FUNCTION("getDynamicObject", getDynamicObject);
     SET_FUNCTION("createDynamicObject", createDynamicObject);
+    SET_FUNCTION("update", update);
+    SET_FUNCTION("updateEx", updateEx);
 
     return v8class.get();
 }
